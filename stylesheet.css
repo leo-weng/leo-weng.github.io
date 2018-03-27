@@ -52,17 +52,19 @@ body {
 }
 
 .column.left {
+    margin-left: 20%;
     float: right;
     width: 20%;
 }
 .column.right {
+    margin-right: 20%;
     float: left;
     width: 20%;
 }
 
 .column.middle {
     float: left;
-    width: 40%;
+    width: 20%;
 }
 
 @media screen and (max-width: 600px) {
@@ -71,12 +73,16 @@ body {
     }
 }
 
-.profile {
-    height: 450px;
+.block {
+    background-color: $f1f1f1;
+    padding-left: 20%;
+    padding-right: 20%;
+
 }
 
 .subheading {
     font-family: 'IBM Plex Serif', serif;
+    width: 90%;
 }
 
 .info {
@@ -92,5 +98,6 @@ body {
     width: 40%;
 }
 .info.text {
+    font-family: 'IBM Plex Sans', sans-serif;
     width: 50%;
 }
