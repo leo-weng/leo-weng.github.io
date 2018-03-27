@@ -69,7 +69,7 @@ body {
 .rightcolumn {
     padding-right: 10px;
     width: 40%;
-    margin-right: 0;
+    margin-left: 40%;
 }
 
 @media screen and (max-width: 600px) {
