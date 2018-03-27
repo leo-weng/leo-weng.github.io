@@ -7,6 +7,7 @@
 }
 
 body {
+    padding: 10px 50px;
     font-family: 'IBM Plex Sans', sans-serif;
 }
 
@@ -52,11 +53,11 @@ body {
 }
 
 .column.side {
-    width: 24%;
+    width: 20%;
 }
 
 .column.middle {
-    width: 50%;
+    width: 40%;
 }
 
 @media screen and (max-width: 600px) {
