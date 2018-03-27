@@ -48,15 +48,20 @@ body {
 }
 
 .column {
-    float: left;
     padding: 5px;
 }
 
-.column.side {
+.column.left {
+    float: right;
+    width: 20%;
+}
+.column.right {
+    float: left;
     width: 20%;
 }
 
 .column.middle {
+    float: left;
     width: 40%;
 }
 
@@ -77,6 +82,11 @@ body {
 .info {
     float: left;
     padding: 5px;
+}
+.info:after {
+    content: "";
+    display: table;
+    clear: both;
 }
 .info.logo {
     width: 40%;
