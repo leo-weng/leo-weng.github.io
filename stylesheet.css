@@ -10,17 +10,17 @@
 
 h1 {
     font-family: 'IBM Plex Serif', serif;
-    font-size: 24px;
+    font-size:30px;
 }
 h2 {
     font-family: 'IBM Plex Serif', serif;
-    font-size: 18px;
+    font-size: 24px;
 }
 body {
     background-color: #f1f1f1;
     padding: 10px 50px;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .clearfix::after {
@@ -60,16 +60,14 @@ body {
 }
 
 .column {
-    padding: 20%, 20%;
+    padding: 15%, 15%;
 }
 
 .column.left {
-    margin-left: 15%;
     width: 20%;
     text-align: right;
 }
 .column.right {
-    margin-right: 15%;
     width: 20%;
 }
 
