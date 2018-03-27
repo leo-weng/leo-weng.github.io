@@ -7,16 +7,19 @@
     padding: 30px 0px;
 }
 
-.h1 {
+.header.h1 {
     font-family: 'IBM Plex Serif', serif;
     font-size: 16px;
 }
-.h2 {
+
+h1 {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 16px;
+}
+h2 {
     font-family: 'IBM Plex Serif', serif;
     font-size: 14px;
 }
-
-
 body {
     background-color: #f1f1f1;
     padding: 10px 50px;
@@ -109,4 +112,10 @@ body {
 .info.text {
     font-family: 'IBM Plex Sans', sans-serif;
     width: 50%;
+}
+
+.contact {
+    padding-left: 30%;
+    padding-right: 30%;
+    text-align: center;
 }
