@@ -31,7 +31,7 @@ body {
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-
+    width: 33.3%
 }
 
 /* Links - change color on hover */
@@ -57,6 +57,12 @@ body {
 
 .column.middle {
     width: 50%;
+}
+
+@media screen and (max-width: 600px) {
+    .column {
+        width: 100%;
+    }
 }
 
 .profile {
