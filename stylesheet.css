@@ -65,13 +65,13 @@ body {
     float: left;
     padding-left: 10px;
     width: 40%;
-    margin-right: 0;
+    /* margin-right: 0; */
 }
 .rightcolumn {
     float: left;
     padding-right: 10px;
     width: 40%;
-    margin-left: 40%;
+    /* margin-left: 40%; */
 }
 .column {
     margin-left: 40%;
@@ -118,14 +118,13 @@ body {
     clear: both;
 }
 .info.logo {
-    width: 30%;
+    width: 15%;
     height: auto;
     float: left;
 }
 .info.text {
     font-family: 'IBM Plex Sans', sans-serif;
     width: 40%;
-    margin-left: 30%;
     overflow: auto;
     float: left;
 }
