@@ -34,6 +34,12 @@
     color: black;
 }
 
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
 .column.side {
     width: 25%;
 }
