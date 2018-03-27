@@ -53,18 +53,15 @@ body {
 
 .column.left {
     margin-left: 20%;
-    float: left;
     width: 20%;
     text-align: right;
 }
 .column.right {
     margin-right: 20%;
-    float: left;
     width: 20%;
 }
 
 .column.middle {
-    float: left;
     width: 20%;
 }
 
@@ -82,19 +79,17 @@ body {
 }
 
 .subheading {
-    font-family: 'IBM Plex Serif', serif;
     width: 90%;
+}
+
+.subheading.h1 {
+    font-family: 'IBM Plex Serif', serif;
 }
 
 .info {
     float: left;
-    padding: 5px;
-    width: 90%;
-}
-.info:after {
-    content: "";
-    display: table;
-    clear: both;
+    padding: 20px;
+    margin-top: 20px;
 }
 .info.logo {
     width: 40%;
