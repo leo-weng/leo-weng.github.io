@@ -65,17 +65,26 @@ body {
     float: left;
     padding-left: 10px;
     width: 40%;
-    /* margin-right: 0; */
 }
 .rightcolumn {
     float: left;
     padding-right: 10px;
     width: 40%;
-    /* margin-left: 40%; */
 }
 .column {
     margin-left: 40%;
     margin-right: 40%;
+}
+
+.sidecolumn {
+    float: left;
+    padding-left: 10px;
+    width: 30%;
+}
+.middlecolumn {
+    float: left;
+    padding-left: 10px;
+    width: 35%;
 }
 
 @media screen and (max-width: 600px) {
