@@ -1,7 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif');
+
 .header {
     background-color: #F1F1F1;
     text-align: center;
     padding: 20px;
+}
+
+body {
+    font-family: 'IBM Plex Sans', sans-serif;
 }
 
 .clearfix::after {
@@ -54,5 +60,9 @@
 }
 
 .profile {
-    height: 200px;
+    height: 450px;
+}
+
+.subheading {
+    font-family: 'IBM Plex Serif', serif;
 }
