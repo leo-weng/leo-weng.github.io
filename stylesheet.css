@@ -3,7 +3,7 @@
 .header {
     background-color: #F1F1F1;
     text-align: center;
-    padding: 20px;
+    padding: 30px;
 }
 
 body {
@@ -32,7 +32,7 @@ body {
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-    width: 33.3%
+    width: 30%
 }
 
 /* Links - change color on hover */
