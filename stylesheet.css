@@ -60,21 +60,15 @@ body {
     clear: both;
 }
 
-.column {
-    padding-left: 5%;
-    padding-right: 5%;
-}
 
-.column.left {
-    width: 20%;
+.leftcolumn {
+    padding-left: 10%;
+    width: 40%;
     text-align: right;
 }
-.column.right {
-    width: 20%;
-}
-
-.column.middle {
-    width: 20%;
+.rightcolumn {
+    padding-right: 10%;
+    width: 40%;
 }
 
 @media screen and (max-width: 600px) {
@@ -97,7 +91,7 @@ body {
 .button {
     display: block;
     background-color: #763626;
-    color: #90AFC5;
+    color: white;
     padding: 10px;
     text-align: center;
     border-radius: 5px;
@@ -109,8 +103,14 @@ body {
     padding-left: 10%;
     margin-top: 20px;
 }
+.info:after {
+    content: "";
+    display: table;
+    clear: both;
+}
 .info.logo {
     width: 30%;
+    height: auto;
 }
 .info.text {
     font-family: 'IBM Plex Sans', sans-serif;
