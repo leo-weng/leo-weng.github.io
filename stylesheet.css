@@ -79,14 +79,14 @@ body {
     }
 }
 
-p.category {
+li.category {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 20px;
     font-weight: bold;
     padding-top: 5px;
     text-align: right;
 }
-p.detail {
+li.detail {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 20px;
     padding-bottom: 5px;
