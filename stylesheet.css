@@ -120,9 +120,9 @@ li.detail {
 
 .info {
     float: left;
-    padding-left: 10%;
-    margin-top: 20px;
-    width: 800px;
+    /* padding-left: 10%; */
+    /* margin-top: 20px; */
+    width: 100%;
 }
 .info:after {
     content: "";
@@ -132,21 +132,19 @@ li.detail {
 
 .info.logo {
     float: left;
-    width: 10%;
+    width: 15%;
 }
 .info.logo img {
-    /* max-width: 15%; */
-    width: 150px;
+    max-width: 15%;
     height: auto;
     /* object-fit: contain; */
-    vertical-align: middle;
-    margin: auto;
-    display: block;
+    /* vertical-align: middle; */
+    /* margin: auto;
+    display: block; */
 }
 .info.text {
-    width: 500px;
-    float: left;
-    /* width: 60%; */
+    float: right;
+    width: 75%;
 }
 
 .contact {
