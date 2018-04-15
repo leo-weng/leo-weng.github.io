@@ -129,6 +129,13 @@ div.info:after {
     clear: both;
 }
 
+div.info:nth-of-type(even) {
+    background-color: black;
+}
+
+div.info:nth-of-type(odd) {
+    background-color: white;
+}
 
 div.logo {
     float: left;
@@ -139,13 +146,14 @@ div.logo img {
     max-width: 100%;
     object-fit: contain;
     vertical-align: middle;
-    margin: auto;
+    margin: auto;1
     display: inline-block;
 }
 
 div.text {
     float: right;
     width: 80%;
+    padding-left: 5%;
 }
 
 .contact {
