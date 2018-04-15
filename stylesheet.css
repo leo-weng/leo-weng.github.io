@@ -120,7 +120,7 @@ li.detail {
 
 .info {
     float: left;
-    padding-left: 10%;
+    padding-left: 5%;
     /* margin-top: 20px; */
 }
 .info:after {
@@ -131,12 +131,12 @@ li.detail {
 
 
 .info.logo {
+    float: left;
     width: 20%;
-    height: auto;
-    object-fit: contain;
+    /* object-fit: contain; */
     vertical-align: middle;
-    margin: auto;
-    display: inline-block;
+    /* margin: auto; */
+    /* display: inline-block; */
 }
 
 .info.text {
