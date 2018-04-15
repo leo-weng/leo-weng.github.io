@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif');
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif|Arvo');
 
 .header {
     background-color: #2A3132;
@@ -13,7 +13,7 @@ h1 {
     font-size:30px;
 }
 h2 {
-    font-family: 'IBM Plex Serif', serif;
+    font-family: 'Arvo', serif;
     font-size: 24px;
 }
 body {
