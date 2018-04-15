@@ -137,7 +137,7 @@ li.detail {
     object-fit: contain;
     vertical-align: middle;
     /* margin: auto; */
-    display: block;
+    display: inline-block;
 }
 .info.text {
     float: right;
