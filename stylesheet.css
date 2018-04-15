@@ -118,12 +118,12 @@ li.detail {
 }
 
 
-.info {
+div.info {
     float: left;
     padding-left: 5%;
     /* margin-top: 20px; */
 }
-.info:after {
+div.info:after {
     content: "";
     display: table;
     clear: both;
@@ -141,7 +141,7 @@ div.logo {
 
 div.text {
     float: right;
-    width: 70%;
+    width: 80%;
 }
 
 .contact {
