@@ -133,10 +133,13 @@ div.info:after {
 div.logo {
     float: left;
     width: 20%;
-    /* object-fit: contain; */
+}
+
+div.logo img {
+    object-fit: contain;
     vertical-align: middle;
-    /* margin: auto; */
-    /* display: inline-block; */
+    margin: auto;
+    display: inline-block;
 }
 
 div.text {
