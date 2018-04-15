@@ -29,6 +29,11 @@ body {
     margin-right: 10%;
 }
 
+p.quick {
+    background-color: black;
+    color: white;
+}
+
 .clearfix::after {
     content: "";
     clear: both;
@@ -156,6 +161,7 @@ div.logo img {
     vertical-align: middle;
     margin: auto;
     display: inline-block;
+    padding: 0, 0;
 }
 
 div.text {
