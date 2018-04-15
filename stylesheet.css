@@ -134,11 +134,11 @@ div.info:after {
     clear: both;
 }
 
-div.info.bg:nth-of-type(even){
+.bg:nth-of-type(even){
     background-color: #f1f1f1;
 }
 
-div.info.bg:nth-of-type(odd){
+.bg:nth-of-type(odd){
     background-color: #90AFC5;
 }
 
