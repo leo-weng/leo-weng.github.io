@@ -130,7 +130,7 @@ li.detail {
 }
 
 
-.info.logo {
+div.logo {
     float: left;
     width: 20%;
     /* object-fit: contain; */
@@ -139,7 +139,7 @@ li.detail {
     /* display: inline-block; */
 }
 
-.info.text {
+div.text {
     float: right;
     width: 70%;
 }
