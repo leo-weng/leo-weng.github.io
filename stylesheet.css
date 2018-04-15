@@ -148,6 +148,7 @@ li.detail {
     max-width: 20%;
     height: auto;
     object-fit: contain;
+    display: table-cell;
     /* margin: auto;
     display: block; */
 }
