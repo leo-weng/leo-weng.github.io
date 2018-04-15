@@ -126,6 +126,7 @@ li.detail {
 div.info {
     float: left;
     padding-left: 5%;
+    padding-right: 0;
     margin-top: 20px;
 }
 div.info:after {
@@ -134,11 +135,11 @@ div.info:after {
     clear: both;
 }
 
-.bg:nth-of-type(even){
+div.info:nth-of-type(even){
     background-color: #f1f1f1;
 }
 
-.bg:nth-of-type(odd){
+div.info:nth-of-type(odd){
     background-color: #90AFC5;
 }
 
