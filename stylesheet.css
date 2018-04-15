@@ -122,6 +122,7 @@ li.detail {
     float: left;
     padding-left: 10%;
     margin-top: 20px;
+    width: 500px;
 }
 .info:after {
     content: "";
@@ -134,7 +135,8 @@ li.detail {
     width: 10%;
 }
 .info.logo img {
-    max-width: 15%;
+    /* max-width: 15%; */
+    width: 150px;
     height: auto;
     /* object-fit: contain; */
     vertical-align: middle;
@@ -142,9 +144,10 @@ li.detail {
     display: block;
 }
 .info.text {
+    width: 300px;
     overflow: auto;
     float: right;
-    width: 60%;
+    /* width: 60%; */
 }
 
 .contact {
