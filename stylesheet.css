@@ -172,6 +172,9 @@ div.text {
 
 ul.links {
     list-style-type: none;
+}
+
+ul.links li {
     display: inline;
 }
 
