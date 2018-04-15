@@ -145,10 +145,11 @@ li.detail {
     width: 20%;
 }
 .info.logo img {
-    max-width: 20%;
+    max-width: 100px;
     height: auto;
-    object-fit: contain;
-    display: block;
+    /* object-fit: contain; */
+    display: table-cell;
+    vertical-align: middle;
     /* margin: auto;
     display: block; */
 }
