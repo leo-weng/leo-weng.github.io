@@ -136,6 +136,7 @@ div.logo {
 }
 
 div.logo img {
+    max-width: 20%;
     object-fit: contain;
     vertical-align: middle;
     margin: auto;
