@@ -170,6 +170,12 @@ div.text {
     padding-left: 5%;
 }
 
+ul.links {
+    list-style-type: none;
+    display: inline;
+}
+
+
 .contact {
     padding-left: 30%;
     padding-right: 30%;
