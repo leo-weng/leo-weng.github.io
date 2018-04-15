@@ -129,13 +129,14 @@ div.info:after {
     clear: both;
 }
 
-div.info:nth-of-type(even) {
+div.info span:nth-of-type(even) {
     background-color: #f1f1f1;
 }
 
-div.info:nth-of-type(odd) {
+div.info span:nth-of-type(odd) {
     background-color: #90AFC5;
 }
+
 
 div.logo {
     float: left;
