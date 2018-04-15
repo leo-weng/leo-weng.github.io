@@ -129,11 +129,11 @@ div.info:after {
     clear: both;
 }
 
-div.info span:nth-of-type(even) {
+div.info:nth-of-type(even) span{
     background-color: #f1f1f1;
 }
 
-div.info span:nth-of-type(odd) {
+div.info:nth-of-type(odd) span{
     background-color: #90AFC5;
 }
 
