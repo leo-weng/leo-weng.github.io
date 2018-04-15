@@ -130,7 +130,7 @@ div.info:after {
 }
 
 div.info:nth-of-type(even) {
-    background-color: #2A3132;
+    background-color: #f1f1f1;
 }
 
 div.info:nth-of-type(odd) {
