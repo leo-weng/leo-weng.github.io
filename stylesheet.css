@@ -7,6 +7,9 @@
     padding: 30px 0px;
 }
 
+.header.home-button {
+    color: #f1f1f1;
+}
 
 h1 {
     font-family: 'Arvo', serif;
@@ -55,6 +58,8 @@ body {
     background-color: #336B87;
     color: white;
 }
+
+
 
 .row:after {
     content: "";
@@ -129,11 +134,11 @@ div.info:after {
     clear: both;
 }
 
-div.info:nth-of-type(even) span{
+div.info.bg:nth-of-type(even){
     background-color: #f1f1f1;
 }
 
-div.info:nth-of-type(odd) span{
+div.info.bg:nth-of-type(odd){
     background-color: #90AFC5;
 }
 
@@ -141,13 +146,14 @@ div.info:nth-of-type(odd) span{
 div.logo {
     float: left;
     width: 20%;
+    vertical-align: middle;
 }
 
 div.logo img {
     max-width: 100%;
     object-fit: contain;
     vertical-align: middle;
-    margin: auto;1
+    margin: auto;
     display: inline-block;
 }
 
