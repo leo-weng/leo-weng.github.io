@@ -130,17 +130,14 @@ li.detail {
     clear: both;
 }
 
+
 .info.logo {
-    float: left;
     width: 15%;
-}
-.info.logo img {
-    max-width: 15%;
     height: auto;
-    /* object-fit: contain; */
-    /* vertical-align: middle; */
-    /* margin: auto;
-    display: block; */
+    object-fit: contain;
+    vertical-align: middle;
+    /* margin: auto; */
+    display: block;
 }
 .info.text {
     float: right;
