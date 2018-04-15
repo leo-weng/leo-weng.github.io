@@ -121,7 +121,7 @@ li.detail {
 div.info {
     float: left;
     padding-left: 5%;
-    /* margin-top: 20px; */
+    margin-top: 20px;
 }
 div.info:after {
     content: "";
@@ -130,11 +130,11 @@ div.info:after {
 }
 
 div.info:nth-of-type(even) {
-    background-color: black;
+    background-color: #2A3132;
 }
 
 div.info:nth-of-type(odd) {
-    background-color: white;
+    background-color: #90AFC5;
 }
 
 div.logo {
@@ -152,7 +152,7 @@ div.logo img {
 
 div.text {
     float: right;
-    width: 80%;
+    width: 75%;
     padding-left: 5%;
 }
 
