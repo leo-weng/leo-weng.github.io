@@ -145,7 +145,7 @@ li.detail {
 }
 .info.text {
     width: 500px;
-    float: right;
+    float: left;
     /* width: 60%; */
 }
 
