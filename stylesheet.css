@@ -130,21 +130,23 @@ li.detail {
 }
 .logo {
     /* height: auto; */
-    float: left;
+
     /* padding-left: 10px; */
 }
 
 .text {
     /* font-family: 'Lato', sans-serif;*/
-    overflow: auto;
-    float: right;
+
     /* padding-left: 5%; */
 }
 
 .info.logo {
+    float: left;
     width: 20%;
 }
 .info.text {
+    overflow: auto;
+    float: right;
     width: 70%;
 }
 
