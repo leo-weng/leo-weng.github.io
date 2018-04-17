@@ -1,14 +1,25 @@
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif|Arvo|Lato');
 
+:root {
+    --color-text: white;
+    --color-bg: #0B0C10;
+    --color-panel1: #1F2833;
+    --color-panel2: #C5C6C7;
+    --color-accent1: #66FCF1;
+    --color-accent2: #45A29E;
+}
+
+
 .header {
-    background-color: #2A3132;
-    color: white;
+    background-color: var(--color-bg);
+    color: var(--color-text);
     text-align: center;
     padding: 30px 0px;
 }
 
 .home-button {
-    color: #f1f1f1;
+    color: var(--color-text);
+    text-decoration: none;
 }
 
 h1 {
@@ -20,8 +31,8 @@ h2 {
     font-size: 24px;
 }
 body {
-    background-color: #90AFC5;
-    color: #2A3132;
+    background-color: var(--color-bg);
+    color: var(--color-text);
     padding: 10px 50px;
     font-family: 'Lato', sans-serif;
     font-size: 20px;
@@ -37,7 +48,6 @@ p.quick {
     text-align: center;
     border-radius: 5px;
     width: auto;
-    margin-top: 10px;
     margin-right: 10px;
     float: left;
 }
@@ -45,6 +55,7 @@ p.quick {
 p.quick:after {
     content: "";
     clear: both;
+    display: table;
 }
 
 .clearfix::after {
@@ -55,7 +66,7 @@ p.quick:after {
 
 .navbar {
     overflow: hidden;
-    background-color: #f1f1f1;
+    background-color: var(--color-panel1);
 }
 
 /* Navbar links */
@@ -64,7 +75,7 @@ p.quick:after {
     /* display: block; */
     display: flex;
     justify-content: space-between;
-    color: #336B87;
+    color: var(--color-text);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -73,8 +84,8 @@ p.quick:after {
 
 /* Links - change color on hover */
 .navbar a:hover {
-    background-color: #336B87;
-    color: white;
+    background-color: var(--color-panel1);
+    color: var(--color-text);
 }
 
 
@@ -131,20 +142,22 @@ li.detail {
 
 .button {
     display: block;
-    background-color: #763626;
+    background-color: var(--color-accent1);
     color: white;
     padding: 10px;
     text-align: center;
     border-radius: 5px;
     width: auto;
     margin-top: 10px;
+    float: left;
+    text-decoration: none;
 }
 
 
 div.info {
     float: left;
     padding-left: 5%;
-    padding-right: 0;
+    padding-right: 10%;
     margin-top: 20px;
     width: 100%;
 }
@@ -155,11 +168,11 @@ div.info:after {
 }
 
 div.info:nth-of-type(even){
-    background-color: #f1f1f1;
+    background-color: var(--color-panel1);
 }
 
 div.info:nth-of-type(odd){
-    background-color: #90AFC5;
+    background-color: var(--color-panel2);
 }
 
 
