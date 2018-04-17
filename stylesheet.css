@@ -2,10 +2,10 @@
 
 :root {
     --color-text: white;
-    --color-bg: #0B0C10;
-    --color-panel1: #1F2833;
-    --color-panel2: #C5C6C7;
-    --color-accent1: #66FCF1;
+    --color-bg: #A8D0E6;
+    --color-panel1: #F76C6C;
+    --color-panel2: #24305E;
+    --color-accent1: #F8E9A1;
     --color-accent2: #45A29E;
 }
 
@@ -66,7 +66,7 @@ p.quick:after {
 
 .navbar {
     overflow: hidden;
-    background-color: var(--color-panel1);
+    background-color: var(--color-panel2);
 }
 
 /* Navbar links */
