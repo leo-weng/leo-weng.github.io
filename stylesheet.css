@@ -1,24 +1,25 @@
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif|Arvo|Lato');
 
 :root {
-    --color-text: black;
-    --color-bg: #EFEFEF;
-    --color-panel1: #CAEBF2;
-    --color-panel2: #A9A9A9;
-    --color-accent1: #FF3B3F;
+    --color-text1: black;
+    --color-text2: white;
+    --color-bg: #EFEFEF;        /* neutral */
+    --color-panel1: #CAEBF2;    /* sky */
+    --color-panel2: #A9A9A9;    /* carbon */
+    --color-accent1: #FF3B3F;   /* watermelon */
     /* --color-accent2: #45A29E; */
 }
 
 
 .header {
-    background-color: var(--color-bg);
-    color: var(--color-text);
+    background-color: var(--color-panel1);
+    color: var(--color-text1);
     text-align: center;
     padding: 30px 0px;
 }
 
 .home-button {
-    color: var(--color-text);
+    color: var(--color-text1);
     text-decoration: none;
 }
 
@@ -32,7 +33,7 @@ h2 {
 }
 body {
     background-color: var(--color-bg);
-    color: var(--color-text);
+    color: var(--color-text1);
     padding: 10px 50px;
     font-family: 'Lato', sans-serif;
     font-size: 20px;
@@ -40,23 +41,6 @@ body {
     margin-right: 10%;
 }
 
-p.quick {
-    display: inline-block;
-    background-color: black;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    width: auto;
-    margin-right: 10px;
-    float: left;
-}
-
-p.quick:after {
-    content: "";
-    clear: both;
-    display: table;
-}
 
 .clearfix::after {
     content: "";
@@ -75,7 +59,7 @@ p.quick:after {
     /* display: block; */
     display: flex;
     justify-content: space-between;
-    color: var(--color-text);
+    color: var(--color-text1);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -84,10 +68,27 @@ p.quick:after {
 
 /* Links - change color on hover */
 .navbar a:hover {
-    background-color: var(--color-panel1);
-    color: var(--color-text);
+    background-color: var(--color-accent1);
+    color: var(--color-text2);
 }
 
+p.quick {
+    display: inline-block;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    width: auto;
+    margin-right: 10px;
+    float: left;
+}
+
+p.quick:after {
+    content: "";
+    clear: both;
+    display: block;
+}
 
 
 .row:after {
@@ -156,10 +157,11 @@ li.detail {
 
 div.info {
     float: left;
-    padding-left: 5%;
-    padding-right: 10%;
     margin-top: 20px;
-    width: 100%;
+    width: 90%;
+    padding: 10%;
+    border-radius: 25px;
+
 }
 div.info:after {
     content: "";
