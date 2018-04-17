@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif|Arvo|Lato');
 
 :root {
-    --color-text: white;
+    --color-text: black;
     --color-bg: #EFEFEF;
     --color-panel1: #CAEBF2;
     --color-panel2: #A9A9A9;
