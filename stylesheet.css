@@ -2,11 +2,11 @@
 
 :root {
     --color-text: white;
-    --color-bg: #A8D0E6;
-    --color-panel1: #F76C6C;
-    --color-panel2: #24305E;
-    --color-accent1: #F8E9A1;
-    --color-accent2: #45A29E;
+    --color-bg: #EFEFEF;
+    --color-panel1: #CAEBF2;
+    --color-panel2: #A9A9A9;
+    --color-accent1: #FF3B3F;
+    /* --color-accent2: #45A29E; */
 }
 
 
