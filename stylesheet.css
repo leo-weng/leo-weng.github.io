@@ -30,7 +30,7 @@ body {
 }
 
 p.quick {
-    display: block;
+    display: inline-block;
     background-color: black;
     color: white;
     padding: 10px;
@@ -38,6 +38,7 @@ p.quick {
     border-radius: 5px;
     width: auto;
     margin-top: 10px;
+    float: left;
 }
 
 .clearfix::after {
