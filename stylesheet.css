@@ -38,7 +38,13 @@ p.quick {
     border-radius: 5px;
     width: auto;
     margin-top: 10px;
+    margin-right: 10px;
     float: left;
+}
+
+p.quick:after {
+    content: "";
+    clear: both;
 }
 
 .clearfix::after {
@@ -140,6 +146,7 @@ div.info {
     padding-left: 5%;
     padding-right: 0;
     margin-top: 20px;
+    width: 100%;
 }
 div.info:after {
     content: "";
