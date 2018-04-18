@@ -193,13 +193,17 @@ p.quick {
     width: auto;
     margin-right: 10px;
     float: left;
-
 }
 
 p.quick::after {
     content: "";
     clear: both;
     display: block;
+}
+
+div.quick {
+    float: left;
+    width: 100%;
 }
 
 ul.links {
