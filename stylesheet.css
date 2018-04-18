@@ -134,7 +134,7 @@ li.detail {
     text-align: center;
     border-radius: 5px;
     width: auto;
-    margin-top: 10px;
+    margin-right: 10px;
     float: left;
     text-decoration: none;
 }
@@ -197,7 +197,9 @@ p.quick {
     border-width: thin;
     border-style: solid;
     width: auto;
-    margin: 0, 10px, 0, 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 10px;
     float: left;
 }
 
@@ -210,6 +212,7 @@ p.quick::after {
 div.quick {
     float: left;
     width: 100%;
+    margin: 0;
 }
 
 ul.links {
