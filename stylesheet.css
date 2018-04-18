@@ -82,9 +82,16 @@ p.quick {
     width: auto;
     margin-right: 10px;
     float: left;
+
 }
 
 p.quick::after {
+    content: "";
+    clear: both;
+    display: block;
+}
+
+p.before {
     content: "";
     clear: both;
     display: block;
@@ -139,6 +146,7 @@ li.detail {
 
 .subheading {
     width: 90%;
+    margin: 5%, 0, 5%, 5%;
 }
 
 .button {
@@ -158,7 +166,7 @@ li.detail {
 div.info {
     float: left;
     margin-top: 20px;
-    width: 90%;
+    width: 95%;
     padding: 2%;
     border-radius: 25px;
 
