@@ -27,7 +27,6 @@
 h1 {
     font-family: 'Arvo', serif;
     font-size: 24px;
-    margin-left: 10%;
 }
 h2 {
     font-family: 'Arvo', serif;
@@ -124,7 +123,7 @@ li.detail {
 
 .subheading {
     width: 90%;
-    margin: 5%, 0, 5%, 5%;
+    margin: 0, 10%;
 }
 
 .button {
@@ -166,10 +165,10 @@ div.info:nth-of-type(odd){
 
 div.logo {
     float: left;
-    width: 20%;
+    width: 25%;
     vertical-align: middle;
     display: flex;
-    height: 20%;
+    height: 25%;
 }
 
 div.logo img {
@@ -183,17 +182,18 @@ div.logo img {
 
 div.text {
     float: right;
-    width: 75%;
+    width: 70%;
     padding-left: 5%;
 }
 
 p.quick {
     display: inline-block;
-    background-color: var(--color-text1);
-    color: var(--color-text2);
+    background-color: var(--color-text2);
+    color: var(--color-accent1);
     padding: 10px;
     text-align: center;
     border-radius: 5px;
+    border-color: var(--color-accent1);
     width: auto;
     margin-right: 10px;
     float: left;
