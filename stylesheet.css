@@ -197,7 +197,7 @@ p.quick {
     border-width: thin;
     border-style: solid;
     width: auto;
-    margin-right: 10px;
+    margin: 0, 10px, 0, 0;
     float: left;
 }
 
