@@ -84,7 +84,7 @@ p.quick {
     float: left;
 }
 
-p.quick:after {
+p.quick::after {
     content: "";
     clear: both;
     display: block;
