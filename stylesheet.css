@@ -91,12 +91,6 @@ p.quick::after {
     display: block;
 }
 
-p.before {
-    content: "";
-    clear: both;
-    display: block;
-}
-
 
 .row:after {
     content: "";
