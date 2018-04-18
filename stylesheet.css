@@ -166,8 +166,7 @@ div.logo {
     float: left;
     width: 20%;
     vertical-align: middle;
-    display: inline-block;
-    height: 100%;
+    display: flex;
 }
 
 div.logo img {
