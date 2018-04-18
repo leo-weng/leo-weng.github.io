@@ -195,6 +195,7 @@ p.quick {
     border-radius: 5px;
     border-color: var(--color-accent1);
     border-width: thin;
+    border-style: solid;
     width: auto;
     margin-right: 10px;
     float: left;
@@ -217,10 +218,11 @@ ul.links {
 
 ul.links li {
     display: inline;
+    margin-right: 10px;
 }
 
 i {
-    padding-left: 5px;
+    padding-left: 8px;
 }
 .contact {
     padding-left: 30%;
