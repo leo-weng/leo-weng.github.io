@@ -188,12 +188,13 @@ div.text {
 
 p.quick {
     display: inline-block;
-    background-color: var(--color-text2);
+    background-color: inherit;
     color: var(--color-accent1);
     padding: 10px;
     text-align: center;
     border-radius: 5px;
     border-color: var(--color-accent1);
+    border-width: thin;
     width: auto;
     margin-right: 10px;
     float: left;
@@ -218,7 +219,9 @@ ul.links li {
     display: inline;
 }
 
-
+i {
+    padding-left: 5px;
+}
 .contact {
     padding-left: 30%;
     padding-right: 30%;
