@@ -167,6 +167,7 @@ div.logo {
     width: 20%;
     vertical-align: middle;
     display: flex;
+    height: 20%;
 }
 
 div.logo img {
