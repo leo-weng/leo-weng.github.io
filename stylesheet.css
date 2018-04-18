@@ -135,6 +135,7 @@ li.detail {
     text-align: center;
     border-radius: 5px;
     width: auto;
+    margin-left: 0;
     margin-right: 10px;
     float: left;
     text-decoration: none;
@@ -166,7 +167,7 @@ div.info:nth-of-type(odd){
 
 div.logo {
     float: left;
-    width: 25%;
+    width: 20%;
     vertical-align: middle;
     display: flex;
     height: 20%;
@@ -189,14 +190,14 @@ div.text {
 
 p.quick {
     display: inline-block;
-    background-color: inherit;
-    color: var(--color-text2);
+    background-color: var(--color-text2);
+    color: var(--color-accent1);
     padding: 10px;
     text-align: center;
     border-radius: 5px;
-    border-color: var(--color-accent1);
+    /* border-color: var(--color-accent1);
     border-width: thin;
-    border-style: solid;
+    border-style: solid; */
     width: auto;
     margin-top: 0;
     margin-bottom: 0;
