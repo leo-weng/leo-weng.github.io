@@ -92,7 +92,12 @@ body {
     float: left;
     padding-left: 10px;
     width: 35%;
-    margin: 2%, 0;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.middlecolumn img {
+    width: 100%;
+}
 }
 
 @media screen and (max-width: 600px) {
