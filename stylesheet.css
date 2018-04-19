@@ -95,6 +95,7 @@ body {
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    font-family: var(--font-big);
     /* width: 31% */
 }
 
@@ -208,11 +209,11 @@ div.info:after {
 }
 
 div.info:nth-of-type(even){
-    background-color: var(--color-panel1);
+    background-color: var(--color-panel2);
 }
 
 div.info:nth-of-type(odd){
-    background-color: var(--color-panel2);
+    background-color: var(--color-panel1);
 }
 
 
