@@ -1,3 +1,41 @@
+<?php
+    function test_input($data) {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+
+    if(isset($_POST['submit'])){
+        $recipient = "mweng6@gatech.edu";
+        $name = test_input($_POST["name"]);
+        $email = test_input($_POST["email"]);
+        $msg = test_input($_POST["msg"]);
+        $errors = array();
+
+        if (!preg_match('/^[a-z ]+$/i', $name)) {
+            $errors[] = "Invalid name"
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format";
+        }
+        if (preg_match('/^\s*$/', $msg)) {
+            $errors[] = "Your message was blank";
+        }
+
+        $subject = "Email Inquiry from " . $name;
+
+        if (count($errors)) {
+            foreach ($errors as $error) {
+                echo("<p>$error</p>\n");
+            }
+        } else {
+            mail($recipient, $subject, $msg, "From: $name <$email>\r\n Reply-To: $name <$email>\r\n");
+            echo ("<p>Success!</p>\n");
+        }
+    }
+?>
+
 <html>
 <head>
     <title>Projects and Experiences</title>
@@ -16,4 +54,13 @@
     <div class="contact">
         <a href="mailto:mweng6@gatech.edu" class="button" font-size="30px">Email Me!</a>
     </div>
+
+    <div class="contact">
+        <form action="#" method="POST">
+            <input type="text" name="name" size="64" maxlength="64" value="Name" required/>
+            <input type="text" name="email" size="64" maxlength="64" value="Email" required/>
+            <textarea name="msg" rows="10" cols="60" value="Comments" required/>
+            <input type="submit" name="send" value="SEND"/>
+    </div>
+
 </body>
