@@ -2,13 +2,13 @@
 
 
 :root {
-    /* --color-text1: black;
-    --color-text2: white; */
-    /*--color-bg: #EFEFEF;        /* neutral */
-    /*--color-panel1: #CAEBF2;    /* sky */
-    /*--color-panel2: #A9A9A9;    /* carbon */
-    /*--color-accent1: #FF3B3F;   /* watermelon */
-    /* --color-accent2: #45A29E; */
+    --color-text1: black;
+    --color-text2: white;
+    --color-bg: #CAEBF2;        /* neutral */
+    --color-panel1: #EFEFEF;    /* sky */
+    --color-panel2: #A9A9A9;    /* carbon */
+    --color-accent1: #FF3B3F;   /* watermelon */
+     --color-accent2: #45A29E; */
 
     /* --color-text1: white;
     --color-text2: black; */
@@ -24,13 +24,13 @@
     /*--color-panel2: #558b2f;    /* lime */
     /*--color-accent1: #ffd54f;   /* yellow */
 
-    --color-text1: white;
-    --color-text2: black;
-    --color-bg: #37474f;        /* blue gray */
-    --color-panel1: #33691e;    /* cyan */
-    --color-panel2: #558b2f;    /* lime */
-    --color-accent1: #ffd54f;   /* yellow */
-    --color-accent2: #ffe082;
+    /* --color-text1: white;
+    --color-text2: black; */
+    /*--color-bg: #37474f;        /* blue gray */
+    /*--color-panel1: #33691e;    /* cyan */
+    /*--color-panel2: #558b2f;    /* lime */
+    /*--color-accent1: #ffd54f;   /* yellow */
+    /*--color-accent2: #ffe082;
 }
 
 
