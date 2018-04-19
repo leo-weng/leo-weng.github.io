@@ -30,7 +30,7 @@
     --color-panel1: #33691e;    /* cyan */
     --color-panel2: #558b2f;    /* lime */
     --color-accent1: #ffd54f;   /* yellow */
-    --color-accent2: #00bcd4;
+    --color-accent2: #ffe082;
 }
 
 
@@ -234,7 +234,7 @@ div.text {
 p.quick {
     display: inline-block;
     background-color: var(--color-accent2);
-    color: var(--color-accent1);
+    color: var(--color-text2);
     padding: 10px;
     text-align: center;
     border-radius: 5px;
