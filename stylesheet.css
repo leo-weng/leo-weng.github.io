@@ -31,6 +31,8 @@
     /*--color-panel2: #558b2f;    /* lime */
     /*--color-accent1: #ffd54f;   /* yellow */
     /*--color-accent2: #ffe082;*/
+
+    --font-big: 'Arvo', serif;
 }
 
 
@@ -47,9 +49,14 @@
 }
 
 h1 {
-    font-family: 'Arvo', serif;
+    font-family: var(--font-big);
     font-size: 24px;
 }
+h1.main {
+    font-family: var(--font-big);
+    font-size: 36px;
+}
+
 h2 {
     font-family: 'Arvo', serif;
     font-size: 20px;
