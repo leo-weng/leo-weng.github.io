@@ -10,12 +10,19 @@
     /*--color-accent1: #FF3B3F;   /* watermelon */
     /* --color-accent2: #45A29E; */
 
+    /* --color-text1: white;
+    --color-text2: black; */
+    /*--color-bg: #252839;        /* dark purple */
+    /*--color-panel1: #677077;    /* dark gray */
+    /*--color-panel2: #b5b5b7;    /* light gray */
+    /*--color-accent1: #f2b632;   /* yellow */
+
     --color-text1: white;
     --color-text2: black;
-    --color-bg: #252839;        /* dark purple */
-    --color-panel1: #677077;    /* dark gray */
-    --color-panel2: #b5b5b7;    /* light gray */
-    --color-accent1: #f2b632;   /* yellow */
+    --color-bg: #37474f;        /* blue gray */
+    --color-panel1: #00bcd4;    /* cyan */
+    --color-panel2: #558b2f;    /* lime */
+    --color-accent1: #d32f2f;   /* red */
 }
 
 
@@ -134,7 +141,6 @@ li.detail {
     font-size: 16px;
     padding-left: 12%;
     padding-right: 12%;
-
 }
 
 .subheading {
