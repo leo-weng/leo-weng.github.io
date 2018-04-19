@@ -53,7 +53,7 @@ h1 {
     font-family: var(--font-big);
     font-size: 24px;
 }
-h1.title {
+h1.main {
     font-family: var(--font-big);
     font-size: 36px;
 }
