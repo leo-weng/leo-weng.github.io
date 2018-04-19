@@ -142,6 +142,20 @@ li.detail {
     text-decoration: none;
 }
 
+.contact-button {
+    display: block;
+    font-size: 30px;
+    background-color: var(--color-accent1);
+    color: var(--color-text2);
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    width: auto;
+    margin: 5%;
+    float: left;
+    text-decoration: none;
+}
+
 
 div.info {
     float: left;
