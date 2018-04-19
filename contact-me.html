@@ -27,11 +27,11 @@
 
         if (count($errors)) {
             foreach ($errors as $error) {
-                echo("<p>$error</p>\n");
+                echo "<p>$error</p>\n";
             }
         } else {
             mail($recipient, $subject, $msg, "From: $name <$email>\r\n Reply-To: $name <$email>\r\n");
-            echo ("<p>Success!</p>\n");
+            echo "<p>Success!</p>\n";
         }
     }
 ?>
