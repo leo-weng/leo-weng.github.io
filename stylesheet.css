@@ -237,6 +237,7 @@ div.logo img {
 }
 
 div.text {
+    color: var(--color-text1);
     float: right;
     width: 70%;
     padding-left: 2%;
