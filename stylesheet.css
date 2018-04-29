@@ -3,7 +3,7 @@
 
 :root {
     --color-text1: black;
-    --color-text2: white;
+    --color-text2: #EFEFEF;
     /*--color-bg: #CAEBF2;        /* neutral */
     --color-bg: #283593;        /* dark-blue */
     --color-panel1: #EFEFEF;    /* light gray */
