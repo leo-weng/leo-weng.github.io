@@ -4,9 +4,9 @@
 :root {
     --color-text1: black;
     --color-text2: white;
-    --color-bg: #CAEBF2;        /* neutral */
-    /*--color-panel1: #EFEFEF;    /* sky */
-    --color-panel1: #283593;    /* dark blue */
+    /*--color-bg: #CAEBF2;        /* neutral */
+    --color-bg: #283593;        /* dark-blue */
+    --color-panel1: #EFEFEF;    /* light gray */
     --color-panel2: #A9A9A9;    /* carbon */
     --color-accent1: #FF3B3F;   /* watermelon */
      --color-accent2: #45A29E;
