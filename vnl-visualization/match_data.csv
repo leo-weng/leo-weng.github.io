@@ -1,0 +1,121 @@
+date,win_country,loss_country,win_score,loss_score,win_player,win_kills,loss_player,loss_kills
+25/05/2018,USA,ARG,3,2,Benjamin Patch,27,Pablo Crer,18
+25/05/2018,POL,KOR,3,0,Artur Szalpuk,15,Jae-Duck Seo,9
+25/05/2018,JPN,AUS,3,1,Haku Ri,19,Nehemiah Mote,16
+25/05/2018,ITA,GER,3,1,Ivan Zaytsev,20,Simon Hirsch,14
+25/05/2018,RUS,CAN,3,0,Egor Kliuka,16,Bradley Robert Gunter,15
+25/05/2018,BUL,CHN,3,2,Rozalin Penchev,15,Chuan Jiang,18
+25/05/2018,FRA,IRI,3,1,Earvin Ngapeth,20,Amir Ghafour,17
+25/05/2018,BRA,SRB,3,0,Wallace De Souza,17,Aleksandar Atanasijevic,15
+26/05/2018,USA,BUL,3,1,Taylor Sander,17,Nikolay Uchikov,14
+26/05/2018,POL,RUS,3,0,Michal Kubiak,20,Dmitriy Muserskiy,17
+26/05/2018,ITA,BRA,3,2,Ivan Zaytsev,32,Mauricio Borges Almeida Silva,14
+26/05/2018,IRI,AUS,3,0,Ali Shafiei,15,Lincoln Alexander Williams,19
+26/05/2018,CAN,KOR,3,0,Stephen Timothy Maar,12,Jiseok Jung,10
+26/05/2018,SRB,GER,3,1,Drazen Luburic,22,David Sossenheimer,11
+26/05/2018,CHN,ARG,3,0,Chuan Jiang,23,Tomas Lopez,11
+26/05/2018,FRA,JPN,3,1,Kevin Tillie,16,Yuji Nishida,15
+27/05/2018,JPN,IRI,3,1,Yuji Nishida,21,Amir Ghafour,24
+27/05/2018,BUL,ARG,3,1,Nikolay Uchikov,26,Agustín Loser,12
+27/05/2018,POL,CAN,3,1,Damian Schulz,17,Stephen Timothy Maar,12
+27/05/2018,BRA,GER,3,0,Wallace De Souza,17,Christian Fromm,17
+27/05/2018,FRA,AUS,3,0,Stephen Boyer,20,Lincoln Alexander Williams,11
+27/05/2018,RUS,KOR,3,0,Dmitriy Muserskiy,12,Jae-Duck Seo,16
+27/05/2018,ITA,SRB,3,0,Ivan Zaytsev,17,Aleksandar Atanasijevic,8
+27/05/2018,USA,CHN,3,0,Taylor Sander,18,Chuan Jiang,15
+01/06/2018,USA,JPN,3,2,Benjamin Patch,18,Tatsuya Fukuzawa,16
+01/06/2018,BRA,KOR,3,0,Isac Santos,13,Jae-Duck Seo,9
+01/06/2018,POL,FRA,3,0,Michal Kubiak,12,Stephen Boyer,13
+01/06/2018,RUS,AUS,3,1,Egor Kliuka,20,Lincoln Alexander Williams,23
+01/06/2018,CAN,ITA,3,1,Graham Vigrass,17,Ivan Zaytsev,17
+01/06/2018,GER,CHN,3,1,Christian Fromm,22,Chuan Jiang,24
+01/06/2018,SRB,BUL,3,2,Drazen Luburic,21,Nikolay Uchikov,20
+01/06/2018,IRI,ARG,3,2,Milad Ebadipour Ghara H.,18,Facundo Conte,21
+02/06/2018,BRA,JPN,3,0,Wallace De Souza,16,Issei Otake,12
+02/06/2018,USA,KOR,3,0,Jake Langlois,15,Seung-Suk Kwak,6
+02/06/2018,POL,CHN,3,0,Artur Szalpuk,14,Chuan Jiang,18
+02/06/2018,SRB,RUS,3,2,Drazen Luburic,32,Dmitriy Muserskiy,27
+02/06/2018,ITA,IRI,3,0,Ivan Zaytsev,17,Milad Ebadipour Ghara H.,12
+02/06/2018,FRA,GER,3,0,Thibault Rossard,9,Simon Hirsch,9
+02/06/2018,AUS,BUL,3,0,Lincoln Alexander Williams,15,Nikolay Penchev,10
+02/06/2018,CAN,ARG,3,1,Stephen Timothy Maar,22,Facundo Conte,20
+03/06/2018,JPN,KOR,3,2,Tatsuya Fukuzawa,20,Jiseok Jung,19
+03/06/2018,BRA,USA,3,2,Wallace De Souza,21,Matthew Anderson,25
+03/06/2018,GER,POL,3,1,Simon Hirsch,13,Michal Kubiak,21
+03/06/2018,CAN,IRI,3,1,Ryan Joseph Sclater,26,Amir Ghafour,21
+03/06/2018,SRB,AUS,3,2,Dusan Petkovic,19,Max Staples,17
+03/06/2018,CHN,FRA,3,2,Chuan Jiang,37,Kevin Tillie,17
+03/06/2018,ARG,ITA,3,0,Facundo Conte,15,Ivan Zaytsev,18
+03/06/2018,RUS,BUL,3,0,Egor Kliuka,16,Nikolay Uchikov,10
+08/06/2018,POL,ITA,3,2,Artur Szalpuk,24,Gabriele Nelli,27
+08/06/2018,IRI,CHN,3,0,Amir Ghafour,17,Chuan Jiang,14
+08/06/2018,GER,USA,3,0,Moritz Reichert,12,Jake Langlois,12
+08/06/2018,SRB,ARG,3,1,Drazen Luburic,20,Cristian Poglajen,17
+08/06/2018,BRA,RUS,3,1,Wallace De Souza,21,Konstantin Bakun,20
+08/06/2018,CAN,AUS,3,0,Stephen Timothy Maar,18,Paul Carroll,14
+08/06/2018,FRA,KOR,3,0,Jean Patry,11,Jiseok Jung,11
+09/06/2018,ITA,BUL,3,1,Filippo Lanza,20,Nikolay Uchikov,19
+09/06/2018,USA,AUS,3,1,Matthew Anderson,21,Thomas Hodges,13
+09/06/2018,BRA,IRI,3,2,Douglas Souza,22,Saber Kazemi,15
+09/06/2018,FRA,ARG,3,1,Stephen Boyer,16,Martin Ramos,14
+09/06/2018,RUS,CHN,3,0,Anton Karpukhov,21,Jingyin Zhang,13
+09/06/2018,BUL,JPN,3,0,Nikolay Uchikov,19,Yuji Nishida,13
+09/06/2018,GER,CAN,3,1,Simon Hirsch,17,Stephen Timothy Maar,18
+09/06/2018,SRB,KOR,3,0,Aleksandar Atanasijevic,19,Seung-Suk Kwak,10
+10/06/2018,POL,BUL,3,1,Dawid Konarski,18,Rozalin Penchev,15
+10/06/2018,AUS,GER,3,2,Jordan Richards,18,Christian Fromm,21
+10/06/2018,JPN,ITA,3,2,Yuji Nishida,24,Gabriele Nelli,21
+10/06/2018,ARG,KOR,3,0,Cristian Poglajen,13,Sung-Min Moon,20
+10/06/2018,POL,JPN,3,0,Damian Schulz,16,Yuji Nishida,16
+10/06/2018,USA,CAN,3,1,Benjamin Patch,19,Stephen Timothy Maar,14
+10/06/2018,BRA,CHN,3,0,Wallace De Souza,21,Chuan Jiang,13
+10/06/2018,FRA,SRB,3,0,Stephen Boyer,17,Uros Kovacevic,11
+10/06/2018,RUS,IRI,3,1,Dmitriy Muserskiy,24,Ali Shafiei,18
+15/06/2018,CAN,BRA,3,0,Gavin Schmitt,16,Wallace De Souza,19
+15/06/2018,ITA,CHN,3,1,Gabriele Maruotti,17,Chuan Jiang,19
+15/06/2018,IRI,POL,3,0,Milad Ebadipour Ghara H.,13,Damian Schulz,12
+15/06/2018,JPN,GER,3,2,Yuji Nishida,24,Christian Fromm,20
+15/06/2018,FRA,BUL,3,0,Jean Patry,16,Valentin Bratoev,9
+15/06/2018,AUS,KOR,3,1,Paul Carroll,21,Kwang-In Jeon,13
+15/06/2018,USA,SRB,3,0,Aaron Russell,14,Uros Kovacevic,7
+15/06/2018,RUS,ARG,3,0,Ilia Vlasov,13,Martin Ramos,14
+16/06/2018,ITA,KOR,3,2,Gabriele Maruotti,15,Gyeong-Bok Na,16
+16/06/2018,SRB,IRI,3,2,Aleksandar Atanasijevic,32,Milad Ebadipour Ghara H.,21
+16/06/2018,FRA,BRA,3,0,Earvin Ngapeth,16,Wallace De Souza,10
+16/06/2018,GER,ARG,3,1,Simon Hirsch,17,Cristian Poglajen,12
+16/06/2018,AUS,CHN,3,1,Paul Carroll,31,Libin Liu,21
+16/06/2018,BUL,CAN,3,0,Boyan Yordanov,21,Graham Vigrass,16
+16/06/2018,RUS,JPN,3,0,Dmitriy Muserskiy,18,Issei Otake,15
+16/06/2018,USA,POL,3,0,Aaron Russell,14,Bartosz Bednorz,10
+17/06/2018,JPN,ARG,3,2,Masahiro Yanagida,17,Cristian Poglajen,19
+17/06/2018,SRB,POL,3,0,Aleksandar Atanasijevic,20,Bartosz Kurek,17
+17/06/2018,KOR,CHN,3,0,Sung-Min Moon,20,Chuan Jiang,17
+17/06/2018,RUS,GER,3,0,Romanas Shkulyavichus,15,Simon Hirsch,9
+17/06/2018,FRA,CAN,3,2,Jean Patry,20,Nicholas Hoag,22
+17/06/2018,AUS,ITA,3,1,Thomas Hodges,19,Gabriele Maruotti,16
+17/06/2018,USA,IRI,3,0,Matthew Anderson,18,Milad Ebadipour Ghara H.,15
+17/06/2018,BUL,BRA,3,2,Valentin Bratoev,14,Wallace De Souza,22
+22/06/2018,SRB,CAN,3,0,Srecko Lisinac,16,Gavin Schmitt,17
+22/06/2018,GER,BUL,3,2,Moritz Reichert,19,Valentin Bratoev,15
+22/06/2018,FRA,USA,3,2,Stephen Boyer,21,Matthew Anderson,23
+22/06/2018,POL,ARG,3,0,Mateusz Bieniek,16,Cristian Poglajen,14
+22/06/2018,IRI,KOR,3,1,Milad Ebadipour Ghara H.,17,Myung-Geun Song,13
+22/06/2018,CHN,JPN,3,1,Chuan Jiang,26,Yuji Nishida,17
+22/06/2018,RUS,ITA,3,0,Dmitriy Muserskiy,12,Ivan Zaytsev,15
+22/06/2018,BRA,AUS,3,0,Wallace De Souza,16,Paul Carroll,14
+23/06/2018,SRB,JPN,3,1,Srecko Lisinac,17,Issei Otake,19
+23/06/2018,GER,KOR,3,0,Noah Baxpöhler,11,Kwang-In Jeon,14
+23/06/2018,RUS,USA,3,0,Dmitry Volkov,16,Kyle Ensing,15
+23/06/2018,ARG,AUS,3,1,Cristian Poglajen,17,Jordan Richards,15
+23/06/2018,IRI,BUL,3,1,Saman Faezi,16,Rozalin Penchev,16
+23/06/2018,CAN,CHN,3,0,Stephen Timothy Maar,16,Chuan Jiang,12
+23/06/2018,BRA,POL,3,1,Evandro M. Guerra,19,Maciej Muzaj,18
+23/06/2018,ITA,FRA,3,0,Ivan Zaytsev,23,Stephen Boyer,11
+24/06/2018,ARG,BRA,3,0,Bruno Lima,12,Isac Santos,15
+24/06/2018,POL,AUS,3,0,Mateusz Bieniek,11,Paul Carroll,15
+24/06/2018,CAN,JPN,3,0,Graham Vigrass,18,Issei Otake,13
+24/06/2018,BUL,KOR,3,2,Rozalin Penchev,21,Jae-Duck Seo,15
+24/06/2018,FRA,RUS,3,0,Earvin Ngapeth,13,Romanas Shkulyavichus,11
+24/06/2018,IRI,GER,3,2,Milad Ebadipour Ghara H.,23,Simon Hirsch,25
+24/06/2018,SRB,CHN,3,1,Drazen Luburic,28,Chuan Jiang,18
+24/06/2018,USA,ITA,3,0,Matthew Anderson,19,Ivan Zaytsev,12
