@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans|IBM+Plex+Serif|Arvo|Lato|Montserrat');
+
+:root {
+    --color-text1: black;
+    --color-text2: #EFEFEF;
+    /*--color-bg: #CAEBF2;        /* neutral */
+    --color-bg: #01579b;        /* dark-blue */
+    --color-panel1: #EFEFEF;    /* light gray */
+    --color-panel2: #A9A9A9;    /* carbon */
+    --color-accent1: #FF3B3F;   /* watermelon */
+    --color-accent2: #45A29E;
+
+    /* --color-text1: white;
+    --color-text2: black; */
+    /*--color-bg: #252839;        /* dark purple */
+    /*--color-panel1: #677077;    /* dark gray */
+    /*--color-panel2: #b5b5b7;    /* light gray */
+    /*--color-accent1: #f2b632;   /* yellow */
+
+    /* --color-text1: white;
+    --color-text2: black; */
+    /*--color-bg: #37474f;        /* blue gray */
+    /*--color-panel1: #00bcd4;    /* cyan */
+    /*--color-panel2: #558b2f;    /* lime */
+    /*--color-accent1: #ffd54f;   /* yellow */
+
+    /* --color-text1: white;
+    --color-text2: black; */
+    /*--color-bg: #37474f;        /* blue gray */
+    /*--color-panel1: #33691e;    /* cyan */
+    /*--color-panel2: #558b2f;    /* lime */
+    /*--color-accent1: #ffd54f;   /* yellow */
+    /*--color-accent2: #ffe082;*/
+
+    --font-big: 'Montserrat', sans-serif;
+    --font-small: 'Lato', sans-serif;
+}
+h1, h2, h3 {font-family: var(--font-big); }
+
+/* header */
+.header {
+    background-color: var(--color-panel1);
+    color: var(--color-text1);
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.home-button {
+    color: var(--color-text1);
+    text-decoration: none;
+}
+.home-button:hover {
+    color: var(--color-accent1);
+    text-decoration: none;
+}
+
+.navbar {
+    background-color: var(--color-panel2);
+    margin-bottom: 40px;
+}
+.navbar a:hover {
+    background-color: var(--color-accent1);
+    color: var(--color-text2);
+    text-decoration: none;
+}
+
+/* body */
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text2);
+    font-family: var(--font-small);
+}
+
+.info {
+    padding-bottom: 20px;
+}
+.btn-primary {
+    background-color: var(--color-accent1);
+    color: var(--color-text2);
+    border: none;
+}
+a>h3 { margin-bottom: 0px; }
+
+/* about-me */
+.block {
+    padding-top: 40px;
+}
+.category{
+    text-align: right;
+}
+
+/* projects and experiences */
+i { padding-left: 8px; }
+p.quick {
+    display: inline-block;
+    background-color: var(--color-accent2);
+    color: var(--color-text2);
+    text-align: center;
+    border-radius: 5px;
+    padding: 8px;
+    margin-right: 5px;
+    float: left;
+}
+.info {
+    border-radius: 25px;
+    padding: 2vw;
+    margin: 2vw;
+}
+.info:nth-of-type(even){
+    background-color: var(--color-panel1);
+}
+.info:nth-of-type(odd){
+    background-color: var(--color-panel2);
+}
+.text { color: var(--color-text1);}
+.link { padding: 8px; margin-right: 5px; margin-bottom: 5px;}
+
+/* contact */
+.contact { margin-top: 5px; margin-bottom: 5px; }
+
+
+h1 { font-size: 1.65rem;}
+h2 { font-size: 1.40rem;}
+h3 { font-size: 1.15rem;}
+h4 { font-size: 0.9rem;}
+h5 { font-size: 0.65rem;}
+h6 { font-size: 0.4rem;}
+.container-fluid {
+    padding-left: 05vw;
+    padding-right: 05vw;
+}
+@media (min-width: 576px) {
+    h1 { font-size: 1.75rem;}
+    h2 { font-size: 1.5rem;}
+    h3 { font-size: 1.25rem;}
+    h4 { font-size: 1rem;}
+    h5 { font-size: 0.75rem;}
+    h6 { font-size: 0.5rem;}
+    .container-fluid {
+        padding-left: 10vw;
+        padding-right: 10vw;
+    }
+}
+@media (min-width: 768px) {
+    h1 { font-size: 1.75rem;}
+    h2 { font-size: 1.5rem;}
+    h3 { font-size: 1.25rem;}
+    h4 { font-size: 1rem;}
+    h5 { font-size: 0.75rem;}
+    h6 { font-size: 0.5rem;}
+}
+@media (min-width: 992px) {
+    h1 { font-size: 2rem;}
+    h2 { font-size: 1.75rem;}
+    h3 { font-size: 1.5rem;}
+    h4 { font-size: 1.25rem;}
+    h5 { font-size: 1rem;}
+    h6 { font-size: 0.75rem;}
+}
+@media (min-width: 1200px) {
+    h1 { font-size: 2.5rem;}
+    h2 { font-size: 2rem;}
+    h3 { font-size: 1.75rem;}
+    h4 { font-size: 1.5rem;}
+    h5 { font-size: 1.25rem;}
+    h6 { font-size: 1rem;}
+}

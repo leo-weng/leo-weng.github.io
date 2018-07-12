@@ -1,7 +1,7 @@
 <html>
 <head>
-    <title>Projects and Experiences</title>
-    <link rel="stylesheet" href="stylesheet.css" type="text/css">
+    <title>Contact Me</title>
+    <!-- <link rel="stylesheet" href="stylesheet.css" type="text/css"> -->
     <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script> -->
     <script src="jQuery.js"></script>
     <script>
@@ -14,20 +14,33 @@
 
 <body>
     <div id="header"></div>
-    <div class="contact">
-        <ul class="links">
-            <li><a class="contact-button" target="_blank" href="mailto:mweng6@gatech.edu">Email Me<i class="fas fa-envelope"></i></a></li>
-            <li><a class="contact-button" target="_blank" href="https://github.com/leo-weng">Check Out My Github<i class="fab fa-github"></i></a></li>
-            <li><a class="contact-button" target="_blank" href="https://www.linkedin.com/in/leo-weng/">Connect With Me On LinkedIn<i class="fab fa-linkedin"></i></a></li>
-        </ul>
-    </div>
+    <div class='container-fluid'>
+        <div class="row justify-content-center">
+            <div class="col-8 text-center">
+                <a class="btn btn-primary contact" target="_blank" href="mailto:mweng6@gatech.edu"><h3>Email Me<i class="fas fa-envelope"></i></h3></a>
+            </div>
+            <div class="col-8 text-center">
+                <a class="btn btn-primary contact" target="_blank" href="https://github.com/leo-weng"><h3>Check Out My Github<i class="fab fa-github"></i></h3></a>
+            </div>
+            <div class="col-8 text-center">
+                <a class="btn btn-primary contact" target="_blank" href="https://www.linkedin.com/in/leo-weng/"><h3>Connect With Me On LinkedIn<i class="fab fa-linkedin"></i></h3></a>
+            </div>
+        </div>
 
-    <!-- <div class="contact">
-        <form action="contact-form.php" method="POST">
-            <input type="text" name="name" size="64" maxlength="64" value="Name" required/>
-            <input type="text" name="email" size="64" maxlength="64" value="Email" required/>
-            <textarea name="msg" rows="10" cols="60" value="Comments" required></textarea>
-            <input type="submit" name="send" value="SEND"/>
-    </div> -->
+            <!-- <ul class="links">
+                <li><a class="contact-button" target="_blank" href="mailto:mweng6@gatech.edu">Email Me<i class="fas fa-envelope"></i></a></li>
+                <li><a class="contact-button" target="_blank" href="https://github.com/leo-weng">Check Out My Github<i class="fab fa-github"></i></a></li>
+                <li><a class="contact-button" target="_blank" href="https://www.linkedin.com/in/leo-weng/">Connect With Me On LinkedIn<i class="fab fa-linkedin"></i></a></li>
+            </ul> -->
+        </div>
+
+        <!-- <div class="contact">
+            <form action="contact-form.php" method="POST">
+                <input type="text" name="name" size="64" maxlength="64" value="Name" required/>
+                <input type="text" name="email" size="64" maxlength="64" value="Email" required/>
+                <textarea name="msg" rows="10" cols="60" value="Comments" required></textarea>
+                <input type="submit" name="send" value="SEND"/>
+        </div> -->
+    </div>
 
 </body>

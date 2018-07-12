@@ -2,7 +2,7 @@
 <head>
     <!-- 12:13 -->
     <title>About Me</title>
-    <link rel="stylesheet" href="stylesheet.css" type="text/css">
+    <!-- <link rel="stylesheet" href="stylesheet.css" type="text/css"> -->
     <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script> -->
     <script src="jQuery.js"></script>
     <script>
@@ -15,36 +15,40 @@
 
 <body>
     <div id="header"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+                    <h4 class="col-4 category">Full Name</h4>
+                    <h3 class="col-8 detail">Mu-Fan Weng</h3>
+                </div>
+                <div class="row">
+                    <h4 class="col-4 category">Hobbies</h4>
+                    <h3 class="col-8 detail">
+                        Programming<i class="fas fa-code"></i><br>
+                        Music<i class="fas fa-music"></i><br>
+                        Volleyball<i class="fas fa-volleyball-ball"></i>
+                    </h3>
+                </div>
+                <div class="row">
+                    <h4 class="col-4 category">Email</h4>
+                    <h3 class="col-8 detail">mweng6@gatech.edu</h3>
+                </div>
+                <div class="row justify-content-center" style="margin-top:40px;">
+                    <a class="btn btn-primary" target="_blank" href="docs/Leo-Weng-Resume.pdf"><h3>Resume<i class="far fa-file-alt"></i></h3></a>
+                </div>
+            </div>
+            <div class="col-4">
+                <img class="img-fluid" src="images/Profile.jpg" alt="me">
+            </div>
+        </div>
 
-    <div class="row">
-        <div class="sidecolumn" text-align="right">
-            <ul style="list-style-type:none">
-                <li class="category">Full Name: </li>
-                <li class="detail">Mu-Fan Weng</li>
-                <li class="category">Hobbies: </li>
-                <li class="detail">
-                    Programming<i class="fas fa-code"></i><br>
-                    Music<i class="fas fa-music"></i><br>
-                    Volleyball<i class="fas fa-volleyball-ball"></i>
-                </li>
-                <li class="category">Email: </li>
-                <li class="detail">mweng6@gatech.edu</li>
-            </ul>
-        </div>
-        <div class="middlecolumn">
-            <img src="images/Profile.jpg" alt="me">
-        </div>
-        <div class="sidecolumn" margin-top="20px" margin-left="20px">
-            <!-- <h2 class="category" text-align="left">Resume:</h2> -->
-            <a class="button" target="_blank" href="docs/Leo-Weng-Resume.pdf">Resume<i class="far fa-file-alt"></i></a>
+        <div class="row justify-content-center">
+            <div class="col-10 block">
+                <h3>I am a 3rd Year Computer Engineering student at Georgia Tech minoring in Computational Data Analysis.</br>
+                Originally from Taipei, Taiwan, I have lived in the United States for the past seven years.</br>
+                I am an aspiring software engineer, contact me for more info!</h3>
+            </div>
         </div>
     </div>
-
-
-    <div class="block">
-        <h2>I am a 3rd Year Computer Engineering student at Georgia Tech minoring in Computational Data Analysis.
-        Originally from Taipei, Taiwan, I have lived in the United States for the past seven years.
-        I am an aspiring software engineer, contact me for more info!</h2>
-    </div>
-
 </body>
