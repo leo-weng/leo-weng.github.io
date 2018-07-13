@@ -41,8 +41,9 @@ h1, h2, h3 {font-family: var(--font-big); }
 .header {
     background-color: var(--color-panel1);
     color: var(--color-text1);
-    padding-top: 40px;
-    padding-bottom: 40px;
+}
+.header-button {
+    padding: 5px;
 }
 
 .home-button {
@@ -56,7 +57,9 @@ h1, h2, h3 {font-family: var(--font-big); }
 
 .navbar {
     background-color: var(--color-panel2);
-    margin-bottom: 40px;
+}
+.navbar a {
+    color: var(--color-text1);
 }
 .navbar a:hover {
     background-color: var(--color-accent1);
@@ -71,40 +74,28 @@ body {
     font-family: var(--font-small);
 }
 
-.info {
-    padding-bottom: 20px;
-}
 .btn-primary {
     background-color: var(--color-accent1);
     color: var(--color-text2);
     border: none;
 }
-a>h3 { margin-bottom: 0px; }
 
 /* about-me */
-.block {
-    padding-top: 40px;
-}
 .category{
     text-align: right;
 }
 
 /* projects and experiences */
-i { padding-left: 8px; }
 p.quick {
     display: inline-block;
     background-color: var(--color-accent2);
     color: var(--color-text2);
     text-align: center;
-    border-radius: 5px;
-    padding: 8px;
-    margin-right: 5px;
     float: left;
+    border-radius: 5px;
 }
 .info {
     border-radius: 25px;
-    padding: 2vw;
-    margin: 2vw;
 }
 .info:nth-of-type(even){
     background-color: var(--color-panel1);
@@ -112,56 +103,101 @@ p.quick {
 .info:nth-of-type(odd){
     background-color: var(--color-panel2);
 }
-.text { color: var(--color-text1);}
-.link { padding: 8px; margin-right: 5px; margin-bottom: 5px;}
+.text { color: var(--color-text1); }
 
 /* contact */
-.contact { margin-top: 5px; margin-bottom: 5px; }
 
 
+.header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
 h1 { font-size: 1.65rem;}
-h2 { font-size: 1.40rem;}
-h3 { font-size: 1.15rem;}
+h2 { font-size: 1.15rem;}
+h3 { font-size: 0.9rem;}
 h4 { font-size: 0.9rem;}
-h5 { font-size: 0.65rem;}
-h6 { font-size: 0.4rem;}
+h5 { font-size: 0.75rem;}
+h6 { font-size: 0.5rem;}
+p { font-size: 0.75rem; } /*same as h5*/
+a>h5 { font-size: 0.75rem;} /*same as p*/
+.header-button>h2 { font-size: 0.8rem; margin-bottom:0px;}
 .container-fluid {
     padding-left: 05vw;
     padding-right: 05vw;
 }
+.row {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.navbar { margin-bottom: 20px;}
+
+.block { padding-top: 40px; }
+i { padding-left: 8px; }
+.profile {  margin-bottom: 20px;}
+.resume-row { margin-top:20px; }
+p.quick {
+    padding: 5px;
+    margin-right: 5px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+}
+.info {
+    padding: 2vw;
+    margin: 2vw;
+}
+.text { font-size: 0.75rem;}
+.link { padding: 5px; margin-right: 5px; margin-bottom: 5px;}
+a>h5 { margin-bottom: 0px; }
+
+.contact { margin-top: 5px; margin-bottom: 5px; }
+a>h3 { margin-bottom: 0px;}
+
 @media (min-width: 576px) {
     h1 { font-size: 1.75rem;}
     h2 { font-size: 1.5rem;}
     h3 { font-size: 1.25rem;}
-    h4 { font-size: 1rem;}
-    h5 { font-size: 0.75rem;}
-    h6 { font-size: 0.5rem;}
-    .container-fluid {
-        padding-left: 10vw;
-        padding-right: 10vw;
-    }
-}
-@media (min-width: 768px) {
-    h1 { font-size: 1.75rem;}
-    h2 { font-size: 1.5rem;}
-    h3 { font-size: 1.25rem;}
-    h4 { font-size: 1rem;}
-    h5 { font-size: 0.75rem;}
-    h6 { font-size: 0.5rem;}
-}
-@media (min-width: 992px) {
-    h1 { font-size: 2rem;}
-    h2 { font-size: 1.75rem;}
-    h3 { font-size: 1.5rem;}
     h4 { font-size: 1.25rem;}
     h5 { font-size: 1rem;}
     h6 { font-size: 0.75rem;}
+    p { font-size: 1rem;} /*same as h5*/
+    a>h5 { font-size: 1rem;} /*same as p*/
+    .header-button>h2 { font-size: 1.25rem; margin-bottom:5px;}
+
+    .resume-row { margin-top:40px; }
+    .container-fluid {
+        padding-left: 07vw;
+        padding-right: 07vw;
+    }
+    .navbar { margin-bottom: 30px;}
+    p.quick {
+        padding: 8px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    .text { font-size: 0.8rem;}
+    .link { padding: 8px; margin-right: 5px; margin-bottom: 5px;}
+}
+@media (min-width: 768px) {
+    .navbar { margin-bottom: 40px;}
+    .header {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+    .logo { padding-right: 30px;}
+}
+@media (min-width: 992px) {
+    h1 { font-size: 2rem;}
+    h2 { font-size: 1.45rem;}
+    h3 { font-size: 1.25rem;}
+    h4 { font-size: 1.25rem;}
+    h5 { font-size: 1rem;}
+    h6 { font-size: 0.75rem;}
+    .header-button>h2 { font-size: 1.45rem;}
 }
 @media (min-width: 1200px) {
-    h1 { font-size: 2.5rem;}
-    h2 { font-size: 2rem;}
-    h3 { font-size: 1.75rem;}
-    h4 { font-size: 1.5rem;}
-    h5 { font-size: 1.25rem;}
-    h6 { font-size: 1rem;}
+    .container-fluid {
+        padding-left: 09vw;
+        padding-right: 09vw;
+    }
 }
