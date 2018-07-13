@@ -122,8 +122,8 @@ p { font-size: 0.75rem; } /*same as h5*/
 a>h5 { font-size: 0.75rem;} /*same as p*/
 .header-button>h2 { font-size: 0.8rem; margin-bottom:0px;}
 .container-fluid {
-    padding-left: 05vw;
-    padding-right: 05vw;
+    padding-left: 01vw;
+    padding-right: 01vw;
 }
 .row {
     padding-left: 5px;
