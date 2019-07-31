@@ -98,10 +98,10 @@ p.quick {
     border-radius: 25px;
 }
 .info:nth-of-type(even){
-    background-color: var(--color-panel2);
+    background-color: var(--color-panel1);
 }
 .info:nth-of-type(odd){
-    background-color: var(--color-panel1);
+    background-color: var(--color-panel2);
 }
 .text { color: var(--color-text1); }
 
