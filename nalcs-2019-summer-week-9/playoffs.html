@@ -2,6 +2,7 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+
     <title>NA LCS Summer Split Week 9</title>
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 </head>
@@ -17,11 +18,12 @@
         border: solid;
         border-width: 2px;
         padding: 0.5em;
+        text-align: center;
     }
-    td.vs, td.blue_side {
+    .vs, .blue_side {
         border-right: none;
     }
-    td.vs, td.red_side {
+    .vs, .red_side {
         border-left: none;
     }
     input {
@@ -44,6 +46,10 @@
         background-color: yellow;
         border-color: yellow;
     }
+    .team {
+        text-align: left;
+    }
+
 
     @media (min-width: 576px) {
         table, p {
@@ -54,6 +60,13 @@
         }
         .display-4 {
             margin-top: 1em;
+        }
+        img {
+            width: 2em;
+            margin: 0 1em;
+        }
+        .team {
+            font-size: 0.5em;
         }
     }
     @media (min-width: 768px) {
@@ -69,6 +82,13 @@
         .display-4 {
             margin-top: 0.25em;
         }
+        img {
+            width: 2em;
+            margin: 0 1em;
+        }
+        .team {
+            font-size: 1em;
+        }
     }
     @media (min-width: 1200px) {
 
@@ -83,13 +103,13 @@
                     <h2 class="col-12" style='text-align: center; margin: 0.5em 0 0 0;'>Click on team names to pick your winners from each game and click GO</h5>
                 </div>
             </div>
-            <div class="col-xs-4 col-lg-4">
+            <div class="col-xs-4 col-lg-5">
                 <div class="row justify-content-center">
                     <h2 class="col-12 display-4" style='text-align: center;'>Games</h2>
                 </div>
                 <div class="row justify-content-center" id="demo"></div>
             </div>
-            <div class="col-xs-4 col-lg-4">
+            <div class="col-xs-4 col-lg-5">
                 <div class="row justify-content-center">
                     <h2 class="col-12 display-4" style='text-align: center;'>Standings</h2>
                 </div>
@@ -141,11 +161,29 @@
         ["FOX", "FLY", "Aug. 04", "16:00"]
     ];
     var teams = ["TL", "CLG", "C9", "TSM", "GGS", "OPT", "100", "CG", "FLY", "FOX"];
+    var team_info = {
+        "TL": ["Team Liquid", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/f/f4/Team_Liquidlogo_square.png/123px-Team_Liquidlogo_square.png?version=8512c61e9d78715b323da1a987548819'],
+        "CLG": ["Counter Logic Gaming", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/3/37/Counter_Logic_Gaminglogo_square.png/123px-Counter_Logic_Gaminglogo_square.png?version=709d44b812a10fd49e5b812c24ca02bc'],
+        "C9": ["Cloud9", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/8/88/Cloud9logo_square.png/123px-Cloud9logo_square.png?version=cf6cfc032cf4716cc08d8afd0cffc17c'],
+        "TSM": ["Team SoloMid", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/8/83/Team_SoloMidlogo_square.png/123px-Team_SoloMidlogo_square.png?version=fe632d4fbe7c1779f33bc2e10b557fbd'],
+        "GGS": ["Golden Guardians", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/9/98/Golden_Guardianslogo_square.png/123px-Golden_Guardianslogo_square.png?version=844079ee010ddb49e4230ad581d7a51e'],
+        "OPT": ["OpTic Gaming", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/9/91/OpTic_Gaminglogo_square.png/123px-OpTic_Gaminglogo_square.png?version=f8b590707564b809f8353d0e850fea28'],
+        "100": ["100 Thieves", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/b/b9/100_Thieveslogo_square.png/123px-100_Thieveslogo_square.png?version=c213f0c025c3e0131fb1d2686e755265'],
+        "CG": ["Clutch Gaming", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/5/5b/Clutch_Gaminglogo_square.png/123px-Clutch_Gaminglogo_square.png?version=2813d75c706ca4e5a04f254deaabddc9'],
+        "FLY": ["FlyQuest", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/e/e5/FlyQuestlogo_square.png/123px-FlyQuestlogo_square.png?version=931f506920bb8e9cbf56cb4f8aee8c2a'],
+        "FOX": ["Echo Fox", 'https://gamepedia.cursecdn.com/lolesports_gamepedia_en/thumb/8/84/Echo_Foxlogo_square.png/123px-Echo_Foxlogo_square.png?version=706b2d9cfd812a2bf49c1b9cca6f67b9']
+    };
 
     updateRecord();
 
-    var str = "<form><table><tbody>";
-    str += "<tr></tr>";
+    var str = "<form><table>";
+    str += "<thead><tr><th>Date</th>";
+    str += "<th>Time (CST)</th>";
+    str += "<th class='blue_side'>Blue Side</th>";
+    str += "<th class='vs'></th>";
+    str += "<th class='red_side'>Red Side</th></tr></thead>";
+    str += "<tbody>";
+
     for (var i = 0; i < games.length; i++) {
         var game = games[i];
         str += "<tr>";
@@ -232,7 +270,13 @@
         var rank = 0;
         var dup = 0;
         var curr_win = -1;
-        str = "<table><tbody>";
+        str = "<table>";
+        str += "<thead><tr><th></th>";
+        str += "<th colspan='2'>Team</th>";
+        str += "<th>Wins</th>";
+        str += "<th>Losses</th>";
+        str += "</thead>";
+        str += "<tbody>";
         for (var i = 0; i < items.length; i++) {
             var curr_team = items[i][0];
             if (wins[curr_team] == curr_win) {
@@ -245,6 +289,7 @@
             str += "<tr>";
             str += "<td name='rank'>" + rank + "</td>";
             str += "<td>" + curr_team + "</td>";
+            str += "<td class='team'><img src='" + team_info[curr_team][1] + "'>" + team_info[curr_team][0] + "</td>";
             str += "<td>" + wins[curr_team] + "</td>";
             str += "<td>" + losses[curr_team] + "</td>";
             str += "</tr>";
