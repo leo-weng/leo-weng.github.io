@@ -11,9 +11,7 @@
     }
 
     .container{
-        padding-left: 01vw;
-        padding-right: 01vw;
-        padding-top: 05vh;
+        padding: 05vh 01vw;
     }
     th, td {
         border: solid;
@@ -42,18 +40,35 @@
     table {
         margin-top: 1vh;
     }
-    btn-primary {
-        background-color: #ffc107;
+    .btn {
+        background-color: yellow;
+        border-color: yellow;
     }
 
     @media (min-width: 576px) {
-
+        table, p {
+            font-size: 2em;
+        }
+        .btn-lg {
+            font-size: 3em;
+        }
+        .display-4 {
+            margin-top: 1em;
+        }
     }
     @media (min-width: 768px) {
 
     }
     @media (min-width: 992px) {
-
+        table, p {
+            font-size: 1em;
+        }
+        .btn-lg {
+            font-size: 1em;
+        }
+        .display-4 {
+            margin-top: 0.25em;
+        }
     }
     @media (min-width: 1200px) {
 
@@ -70,13 +85,13 @@
             </div>
             <div class="col-xs-4 col-lg-4">
                 <div class="row justify-content-center">
-                    <h2 class="col-12" style='text-align: center;'>Games</h2>
+                    <h2 class="col-12 display-4" style='text-align: center;'>Games</h2>
                 </div>
                 <div class="row justify-content-center" id="demo"></div>
             </div>
             <div class="col-xs-4 col-lg-4">
                 <div class="row justify-content-center">
-                    <h2 class="col-12" style='text-align: center;'>Standings</h2>
+                    <h2 class="col-12 display-4" style='text-align: center;'>Standings</h2>
                 </div>
                 <div class="row justify-content-center" id="record"></div>
                 <div class="row justify-content-center">
@@ -144,9 +159,11 @@
         str += "</tr>";
     }
     str += "<tr><td style='border:none;''></td>";
-    str += "<td colspan='2' align='center' style='border: none;'><button class='btn btn-warning' type=\"button\" onclick=\"checkForm()\">GO</button></td>";
-    str += "<td colspan='2' align='center' style='border: none;'><button class='btn btn-warning' type=\"button\" onclick=\"resetRecord()\">Reset</button></td></tr>";
     str += "</tbody></table></form>";
+    str += "<div class='row justify-content-center'>"
+    str += "<div class='col-6'><button class='btn btn-lg btn-warning' type=\"button\" onclick=\"checkForm()\">GO</button></div>";
+    str += "<div class='col-6'><button class='btn btn-lg btn-warning' type=\"button\" onclick=\"resetRecord()\">Reset</button></div>";
+    str += "</div>";
     document.getElementById("demo").insertAdjacentHTML('beforeend', str);
 
     function checkForm() {
