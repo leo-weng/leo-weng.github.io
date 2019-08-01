@@ -1,9 +1,15 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 </head>
 <style>
+    body {
+        font-family: 'Lato', sans-serif;
+    }
+
     .container{
         padding-left: 01vw;
         padding-right: 01vw;
@@ -27,30 +33,48 @@
         margin-right: 0.5em;
         padding: 0.5em;
         cursor: pointer;
+        width: 3em;
+        text-align: center;
     }
     input:checked + label {
-        background: yellow;
+        background: #ffc107;
     }
     table {
         margin-top: 1vh;
+    }
+    btn-primary {
+        background-color: #ffc107;
+    }
+
+    @media (min-width: 576px) {
+
+    }
+    @media (min-width: 768px) {
+
+    }
+    @media (min-width: 992px) {
+
+    }
+    @media (min-width: 1200px) {
+
     }
 </style>
 <body>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-xs-12 col-sm-12" style='margin: 0 0 2em 0;'>
+            <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
                 <div class="row justify-content-center">
-                    <h2 class="col-12" style='text-align: center;'>NA LCS Summer Split Week 9</h2>
-                    <h5 class="col-12" style='text-align: center;'>Click on team names to pick your winners from each game and click GO</h5>
+                    <h2 class="col-12 display-3" style='text-align: center;'>NA LCS Summer Split Week 9</h2>
+                    <h2 class="col-12" style='text-align: center; margin: 0.5em 0 0 0;'>Click on team names to pick your winners from each game and click GO</h5>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-4">
+            <div class="col-xs-4 col-lg-4">
                 <div class="row justify-content-center">
                     <h2 class="col-12" style='text-align: center;'>Games</h2>
                 </div>
                 <div class="row justify-content-center" id="demo"></div>
             </div>
-            <div class="col-xs-12 col-sm-4">
+            <div class="col-xs-4 col-lg-4">
                 <div class="row justify-content-center">
                     <h2 class="col-12" style='text-align: center;'>Standings</h2>
                 </div>
@@ -90,16 +114,16 @@
         "FOX": 13
     };
     var games = [
-        ["CLG", "OPT", "08-03", "14:00"],
-        ["C9", "GGS", "08-03", "15:00"],
-        ["CG", "100", "08-03", "16:00"],
-        ["FLY", "TSM", "08-03", "17:00"],
-        ["TL", "FOX", "08-03", "18:00"],
-        ["OPT", "C9", "08-04", "12:00"],
-        ["100", "CLG", "08-04", "13:00"],
-        ["TSM", "TL", "08-04", "14:00"],
-        ["GGS", "CG", "08-04", "15:00"],
-        ["FOX", "FLY", "08-04", "16:00"]
+        ["CLG", "OPT", "Aug. 03", "14:00"],
+        ["C9", "GGS", "Aug. 03", "15:00"],
+        ["CG", "100", "Aug. 03", "16:00"],
+        ["FLY", "TSM", "Aug. 03", "17:00"],
+        ["TL", "FOX", "Aug. 03", "18:00"],
+        ["OPT", "C9", "Aug. 04", "12:00"],
+        ["100", "CLG", "Aug. 04", "13:00"],
+        ["TSM", "TL", "Aug. 04", "14:00"],
+        ["GGS", "CG", "Aug. 04", "15:00"],
+        ["FOX", "FLY", "Aug. 04", "16:00"]
     ];
     var teams = ["TL", "CLG", "C9", "TSM", "GGS", "OPT", "100", "CG", "FLY", "FOX"];
 
@@ -119,8 +143,9 @@
         str += "<td class='red_side'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\"><label for=\"" + i + "-2\">" + game[1] + "</label></td>"
         str += "</tr>";
     }
-    str += "<tr><td colspan='2' align='center' style='border: none;'><button type=\"button\" onclick=\"checkForm()\">GO</button></td>";
-    str += "<td colspan='2' align='center' style='border: none;'><button type=\"button\" onclick=\"resetRecord()\">Reset</button></td></tr>";
+    str += "<tr><td style='border:none;''></td>";
+    str += "<td colspan='2' align='center' style='border: none;'><button class='btn btn-warning' type=\"button\" onclick=\"checkForm()\">GO</button></td>";
+    str += "<td colspan='2' align='center' style='border: none;'><button class='btn btn-warning' type=\"button\" onclick=\"resetRecord()\">Reset</button></td></tr>";
     str += "</tbody></table></form>";
     document.getElementById("demo").insertAdjacentHTML('beforeend', str);
 
@@ -213,10 +238,9 @@
         document.getElementById("record").innerHTML = str;
 
         var ranks = document.getElementsByName('rank');
-        console.log(ranks);
         for (var i = 0; i < ranks.length; i++) {
             if (parseInt(ranks[i].innerHTML, 10) <= 6){
-                ranks[i].style.backgroundColor = 'yellow';
+                ranks[i].style.backgroundColor = '#ffc107';
             }
             else if (parseInt(ranks[i].innerHTML, 10) > 6){
                 ranks[i].style.backgroundColor = 'none';
