@@ -74,9 +74,10 @@ body {
     font-family: var(--font-small);
 }
 
-.subheading {
+.display-4 {
     padding-left: 2em;
     padding-right: 2em;
+    font-size: 3rem;
 }
 
 .btn-primary {
