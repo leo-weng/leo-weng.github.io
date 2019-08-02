@@ -74,6 +74,11 @@ body {
     font-family: var(--font-small);
 }
 
+.display-3 {
+    padding-left: 2em;
+    padding-right: 2em;
+    font-size: 4rem;
+}
 .display-4 {
     padding-left: 2em;
     padding-right: 2em;
