@@ -193,7 +193,7 @@ a>h3 { margin-bottom: 0px;}
         padding-bottom: 30px;
     }
     .logo { padding-right: 30px;}
-    .img-fluid {height: 20em;}
+    .img-fluid {max-height: 10em;}
 }
 @media (min-width: 992px) {
     h1 { font-size: 2rem;}
