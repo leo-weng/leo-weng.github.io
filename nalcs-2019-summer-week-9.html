@@ -165,6 +165,11 @@
         "FOX": 14
     };
     var games = [
+        ["CLG", "OPT", "Aug. 03", "14:00"],
+        ["C9", "GGS", "Aug. 03", "15:00"],
+        ["CG", "100", "Aug. 03", "16:00"],
+        ["FLY", "TSM", "Aug. 03", "17:00"],
+        ["TL", "FOX", "Aug. 03", "18:00"],
         ["OPT", "C9", "Aug. 04", "12:00"],
         ["100", "CLG", "Aug. 04", "13:00"],
         ["TSM", "TL", "Aug. 04", "14:00"],
@@ -202,24 +207,24 @@
     str += "<th class='team_2'>Team 2</th></tr></thead>";
     str += "<tbody>";
 
-    for (var i = 0; i < completed_games.length; i++) {
-        var game = completed_games[i];
-        str += "<tr>";
-        if (i % 5 == 0) {
-            str += "<td rowspan='5'>" + game[2] + "</td>";
-        }
-        str += "<td>" + game[3] + "</td>";
-        if (game[4] == "team_1") {
-            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
-            str += "<td class='vs'>vs.</td>";
-            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
-        } else {
-            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
-            str += "<td class='vs'>vs.</td>";
-            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
-        }
-        str += "</tr>";
-    }
+    // for (var i = 0; i < completed_games.length; i++) {
+    //     var game = completed_games[i];
+    //     str += "<tr>";
+    //     if (i % 5 == 0) {
+    //         str += "<td rowspan='5'>" + game[2] + "</td>";
+    //     }
+    //     str += "<td>" + game[3] + "</td>";
+    //     if (game[4] == "team_1") {
+    //         str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
+    //         str += "<td class='vs'>vs.</td>";
+    //         str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
+    //     } else {
+    //         str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
+    //         str += "<td class='vs'>vs.</td>";
+    //         str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
+    //     }
+    //     str += "</tr>";
+    // }
     for (var i = 0; i < games.length; i++) {
         var game = games[i];
         str += "<tr>";
