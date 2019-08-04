@@ -52,8 +52,8 @@
     input:checked + label {
         background: #ffc107;
     }
-    label.completed {
-        background: #696969;
+    label.completed-win {
+        background: #b5b5b5;
     }
     table {
         margin-top: 1vh;
@@ -210,13 +210,13 @@
         }
         str += "<td>" + game[3] + "</td>";
         if (game[4] == "team_1") {
-            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" checked disabled><label class=\"completed\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
+            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
             str += "<td class='vs'>vs.</td>";
-            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" disabled><label class=\"completed\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
+            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
         } else {
-            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" disabled><label class=\"completed\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
+            str += "<td class='team_1'><input type=\"radio\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" disabled><label class=\"completed-loss\" for=\"" + i + "-1\">" + game[0] + "</label></td>"
             str += "<td class='vs'>vs.</td>";
-            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" checked disabled><label class=\"completed\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
+            str += "<td class='team_2'><input type=\"radio\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" checked disabled><label class=\"completed-win\" for=\"" + i + "-2\">" + game[1] + "</label></td>"
         }
         str += "</tr>";
     }
