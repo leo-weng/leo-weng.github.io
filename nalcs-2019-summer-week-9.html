@@ -9,7 +9,7 @@
 
     gtag('config', 'UA-145079031-1');
     </script>
-    
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
 
@@ -51,6 +51,12 @@
     }
     input:checked + label {
         background: #ffc107;
+    }
+    input.completed {
+        background: #c4c4c4;
+    }
+    input.completed:checked + label {
+        background: #696969;
     }
     table {
         margin-top: 1vh;
@@ -139,13 +145,13 @@
     <script>
     var wins = {
         "100": 7,
-        "TL": 12,
-        "CLG": 11,
-        "C9": 10,
-        "TSM": 9,
+        "TL": 13,
+        "CLG": 12,
+        "C9": 11,
+        "TSM": 10,
         "GGS": 8,
         "OPT": 8,
-        "CG": 7,
+        "CG": 8,
         "FLY": 5,
         "FOX": 3
     };
@@ -154,24 +160,26 @@
         "CLG": 5,
         "C9": 6,
         "TSM": 7,
-        "GGS": 8,
-        "OPT": 8,
-        "100": 9,
+        "GGS": 9,
+        "OPT": 9,
+        "100": 10,
         "CG": 9,
-        "FLY": 11,
-        "FOX": 13
+        "FLY": 12,
+        "FOX": 14
     };
     var games = [
-        ["CLG", "OPT", "Aug. 03", "14:00"],
-        ["C9", "GGS", "Aug. 03", "15:00"],
-        ["CG", "100", "Aug. 03", "16:00"],
-        ["FLY", "TSM", "Aug. 03", "17:00"],
-        ["TL", "FOX", "Aug. 03", "18:00"],
         ["OPT", "C9", "Aug. 04", "12:00"],
         ["100", "CLG", "Aug. 04", "13:00"],
         ["TSM", "TL", "Aug. 04", "14:00"],
         ["GGS", "CG", "Aug. 04", "15:00"],
         ["FOX", "FLY", "Aug. 04", "16:00"]
+    ];
+    var completed_games = [
+        ["CLG", "OPT", "Aug. 03", "14:00", "team_1"],
+        ["C9", "GGS", "Aug. 03", "15:00", "team_1"],
+        ["CG", "100", "Aug. 03", "16:00", "team_1"],
+        ["FLY", "TSM", "Aug. 03", "17:00", "team_2"],
+        ["TL", "FOX", "Aug. 03", "18:00", "team_1"]
     ];
     var teams = ["TL", "CLG", "C9", "TSM", "GGS", "OPT", "100", "CG", "FLY", "FOX"];
     var team_info = {
@@ -197,6 +205,24 @@
     str += "<th class='team_2'>Team 2</th></tr></thead>";
     str += "<tbody>";
 
+    for (var i = 0; i < completed_games.length; i++) {
+        var game = completed_games[i];
+        str += "<tr>";
+        if (i % 5 == 0) {
+            str += "<td rowspan='5'>" + game[2] + "</td>";
+        }
+        str += "<td>" + game[3] + "</td>";
+        if (game[4] == "team_1") {
+            str += "<td class='team_1'><input type=\"radio\" class=\"completed\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" checked disabled><label for=\"" + i + "-1\">" + game[0] + "</label></td>"
+            str += "<td class='vs'>vs.</td>";
+            str += "<td class='team_2'><input type=\"radio\" class=\"completed\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" disabled><label for=\"" + i + "-2\">" + game[1] + "</label></td>"
+        } else {
+            str += "<td class='team_1'><input type=\"radio\" class=\"completed\" id=\"" + i + "-1\" name=\"game" + i + "\" value=\"" + game[0] + "\" disabled><label for=\"" + i + "-1\">" + game[0] + "</label></td>"
+            str += "<td class='vs'>vs.</td>";
+            str += "<td class='team_2'><input type=\"radio\" class=\"completed\" id=\"" + i + "-2\" name=\"game" + i + "\" value=\"" + game[1] + "\" checked disabled><label for=\"" + i + "-2\">" + game[1] + "</label></td>"
+        }
+        str += "</tr>";
+    }
     for (var i = 0; i < games.length; i++) {
         var game = games[i];
         str += "<tr>";
