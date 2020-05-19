@@ -59,8 +59,19 @@ h1, h2, h3 {font-family: var(--font-big); }
 #homepage-header .header {
     margin-bottom: 30px;
 }
+#homepage-about {
+    background-image: url("images/about-image.jpg");
+}
+#homepage-projects {
+    background-color: #006646;
+}
+#homepage-experiences {
+    background-color: #420066;
+}
+#homepage-contact {
+    background-color: #005d6b;
+}
 .homepage-banner {
-    background-image: url('https://via.placeholder.com/800x1200');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -69,14 +80,17 @@ h1, h2, h3 {font-family: var(--font-big); }
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 0;
 }
 .homepage-banner:hover {
     transform: scale(1.1);
+    z-index: 99;
 }
 .homepage-banner h2 {
     color: var(--color-accent1);
     margin: auto;
     text-align: center;
+    text-shadow: 0.5px 0.5px white;
 }
 .header {
     /* background-color: var(--color-panel1); */
