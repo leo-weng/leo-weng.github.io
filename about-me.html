@@ -10,49 +10,42 @@
           $("#header").load("header.html");
           // $("#footer").load("footer.html");
         });
+        function js_Load() {
+            document.body.style.visibility='visible';
+        }
     </script>
 </head>
 
-<body>
+<body style="visibility: hidden;" onload="js_Load()">
     <div id="header"></div>
-    <div class="container-fluid">
-        <div class="subheading row justify-content-center">
-            <h2 class="col-xs-10 display-4">About Me</h2>
+    <div class="container">
+        <div class="subheading row">
+            <h1>About Me</h1>
         </div>
         <div class="row justify-content-center">
-            <div class="col-sm-8 col-md-7 col-lg-5 order-last order-sm-first">
-                <div class="row">
-                    <h4 class="col-4 category">Full Name</h4>
-                    <h3 class="col-8 detail">Mu-Fan Weng</h3>
-                </div>
-                <div class="row">
-                    <h4 class="col-4 category">Hobbies</h4>
-                    <h3 class="col-8 detail">
-                        Programming<i class="fas fa-code"></i><br>
-                        Volleyball<i class="fas fa-volleyball-ball"></i><br>
-                        Music<i class="fas fa-music"></i>
-                    </h3>
-                </div>
-                <div class="row">
-                    <h4 class="col-4 category">Email</h4>
-                    <h3 class="col-8 detail">leojoey82@gmail.com</h3>
-                </div>
-                <div class="row justify-content-center resume-row">
-                    <a class="btn btn-primary" target="_blank" href="docs/Leo-Weng-Resume.pdf"><h3>Resume<i class="far fa-file-alt"></i></h3></a>
-                </div>
-            </div>
-            <div class="col-6 col-sm-4 col-lg-3 order-first order-sm-last profile">
+            <div class="col-sm-12 col-lg-4 profile">
                 <img class="img-fluid" src="images/Profile.jpg" alt="me">
             </div>
-        </div>
+            <div class="col-sm-12 col-lg-8 about-info">
+                <div class="about-info-section">
+                    <h5 class="about-category">full name:</h5>
+                    <h2 class="about-detail">Mu-Fan Weng</h2>
+                </div>
+                <div class="about-info-section">
+                    <h5 class="about-category">education:</h5>
+                    <h5 class="about-detail school">Georgia Tech '19</h5>
+                    <h2 class="about-detail major">B.S. Computer Engineering</h2>
+                    <h5 class="about-detail minor">minor in computational data analysis</h5>
+                </div>
+                <div class="about-info-section">
+                    <h5 class="about-category">hobbies:</h5>
+                    <h2 class="about-detail">Volleyball<i class="fas fa-volleyball-ball"></i></h2>
+                    <h2 class="about-detail">Video Games<i class="fas fa-gamepad"></i></h2>
+                </div>
 
-        <div class="row justify-content-center">
-            <div class="col-8 block">
-                <h3>
-                    I am a Georgia Tech alumnus with B.S. in Computer Engineering and Minor in Computational Data Analysis.
-                    <br><br>
-                    Originally from Taipei, Taiwan, I have lived in the United States for the past eight years. Feel free to contact me for more info!
-                </h3>
+                <div class="about-info-section">
+                    <h5 class="about-category">resume</h5>
+                    <a class="about-resume link" target="_blank" href="docs/Leo-Weng-Resume.pdf"><h2 class="about-detail"><i class="far fa-file-alt"></i></h2></a>
             </div>
         </div>
     </div>

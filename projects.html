@@ -9,227 +9,182 @@
           $("#header").load("header.html");
           // $("#footer").load("footer.html");
         });
+        function js_Load() {
+            document.body.style.visibility='visible';
+        }
     </script>
 </head>
 
-<body>
+<body style="visibility: hidden;" onload="js_Load()">
     <div id="header"></div>
-    <div class="container-fluid">
-        <div class="subheading row justify-content-center">
-            <h2 class="col-xs-10 display-4">Projects</h2>
+    <div class="container">
+        <div class="subheading row">
+            <h1>Projects</h1>
         </div>
+        <div class="project-section row justify-content-center">
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/lcs.PNG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">NA LCS 2019 Summer Split Week 9 - Preview for Playoffs</h3>
-                <div class="row">
-                    <p class="quick">Summer 2019</p>
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/lcs.PNG"/>
+
+                <div class="project-info">
+                    <h6 class="project-date">Summer 2019</h6>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        As a huge fan of League of Legends and being invested in its eSports Championship Series, I decided to create a simple visualization to show what teams would advance to playoffs given the results of Week 9 (last week of round robin group stage).
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="nalcs-2019-summer-week-9.html"><h5>NA LCS Summer Split Week 9<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <a class="link" target="_blank" href="lcs-2019-summer-week-9.html"><h2>LCS 2019 Summer Split Week 9 - Preview for Playoffs<i class="fas fa-external-link-alt"></i></a></h2>
+                <p>
+                    As a huge fan of League of Legends and being invested in its esports Championship Series, I decided to create a simple visualization to show what teams would advance to playoffs given the results of Week 9 (last week of round robin group stage).
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/drone.jpg"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">DIANA - Drone Inspection Assistant for Navigable Aircraft</h3>
-                <div class="row">
-                    <p class="quick">ECE 4012 Senior Design</p>
-                    <p class="quick">Spring 2019</p>
+        <div class="project-section row justify-content-center">
+
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/drone.jpg"/>
+                <div class="project-info">
+                    <h6 class="project-date">Spring 2019</h6>
+                    <a class="project-course-link" target="_blank" href="https://capstone.gatech.edu/expo/"><h6 class="project-course">ECE 4012 Senior Design (Expo)<i class="fas fa-external-link-alt"></i></h6></a>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>DIANA - Drone Inspection Assistant for Navigable Aircraft</h2>
+
+
+                <p>
+                    Drone Inspection Assistant of Navigable Aircraft (DIANA) is a proof of concept system for inspection automation of aircrafts, buildings, and other infrastructures. Using DIANA to perform visual inspections ensures the safety of the inspectors as well as the efficiency of the inspection process. DIANA aids in conducting routine maintenance and inspections for concrete structures and infrastructure by reducing the time, cost, and risk from current practices. The drone with accompanying tablet will provide real-time results to the inspection-operator.
+                    <br>Most of the efforts of our team were allocated to training a neural network, automating flight path, and creating a fully integrated demonstratable system. Check out some of project results below.
+                    <br>We also attended and presented our project at the Spring 2019 Georgia Tech Capstone Design Expo, one of the largest student design expos in the U.S.
+                </p>
                 <div class="row">
-                    <p>
-                        Drone Inspection Assistant of Navigable Aircraft (DIANA) is a proof of concept system for inspection automation of aircrafts, buildings, and other infrastructures. Using DIANA to perform visual inspections ensures the safety of the inspectors as well as the efficiency of the inspection process. DIANA aids in conducting routine maintenance and inspections for concrete structures and infrastructure by reducing the time, cost, and risk from current practices. The drone with accompanying tablet will provide real-time results to the inspection-operator.
-                        <br>Most of the efforts of our team were allocated to training a neural network, automating flight path, and creating a fully integrated demonstratable system. Check out some of project results below.
-                        <br>We also attended and presented our project at the Spring 2019 Georgia Tech Capstone Design Expo, one of the largest student design expos in the U.S.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="docs/DIANA_Project_Report.docx"><h5>Final Project Report<i class="fas fa-file-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="http://ece4012.ece.gatech.edu/"><h5>ECE 4012 Course Website<i class="fas fa-external-link-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://capstone.gatech.edu/expo/"><h5>Georgia Tech Capstone Design Expo<i class="fas fa-external-link-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://github.gatech.edu/bancelin3/diana-main"><h5>Main Source Code (GT login required)<i class="fab fa-github"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://github.gatech.edu/jjones380/diana-sdk/"><h5>Drone SDK Source Code (GT login required)<i class="fab fa-github"></i></h5></a>
+                    <a class="btn project-resource-link" target="_blank" href="docs/DIANA_Project_Report.docx"><h6>Final Project Report<i class="fas fa-file-alt"></i></h6></a>
+                    <a class="btn project-resource-link" target="_blank" href="https://github.gatech.edu/bancelin3/diana-main"><h6>Main Source Code (GT login required)<i class="fab fa-github"></i></h6></a>
+                    <a class="btn project-resource-link" target="_blank" href="https://github.gatech.edu/jjones380/diana-sdk/"><h6>Drone SDK Source Code (GT login required)<i class="fab fa-github"></i></h6></a>
                 </div>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/interesting-updates.PNG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">Interesting Updates</h3>
-                <div class="row">
-                    <p class="quick">CX 4365 Intro to Enterprise Computing</p>
-                    <p class="quick">Spring 2019</p>
-                </div>
-            </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        The motivation behind Interesting Updates is to cut out the time spent searching for articles a user is interested in and present them with those articles up front. Interesting Updates customizes feeds to a personal level by picking up on a user’s interests by monitoring trends in searches and web history.
-                        <br>Users do not interfere with the data collection process that molds their news feed. Articles are then presented via speech or on screen. The users can also choose to ask for a summary of the article and an NLP text-rank algorithm will give them a brief summary.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="docs/Interesting Updates Final Report.pdf"><h5>Final Project Report<i class="fas fa-file-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://www.cc.gatech.edu/~calton/4365-index-10.html"><h5>CS 4365 Course Website<i class="fas fa-external-link-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://github.com/leo-weng/interesting-updates"><h5>Application Source Code<i class="fab fa-github"></i></h5></a>
+        <div class="project-section row justify-content-center">
 
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/interesting-updates.PNG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Spring 2019</h6>
+                    <a class="project-course-link" target="_blank" href="https://www.cc.gatech.edu/~calton/4365-index-10.html"><h6 class="project-course">CX 4365 Intro to Enterprise Computing<i class="fas fa-external-link-alt"></i></h6></a>
+                </div>
+            </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>Interesting Updates<a class="project-link" target="_blank" href="https://github.com/leo-weng/interesting-updates"><i class="fab fa-github"></i></a></h2>
+
+                <p>
+                    The motivation behind Interesting Updates is to cut out the time spent searching for articles a user is interested in and present them with those articles up front. Interesting Updates customizes feeds to a personal level by picking up on a user's interests by monitoring trends in searches and web history.
+                    <br>Users do not interfere with the data collection process that molds their news feed. Articles are then presented via speech or on screen. The users can also choose to ask for a summary of the article and an NLP text-rank algorithm will give them a brief summary.
+                </p>
+                <div class="row">
+                    <a class="btn project-resource-link" target="_blank" href="docs/Interesting Updates Final Report.pdf"><h6>Final Project Report<i class="fas fa-file-alt"></i></h6></a>
                 </div>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/vnl.PNG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">VNL Visualization</h3>
-                <div class="row">
-                    <p class="quick">Summer 2018</p>
+        <div class="project-section row justify-content-center">
+
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/vnl.PNG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Summer 2018</h6>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        VNL (Volleyball Nations League) is an international volleyball competition between the best nations in the world. I absolutely love watching the best players compete against each other and representing their home nations.
-                        <br>In order to get a better idea of how the teams are doing in the competition during the 5-week long preliminary round, I created this simple visualization of the match results of the 16 teams. I used BeautifulSoup to scrape the data, then created the visualization with D3.js.
-                        <br>Click on the links below to check it out!
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="vnl-visualization/vnl-viz.html"><h5>VNL Visualization Link<i class="fas fa-external-link-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://github.com/leo-weng/vnl-visualization"><h5>VNL Visualization Source Code<i class="fab fa-github"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://www.volleyball.world/vnl"><h5>VNL Main Site<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <a class="project-link" target="_blank" href="vnl-visualization/vnl-viz.html"><h2>VNL Visualization<i class="fas fa-external-link-alt"></i></a><a class="project-link" target="_blank" href="https://github.com/leo-weng/vnl-visualization"><i class="fab fa-github"></i></a></h2>
+
+                <p>
+                    VNL (Volleyball Nations League) is an international volleyball competition between the best nations in the world. I absolutely love watching the best players compete against each other and representing their home nations.
+                    <br>In order to get a better idea of how the teams are doing in the competition during the 5-week long preliminary round, I created this simple visualization of the match results of the 16 teams. I used BeautifulSoup to scrape the data, then created the visualization with D3.js.
+                    <br>Click on the links below to check it out!
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/graph.PNG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">Data And Visual Analysis</h3>
-                <div class="row">
-                    <p class="quick">CX 4242 Data and Visual Analytics</p>
-                    <p class="quick">Fall 2017</p>
+        <div class="project-section row justify-content-center">
+
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/graph.PNG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Fall 2017</h6>
+                        <a class="project-course-link" target="_blank" href="https://poloclub.github.io/#cse6242"><h6 class="project-course">CX 4242 Data and Visual Analytics<i class="fas fa-external-link-alt"></i></h6></a>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        This class is by far my favorite class that I have taken at Georgia Tech. Through various projects over the semester, I had learned many valuable and indispensable skills and renewed my love for computer programming.
-                        <br>The very first project of the semester was to collect and visualize data from Twitter of a given user by using Python and the Twitter API. (You can see the source code on the Github link below.) Later projects in the semester included visualize data and design graphs using D3 and JavaScript, create MapReduce applications with Hadoop and Pig, etc.
-                        <br>I thoroughly enjoyed every single project in this class. The finished products looked gorgeous and made me feel a sense of accomplishment.
-                        <br>The class also helped me narrow down the focus of my Computer Science minor to concentrate on Computational Data Analysis.I wish to learn more in this concentration in the future to strengthen my skills as a programmer!
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://github.com/leo-weng/data-viz-demos"><h5>Data Viz Demo Source Code<i class="fab fa-github"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://poloclub.github.io/#cse6242"><h5>CS 4242/CSE 6242 Course Website<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>Data And Visual Analysis<a class="project-link" target="_blank" href="https://github.com/leo-weng/data-viz-demos"><i class="fab fa-github"></i></a></h2>
+
+                <p>
+                    This class is by far my favorite class that I have taken at Georgia Tech. Through various projects over the semester, I had learned many valuable and indispensable skills and renewed my love for computer programming.
+                    <br>The very first project of the semester was to collect and visualize data from Twitter of a given user by using Python and the Twitter API. (You can see the source code on the Github link below.) Later projects in the semester included visualize data and design graphs using D3 and JavaScript, create MapReduce applications with Hadoop and Pig, etc.
+                    <br>I thoroughly enjoyed every single project in this class. The finished products looked gorgeous and made me feel a sense of accomplishment.
+                    <br>The class also helped me narrow down the focus of my Computer Science minor to concentrate on Computational Data Analysis.I wish to learn more in this concentration in the future to strengthen my skills as a programmer!
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
+        <div class="project-section row justify-content-center">
 
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/marta-project.JPG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">MARTA Database Project</h3>
-                <div class="row">
-                    <p class="quick">CS 4400 Introduction to Database Systems</p>
-                    <p class="quick">Fall 2017</p>
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/marta-project.JPG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Fall 2017</h6>
+                    <h6 class="project-course">CS 4400 Introduction to Database Systems</h6>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        This project was to create a web application mock-up for users to create and manage MARTA (Atlanta Subway) cards and trips.
-                        <br>The application was created with PHP and CSS on the front-end in coordination with database manipulation and organization using phpMyAdmin and SQL on the back-end.
-                        <br>You can view the mock-up source code on Github below.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://github.com/leo-weng/MARTA-database"><h5>Application Mock-up Source Code<i class="fab fa-github"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>MARTA Database Project<a class="project-link" target="_blank" href="https://github.com/leo-weng/MARTA-database"><i class="fab fa-github"></i></a></h2>
+
+                <p>
+                    This project was to create a web application mock-up for users to create and manage MARTA (Atlanta Subway) cards and trips.
+                    <br>The application was created with PHP and CSS on the front-end in coordination with database manipulation and organization using phpMyAdmin and SQL on the back-end.
+                    <br>You can view the mock-up source code on Github below.
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/mbed.JPG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">MBed Design Demos</h3>
-                <div class="row">
-                    <p class="quick">ECE 2036 Engineering Software Design</p>
-                    <p class="quick">Spring 2017</p>
+        <div class="project-section row justify-content-center">
+
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/mbed.JPG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Spring 2017</h6>
+                    <h6 class="project-course">ECE 2036 Engineering Software Design</h6>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        I achieved different tasks with mBed using breadboard circuit design and C++ programming after familiarizing with the hardware.
-                        <br>Using the LCD, thermostat, speakers, and buttons, I completed various small tasks to demonstrate their uses.
-                        <br>The demo videos are in the YouTube link below.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://www.youtube.com/playlist?list=PLCaYKuNI90ypLabwOToXoxcrGDoUihGfm"><h5>Demo Videos<i class="fab fa-youtube"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="https://www.mbed.com/en/"><h5>Mbed Website<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>MBed Design Demos<a class="project-link" target="_blank" href="https://www.youtube.com/playlist?list=PLCaYKuNI90ypLabwOToXoxcrGDoUihGfm"><i class="fab fa-youtube"></i></a></h2>
+
+                <p>
+                    I achieved different tasks with mBed using breadboard circuit design and C++ programming after familiarizing with the hardware.
+                    <br>Using the LCD, thermostat, speakers, and buttons, I completed various small tasks to demonstrate their uses.
+                    <br>The demo videos are in the YouTube link below.
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/de2bot.JPG"/>
-            </div>
-            <div class="text col-8">
-                <h3 class="row">Doombots</h3>
-                <div class="row">
-                    <p class="quick">ECE 2031 Digital Design Laboratory</p>
-                    <p class="quick">Fall 2016</p>
+        <div class="project-section row justify-content-center">
+
+            <div class="project-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/de2bot.JPG"/>
+                <div class="project-info">
+                    <h6 class="project-date">Fall 2016</h6>
+                    <a class="project-course-link" target="_blank" href="http://powersof2.gatech.edu/ddl/index.html"><h6 class="project-course">ECE 2031 Digital Design Laboratory<i class="fas fa-external-link-alt"></i></h6></a>
                 </div>
             </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        The goal of this team project is to design and program a modified AmigoBot using Assembly(MIPS) and Quartus II program to achieve the objective of detecting and locating objects in an arena.
-                        <br>This project included a technical report as well as a team presentation. (Both are attached below for reference.)
-                        <br>Our team struggled in achieving the goal but we learned a lot about problem-solving and team synergy along the way.
-                        <br>In the end, our robot did not completely achieve the goal of object location and detection. We only tagged half of the objects placed in the arena. We analyzed our errors after the demonstration and recorded ways that we could improve the project.
-                        <br>Some reports from the individual labs during the semester are also linked below.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="docs/DoomBOTS Final Design Report.pdf"><h5>Final Design Report<i class="fas fa-file-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="docs/FINAL Presentation.pptx"><h5>Final Presentation<i class="fas fa-file-powerpoint"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="docs/Lab 7 Report.docx"><h5>Lab Report 1<i class="fas fa-file-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="docs/Lab 8 Report.docx"><h5>Lab Report 2<i class="fas fa-file-alt"></i></h5></a>
-                    <a class="btn btn-primary link" target="_blank" href="http://powersof2.gatech.edu/ddl/index.html"><h5>ECE 2031 Course Website<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+            <div class="project-text col-xs-12 col-lg-7">
+                <h2>Doombots<a class="project-link" target="_blank" href="docs/DoomBOTS Final Design Report.pdf"><i class="fas fa-file-alt"></i></a></h2>
+
+                <p>
+                    The goal of this team project is to design and program a modified AmigoBot using Assembly(MIPS) and Quartus II program to achieve the objective of detecting and locating objects in an arena.
+                    <br>This project included a technical report as well as a team presentation. (Both are attached below for reference.)
+                    <br>Our team struggled in achieving the goal but we learned a lot about problem-solving and team synergy along the way.
+                    <br>In the end, our robot did not completely achieve the goal of object location and detection. We only tagged half of the objects placed in the arena. We analyzed our errors after the demonstration and recorded ways that we could improve the project.
+                    <br>Some reports from the individual labs during the semester are also linked below.
+                </p>
             </div>
         </div>
     </div>

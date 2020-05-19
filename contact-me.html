@@ -9,24 +9,23 @@
           $("#header").load("header.html");
           // $("#footer").load("footer.html");
         });
+        function js_Load() {
+            document.body.style.visibility='visible';
+        }
     </script>
 </head>
 
-<body>
-    <div id="header"></div>
-    <div class='container-fluid'>
-        <div class="subheading row justify-content-center">
-            <h2 class="col-xs-10 display-4">Contact Me</h2>
+<body style="visibility: hidden;" onload="js_Load()">
+<div id="header"></div>
+    <div class='container'>
+        <div class="subheading row">
+            <h1>Contact Me</h1>
         </div>
         <div class="row justify-content-center">
-            <div class="col-12 text-center">
-                <a class="btn btn-primary contact" target="_blank" href="mailto:leojoey82@gmail.com"><h3>Email Me<i class="fas fa-envelope"></i></h3></a>
-            </div>
-            <div class="col-12 text-center">
-                <a class="btn btn-primary contact" target="_blank" href="https://github.com/leo-weng"><h3>Check Out My Github<i class="fab fa-github"></i></h3></a>
-            </div>
-            <div class="col-12 text-center">
-                <a class="btn btn-primary contact" target="_blank" href="https://www.linkedin.com/in/leo-weng/"><h3>Connect With Me On LinkedIn<i class="fab fa-linkedin"></i></h3></a>
+            <div class="contact-info">
+                <a class="contact-link" target="_blank" href="mailto:leojoey82@gmail.com"><h3 class="contact-detail">Email Me<i class="fas fa-envelope"></i></h3></a>
+                <a class="contact-link" target="_blank" href="https://github.com/leo-weng"><h3 class="contact-detail">Check Out My Github<i class="fab fa-github"></i></h3></a>
+                <a class="contact-link" target="_blank" href="https://www.linkedin.com/in/leo-weng/"><h3 class="contact-detail">Connect With Me On LinkedIn<i class="fab fa-linkedin"></i></h3></a>
             </div>
         </div>
 

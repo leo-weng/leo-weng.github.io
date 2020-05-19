@@ -9,120 +9,100 @@
           $("#header").load("header.html");
           // $("#footer").load("footer.html");
         });
+        function js_Load() {
+            document.body.style.visibility='visible';
+        }
     </script>
 </head>
 
-<body>
+<body style="visibility: hidden;" onload="js_Load()">
     <div id="header"></div>
-    <div class="container-fluid">
-        <div class="subheading row justify-content-center">
-            <h2 class="col-xs-10 display-4">Work Experiences</h2>
+    <div class="container">
+        <div class="subheading row">
+            <h1>Work Experiences</h1>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/hydronix-logo.png"/>
+        <div class="work-section row justify-content-center">
+            <div class="work-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/hydronix-logo.png"/>
             </div>
-            <div class="text col-8">
-                <h3 class="row">Hydronix Water Technology</h3>
-                <div class="row">
-                    <p class="quick">Jr. Web Developer</p>
-                    <p class="quick">Rancho Cucamonga, CA</p>
-                    <p class="quick">July 2019 - present</p>
+            <div class="work-text col-xs-12 col-lg-9">
+                <a class="link" target="_blank" href="http://hydronixwater.com/"><h2>Hydronix Water Technology<i class="fas fa-external-link-alt"></i></a></h2>
+
+                <div class="work-info">
+                    <h6 class="work-detail">Jr. Web Developer</h6>
+                    <h6 class="work-detail">Rancho Cucamonga, CA</h6>
+                    <h6 class="work-detail">July 2019 - present</h6>
                 </div>
-            </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        I am currently working at Hydronix as a web developer. My tasks include technical aspects of software development as well as the creative aspecs of website design.
-                        <br>I am in charge maintaining, updating, and monitoring hosted websites and managing site security. I also work on designing, testing, and implementing custom website pages and forms. I work extensively with HTML, PHP, and CSS through platforms like Wordpress, Joomla, and Magento.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="http://hydronixwater.com/"><h5>Hydronix Water Technology<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+                <p>
+                    I am currently working at Hydronix as a web developer. My tasks include technical aspects of software development as well as the creative aspecs of website design.
+                    <br>I am in charge maintaining, updating, and monitoring hosted websites and managing site security. I also work on designing, testing, and implementing custom website pages and forms. I work extensively with HTML, PHP, and CSS through platforms like Wordpress, Joomla, and Magento.
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/MeS-logo.png"/>
+        <div class="work-section row justify-content-center">
+            <div class="work-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/MeS-logo.png"/>
             </div>
-            <div class="text col-8">
-                <h3 class="row">Merchant e-Solutions</h3>
-                <div class="row">
-                    <p class="quick">Software Engineering Intern</p>
-                    <p class="quick">Atlanta, GA</p>
-                    <p class="quick">May 2018 - August 2018</p>
+            <div class="work-text col-xs-12 col-lg-9">
+                <a class="link" target="_blank" href="https://www.merchante-solutions.com/"><h2>Merchant e-Solutions<i class="fas fa-external-link-alt"></i></a></h2>
+
+                <div class="work-info">
+                    <h6 class="work-detail">Software Engineering Intern</h6>
+                    <h6 class="work-detail">Atlanta, GA</h6>
+                    <h6 class="work-detail">May 2018 - August 2018</h6>
                 </div>
-            </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        I had the pleasure to work with MeS in the payment processing industry as a software engineering intern in the Quality Assurance department. After taking the time to understand the industry and how payment processing works, I dove straight into working with the engineering teams on the different financial platforms offered by MeS to their merchants.
-                        <br>I worked mainly on their Virtual Terminal, a web-based portal allowing merchants to process payments for their customers, including functions such as basic transactions, Level II and III payments, tip processing, export reports, etc.
-                        <br>I worked with two other interns to put together a complete automated regression suite for VT. Using mainly Selenium and TestNG for the automation of tests, the regression suite makes sure all the functions work properly and that no bugs are present. The complete suite automated the execution and analyzing of more than 110 test cases, saving time and resources that previously had to spent manually.
-                        <br>In future updates to VT, the regression suite will allow testing for existing and new functions and save even more time with the automated tests.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://www.merchante-solutions.com/"><h5>Merchant e-Solutions<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+                <p>
+                    I had the pleasure to work with MeS in the payment processing industry as a software engineering intern in the Quality Assurance department. After taking the time to understand the industry and how payment processing works, I dove straight into working with the engineering teams on the different financial platforms offered by MeS to their merchants.
+                    <br>I worked mainly on their Virtual Terminal, a web-based portal allowing merchants to process payments for their customers, including functions such as basic transactions, Level II and III payments, tip processing, export reports, etc.
+                    <br>I worked with two other interns to put together a complete automated regression suite for VT. Using mainly Selenium and TestNG for the automation of tests, the regression suite makes sure all the functions work properly and that no bugs are present. The complete suite automated the execution and analyzing of more than 110 test cases, saving time and resources that previously had to spent manually.
+                    <br>In future updates to VT, the regression suite will allow testing for existing and new functions and save even more time with the automated tests.
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/thinkpower.png"/>
+        <div class="work-section row justify-content-center">
+            <div class="work-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/thinkpower.png"/>
             </div>
-            <div class="text col-8">
-                <h3 class="row">Thinkpower Information Corp.</h3>
-                <div class="row">
-                    <p class="quick">Software Database Intern</p>
-                    <p class="quick">Taipei, TAIWAN</p>
-                    <p class="quick">June 2015 - July 2015</p>
+            <div class="work-text col-xs-12 col-lg-9">
+                <a class="link" target="_blank" href="https://www.thinkpower.info/"><h2>Thinkpower Information Corp.<i class="fas fa-external-link-alt"></i></a></h2>
+
+                <div class="work-info">
+                    <h6 class="work-detail">Software Database Intern</h6>
+                    <h6 class="work-detail">Taipei, TAIWAN</h6>
+                    <h6 class="work-detail">June 2015 - July 2015</h6>
                 </div>
-            </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        I coordinated a project to create a FAQ database to increase employee productivity by reducing search time.
-                        <br>In order to allow ease of access for the users of this web application (employees of the company), I handled details in the web design formatting with HTML and CSS.
-                        <br>I also managed and maintained back-end database with MySQL and jQuery in coordination with the front-end interface.
-                    </p>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://www.thinkpower.info/"><h5>Thinkpower Information Corp.<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+                <p>
+                    I coordinated a project to create a FAQ database to increase employee productivity by reducing search time.
+                    <br>In order to allow ease of access for the users of this web application (employees of the company), I handled details in the web design formatting with HTML and CSS.
+                    <br>I also managed and maintained back-end database with MySQL and jQuery in coordination with the front-end interface.
+                </p>
             </div>
         </div>
 
-        <div class="info row justify-content-center">
-            <div class="logo col-4">
-                <img class="img-fluid rounded float-right" src="images/williamswhittle.png"/>
+        <div class="work-section row justify-content-center">
+            <div class="work-image col-xs-12 col-lg-3">
+                <img class="img-fluid rounded " src="images/williamswhittle.png"/>
             </div>
-            <div class="text col-8">
-                <h3 class="row">Williams Whittle</h3>
-                <div class="row">
-                    <p class="quick">Advertisement Intern (unpaid)</p>
-                    <p class="quick">Alexandria, VA</p>
-                    <p class="quick">May 2015</p>
+            <div class="work-text col-xs-12 col-lg-9">
+                <a class="link" target="_blank" href="https://www.williamswhittle.com/"><h2>Williams Whittle<i class="fas fa-external-link-alt"></i></a></h2>
+
+                <div class="work-info">
+                    <h6 class="work-detail">Advertisement Intern</h6>
+                    <h6 class="work-detail">Alexandria, VA</h6>
+                    <h6 class="work-detail">May 2015</h6>
                 </div>
-            </div>
-            <div class="text col-xs-12 col-md-10">
-                <div class="row">
-                    <p>
-                        Working as an unpaid intern at Williams Whittle, I was given many tasks throughout the month to faciliate in the projects around the company.
-                        Some of the tasks I was given included compiling client data for analysis and meeting deadlines efficiently.
-                        <br>I have great mastery of the Microsoft Office suite, including Word, Excel and Powerpoint.
-                        <br>I also collaborated with team members to prepare and present pitches for upcoming projects.
-                        <br>My project managers praised me for my efficiency and diligency in my completion of tasks.
-                    </ul>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary link" target="_blank" href="https://www.williamswhittle.com/"><h5>Williams Whittle<i class="fas fa-external-link-alt"></i></h5></a>
-                </div>
+                <p>
+                    Working as an unpaid intern at Williams Whittle, I was given many tasks throughout the month to faciliate in the projects around the company.
+                    Some of the tasks I was given included compiling client data for analysis and meeting deadlines efficiently.
+                    <br>I have great mastery of the Microsoft Office suite, including Word, Excel and Powerpoint.
+                    <br>I also collaborated with team members to prepare and present pitches for upcoming projects.
+                    <br>My project managers praised me for my efficiency and diligency in my completion of tasks.
+                </p>
             </div>
         </div>
+
     </div>
 </body>
