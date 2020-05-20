@@ -226,7 +226,7 @@ body {
 }
 .subheading {
     margin-top: 50px;
-    margin-bottom: 100px;
+    margin-bottom: 75px;
 }
 .subheading h1 {
     margin: 0 auto;
@@ -235,20 +235,8 @@ body {
     padding-right: 50px;
     border-bottom: solid 2px var(--color-accent1);
 }
-/* about-me */
-.category{
-    text-align: right;
-}
 
 /* projects and experiences */
-/* p.quick {
-    display: inline-block;
-    background-color: var(--color-accent2);
-    color: var(--color-text2);
-    text-align: center;
-    float: left;
-    border-radius: 5px;
-} */
 .work-detail {
     display: inline-block;
     margin-bottom: 0;
@@ -321,6 +309,22 @@ body {
 .project-text a:hover {
     color: var(--color-text2);
 }
+.project-text i {
+    padding: 10px;
+    font-size: 0.7em;
+}
+.project-course-link i {
+    padding: 5px;
+    font-size: 0.8em;
+}
+.project-resource-link i {
+    padding: 5px;
+    font-size: 1em;
+}
+/* about */
+.about-profile {
+    margin-bottom: 25px;
+}
 .about-info-section {
     margin-bottom: 35px;
 }
@@ -334,16 +338,16 @@ body {
 .about-detail {
     color: var(--color-text1);
 }
+.about-detail i {
+    font-size: 28px;
+    padding: 5px 15px;
+}
 .about-resume i {
     font-size: 24px;
     padding: 0;
 }
 .about-resume i:hover {
     color: var(--color-accent1);
-}
-.text { color: var(--color-text1); }
-.text {
-    display: inline-block;
 }
 a {
     color: inherit;
@@ -353,111 +357,22 @@ a:hover {
     color: var(--color-accent1);
     text-decoration: none;
 }
+
 /* contact */
-
-
-.header {
-    /* padding-top: 20px;
-    padding-bottom: 20px; */
-}
-/* h1 { font-size: 1.65rem;}
-h2 { font-size: 1.15rem;}
-h3 { font-size: 0.9rem;}
-h4 { font-size: 0.9rem;}
-h5 { font-size: 0.75rem;}
-h6 { font-size: 0.5rem;} */
-/* p { font-size: 0.75rem; } /*same as h5*/
-/* a>h5 { font-size: 0.75rem;} /*same as p*/
-/* .header-button>h2 { font-size: 0.8rem; margin-bottom:0px;} */
-.container-fluid {
-    /* padding-left: 01vw;
-    padding-right: 01vw; */
-}
-.row {
-    padding-left: 5px;
-    padding-right: 5px;
+.contact-link i {
+    padding: 10px;
 }
 
-/* .navbar { margin-bottom: 20px;} */
-
-.block { padding-top: 40px; }
-i {
-    font-size: 0.5em;
-    padding: 0.5em;
-    vertical-align: middle;
-}
-.profile {  margin-bottom: 20px;}
-.resume-row { margin-top:20px; }
-p.quick {
-    padding: 5px;
-    margin-right: 5px;
-    margin-top: 0px;
-    margin-bottom: 5px;
-}
-.info {
-    /* padding: 2vw; */
-    /* margin: 1.5vw; */
-}
-.text { font-size: 0.75rem;}
-/* .link { padding: 5px; margin-right: 5px; margin-bottom: 5px;} */
-a>h5 { margin-bottom: 0px; }
-
-.contact { margin-top: 5px; margin-bottom: 5px; }
-a>h3 { margin-bottom: 0px;}
 
 @media (min-width: 576px) {
-    /* h1 { font-size: 1.75rem;}
-    h2 { font-size: 1.5rem;}
-    h3 { font-size: 1.25rem;}
-    h4 { font-size: 1.25rem;}
-    h5 { font-size: 1rem;}
-    h6 { font-size: 0.75rem;} */
-    /* p { font-size: 1rem;} /*same as h5*/
-    /* a>h5 { font-size: 1rem;} /*same as p*/
-    /* .header-button>h2 { font-size: 1.25rem; margin-bottom:5px;} */
 
-    .resume-row { margin-top:40px; }
-    .container-fluid {
-        /* padding-left: 07vw;
-        padding-right: 07vw; */
-    }
-    /* .navbar { margin-bottom: 30px;} */
-    p.quick {
-        padding: 8px;
-        margin-right: 5px;
-        margin-bottom: 5px;
-    }
-    .text {
-        font-size: 0.8rem;
-        margin-top: 0.5em;
-    }
-    /* .link { padding: 8px; margin-right: 5px; margin-bottom: 5px;} */
 }
 @media (min-width: 768px) {
-    /* .navbar { margin-bottom: 40px;} */
     .header {
-        padding-top: 30px;
-        padding-bottom: 30px;
+        padding: 15px 0;
     }
-    /* .logo { padding-right: 30px;} */
-    /* div.logo img {max-height: 10em;} */
 }
 @media (min-width: 992px) {
-    /* h1 { font-size: 2rem;}
-    h2 { font-size: 1.45rem;}
-    h3 { font-size: 1.25rem;}
-    h4 { font-size: 1.25rem;}
-    h5 { font-size: 1rem;}
-    h6 { font-size: 0.75rem;} */
-    /* .header-button>h2 { font-size: 1.45rem;}
-    .display-4 {
-        font-size: 3rem;
-    }*/
 }
 @media (min-width: 1200px) {
-    .container-fluid {
-        /* max-width: 1200px; */
-        /* padding-left: 09vw;
-        padding-right: 09vw; */
-    }
 }
