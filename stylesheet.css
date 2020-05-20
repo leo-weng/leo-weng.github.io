@@ -252,7 +252,7 @@ body {
     text-align: center;
 }
 .contact-detail {
-    margin: 25px auto;
+    margin: 0px auto 25px auto;
 }
 .project-course i {
     font-size: 10px;
@@ -281,7 +281,6 @@ body {
 .work-info {
     margin-bottom: 25px;
 }
-.contact-info,
 .project-info {
     margin-top: 25px;
     margin-bottom: 25px;
