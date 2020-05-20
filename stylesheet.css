@@ -234,6 +234,7 @@ body {
     padding-left: 50px;
     padding-right: 50px;
     border-bottom: solid 2px var(--color-accent1);
+    text-align: center;
 }
 
 /* projects and experiences */
@@ -308,6 +309,7 @@ body {
 .project-text a:hover {
     color: var(--color-text2);
 }
+.work-text i,
 .project-text i {
     padding: 10px;
     font-size: 0.7em;
