@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>BuzzStats</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+    <style>
+        .page-title {
+            margin-bottom: 30px;
+        }
+        .player-panel {
+            padding: 10px;
+            border: solid 1px black;
+            border-radius: 5px;
+            margin-bottom: 10px;1
+        }
+        .stat-col .col-12 {
+            padding:10px;
+        }
+        .stat-col p {
+            margin:0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row title justify-content-center">
+            <h1 class="page-title">BuzzStats v0.1</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-2">
+                <div class="row" id="OH">
+                    <div class="col text-center" id="outsides-col">
+                        <h3>OH</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="row" id="RS">
+                    <div class="col text-center" id="opposites-col">
+                        <h3>RS</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="row" id="MB">
+                    <div class="col text-center" id="middles-col">
+                        <h3>MB</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="row" id="S">
+                    <div class="col text-center" id="setters-col">
+                        <h3>S</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="row" id="L / DS">
+                    <div class="col text-center" id="liberos-col">
+                        <h3>L / DS</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="row" id="Other">
+                    <div class="col text-center" id="others-col">
+                        <h3>Others</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        var players = [];
+        var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerAttempts = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        players[2] = 'Dom';
+        players[3] = 'Savannah';
+        players[5] = 'Grace R.';
+        players[6] = 'Maddie';
+        players[7] = 'Liz';
+        players[9] = 'Grace M.';
+        players[10] = 'Bella';
+        players[11] = 'Breland';
+        players[13] = 'Mari';
+        players[14] = 'Cori';
+        players[17] = 'Julia';
+        players[22] = 'Matti';
+        players[23] = 'Erin';
+        players[24] = 'Mikaila';
+        players[25] = 'Kayla';
+        players[26] = 'Player1';
+        players[27] = 'Player2';
+        players[28] = 'Player3';
+
+        var outsides = [2, 3, 13, 17, 24];
+        var opposites = [5, 9, 14];
+        var middles = [11, 23, 25];
+        var setters = [10, 22];
+        var liberos = [6, 7];
+
+        players.forEach(addPlayer);
+
+        function addPlayer(playerName, playerNum) {
+            playerDiv = "<div class='player-panel' id='player-" + playerNum + "'>";
+                playerDiv += "<div class='row'>";
+                    playerDiv += "<div class='col-12'>";
+                        playerDiv += "<h4 class='player-title'>" + playerNum + " " + playerName + "</h4>";
+                    playerDiv += "</div>";
+
+                    playerDiv += "<div class='col-4'>";
+                        playerDiv += "<div class='row stat-col'>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p>K: </p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-12'>";
+                                playerDiv += "<button onclick='addKill(" + playerNum + ")'>+</button>";
+                                playerDiv += "<button onclick='subKill(" + playerNum + ")'>-</button>";
+                            playerDiv += "</div>";
+                        playerDiv += "</div>";
+                    playerDiv += "</div>";
+
+                    playerDiv += "<div class='col-4'>";
+                        playerDiv += "<div class='row stat-col'>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p>E: </p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p id='errors-" + playerNum + "'>" + playerErrors[playerNum] + "</p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-12'>";
+                                playerDiv += "<button onclick='addError(" + playerNum + ")'>+</button>";
+                                playerDiv += "<button onclick='subError(" + playerNum + ")'>-</button>";
+                            playerDiv += "</div>";
+                        playerDiv += "</div>";
+                    playerDiv += "</div>";
+
+                    playerDiv += "<div class='col-4'>";
+                        playerDiv += "<div class='row stat-col'>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p>A: </p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-6'>";
+                                playerDiv += "<p id='attempts-" + playerNum + "'>" + playerAttempts[playerNum] + "</p>";
+                            playerDiv += "</div>";
+                            playerDiv += "<div class='col-12'>";
+                                playerDiv += "<button onclick='addAttempt(" + playerNum + ")'>+</button>";
+                                playerDiv += "<button onclick='subAttempt(" + playerNum + ")'>-</button>";
+                            playerDiv += "</div>";
+                        playerDiv += "</div>";
+                    playerDiv += "</div>";
+
+                playerDiv += "</div>";
+            playerDiv += "</div>";
+
+            if (outsides.includes(playerNum)) {
+                document.getElementById("outsides-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else if (opposites.includes(playerNum)) {
+                document.getElementById("opposites-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else if (middles.includes(playerNum)) {
+                document.getElementById("middles-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else if (setters.includes(playerNum)) {
+                document.getElementById("setters-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else if (liberos.includes(playerNum)) {
+                document.getElementById("liberos-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else {
+                document.getElementById("others-col").insertAdjacentHTML('beforeend', playerDiv);
+            }
+        }
+
+        function addKill(playerNum) {
+            var kills = playerKills[playerNum];
+            kills++;
+            playerKills[playerNum] = kills;
+
+            id_name = "kills-" +  playerNum
+            document.getElementById(id_name).innerHTML = kills;
+        }
+
+        function subKill(playerNum) {
+            var kills = playerKills[playerNum];
+            kills--;
+            playerKills[playerNum] = kills;
+
+            id_name = "kills-" +  playerNum
+            document.getElementById(id_name).innerHTML = kills;
+        }
+
+        function addError(playerNum) {
+            var errors = playerErrors[playerNum];
+            errors++;
+            playerErrors[playerNum] = errors;
+
+            id_name = "errors-" +  playerNum
+            document.getElementById(id_name).innerHTML = errors;
+        }
+
+        function subError(playerNum) {
+            var errors = playerErrors[playerNum];
+            errors--;
+            playerErrors[playerNum] = errors;
+
+            id_name = "errors-" +  playerNum
+            document.getElementById(id_name).innerHTML = errors;
+        }
+
+        function addAttempt(playerNum) {
+            var attempts = playerAttempts[playerNum];
+            attempts++;
+            playerAttempts[playerNum] = attempts;
+
+            id_name = "attempts-" +  playerNum
+            document.getElementById(id_name).innerHTML = attempts;
+        }
+
+        function subAttempt(playerNum) {
+            var attempts = playerAttempts[playerNum];
+            attempts--;
+            playerAttempts[playerNum] = attempts;
+
+            id_name = "attempts-" +  playerNum
+            document.getElementById(id_name).innerHTML = attempts;
+        }
+
+
+    </script>
+
+
+</body>
+</html>
