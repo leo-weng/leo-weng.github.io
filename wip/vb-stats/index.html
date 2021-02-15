@@ -1,72 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>BuzzStats</title>
+    <title>BuzzStats v0.5</title>
     <meta charset="UTF-8">
     <meta name="description" content="">
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
     <style>
+        :root {
+            --mode-green: #A5D0A8;
+            --mode-red: #F76C5E;
+            --gt-gold: #B3A369;
+            --gt-navy: #003057;
+            --def-green: #127475;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
         .page-title {
             margin-bottom: 30px;
         }
         .player-panel {
-            padding: 10px;
-            border: solid 1px black;
+            padding: 10px 5px;
+            border: solid 1px white;
             border-radius: 5px;
-            margin-bottom: 10px;1
+            margin: 15px -10px;
+            background-color: white;
         }
-        .stat-col .col-12 {
-            padding:10px;
+        .player-name-col {
+            margin-bottom: 20px;
+            padding-left: 10px;
         }
-        .stat-col p {
-            margin:0;
+        .player-name {
+            font-size: 1.7rem;
+        }
+        .player-number-col {
+            margin-bottom: 20px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .player-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .player-panel p {
+            margin: 0;
+        }
+
+
+        .button-col, .number-col {
+            padding: 0;
+        }
+
+        .panel-sep {
+            height: 20px;
+        }
+
+        .btn-update-stat {
+            background-color: var(--mode-green);
+            border-color: var(--mode-green);
+            color: black;
+            font-weight: bold;
+        }
+        .btn:focus {
+            box-shadow: 0 0 0 0;
+        }
+        .btn-update-color-col {
+            margin-bottom: 20px;
+            padding: 0px;
+
+        }
+        .btn-update-color {
+            height: 30px;
+            width: 30px;
+            padding: 0px;
+            margin-top: -20px;
+            border-radius: 15px;
+            background-color: var(--gt-gold);
+            z-index: 10;
+            color: var(--gt-gold);
+        }
+        .btn-update-color:hover {
+            color: var(--gt-gold);
+            border-color: var(--gt-gold);
+        }
+        #plus-mode-label {
+            background-color: var(--mode-green);
+            border-radius: 0;
+
+        }
+        #minus-mode-label {
+            background-color: var(--mode-red);
+            border-radius: 0;
+        }
+
+        #page-container {
+            background-color:  var(--mode-green);
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid" id="page-container">
+        <div class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
+            <label class="btn" id="plus-mode-label" for="plus-mode"><input type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>+ Mode</label>
+            <label class="btn" id="minus-mode-label" for="minus-mode"><input type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >- Mode</label>
+        </div>
         <div class="row title justify-content-center">
-            <h1 class="page-title">BuzzStats v0.1</h1>
+            <h1 class="page-title">BuzzStats v0.5</h1>
         </div>
         <div class="row justify-content-center">
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="OH">
                     <div class="col text-center" id="outsides-col">
                         <h3>OH</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="RS">
                     <div class="col text-center" id="opposites-col">
                         <h3>RS</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="MB">
                     <div class="col text-center" id="middles-col">
                         <h3>MB</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="S">
                     <div class="col text-center" id="setters-col">
                         <h3>S</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="L / DS">
                     <div class="col text-center" id="liberos-col">
                         <h3>L / DS</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-6 col-md-4 col-lg-2">
                 <div class="row" id="Other">
                     <div class="col text-center" id="others-col">
                         <h3>Others</h3>
@@ -83,6 +164,11 @@
         var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerAttempts = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses3 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses2 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses1 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses0 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+
         players[2] = 'Dom';
         players[3] = 'Savannah';
         players[5] = 'Grace R.';
@@ -111,57 +197,71 @@
         players.forEach(addPlayer);
 
         function addPlayer(playerName, playerNum) {
-            playerDiv = "<div class='player-panel' id='player-" + playerNum + "'>";
-                playerDiv += "<div class='row'>";
-                    playerDiv += "<div class='col-12'>";
-                        playerDiv += "<h4 class='player-title'>" + playerNum + " " + playerName + "</h4>";
-                    playerDiv += "</div>";
+            playerDiv = "<div class='row player-panel align-items-center' id='player-" + playerNum + "'>";
+                playerDiv += "<div class='col-2 btn-update-color-col'>";
+                    playerDiv += "<button class='btn btn-update-color' onclick='changeColor(" + playerNum + ")' id='color-btn-" + playerNum + "'>W</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 player-number-col text-right'>";
+                    playerDiv += "<h4 class='player-number' id='number-" + playerNum + "'>" + playerNum + "</h4>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-8 player-name-col  text-left'>";
+                    playerDiv += "<h4 class='player-name' id='name-" + playerNum + "'>" + playerName + "</h4>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>K</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 number-col'>";
+                    playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
+                playerDiv += "</div>";
 
-                    playerDiv += "<div class='col-4'>";
-                        playerDiv += "<div class='row stat-col'>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p>K: </p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-12'>";
-                                playerDiv += "<button onclick='addKill(" + playerNum + ")'>+</button>";
-                                playerDiv += "<button onclick='subKill(" + playerNum + ")'>-</button>";
-                            playerDiv += "</div>";
+                playerDiv += "<div class='col-2 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeErrors(" + playerNum + ")'>E</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 number-col'>";
+                    playerDiv += "<p id='errors-" + playerNum + "'>" + playerErrors[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-2 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAttempts(" + playerNum + ")'>A</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 number-col'>";
+                    playerDiv += "<p id='attempts-" + playerNum + "'>" + playerAttempts[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='panel-sep col-12'>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-4 text-right'>";
+                    playerDiv += "<p>Pass: </p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-8'>";
+                    playerDiv += "<div class='row'>";
+                        playerDiv += "<div class='col-3 button-col'>";
+                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>3</button>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 button-col'>";
+                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>2</button>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 button-col'>";
+                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>1</button>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 button-col'>";
+                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>0</button>";
+                        playerDiv += "</div>";
+
+                        playerDiv += "<div class='col-3 number-col'>";
+                            playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 number-col'>";
+                            playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 number-col'>";
+                            playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
+                        playerDiv += "</div>";
+                        playerDiv += "<div class='col-3 number-col'>";
+                            playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
                         playerDiv += "</div>";
                     playerDiv += "</div>";
-
-                    playerDiv += "<div class='col-4'>";
-                        playerDiv += "<div class='row stat-col'>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p>E: </p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p id='errors-" + playerNum + "'>" + playerErrors[playerNum] + "</p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-12'>";
-                                playerDiv += "<button onclick='addError(" + playerNum + ")'>+</button>";
-                                playerDiv += "<button onclick='subError(" + playerNum + ")'>-</button>";
-                            playerDiv += "</div>";
-                        playerDiv += "</div>";
-                    playerDiv += "</div>";
-
-                    playerDiv += "<div class='col-4'>";
-                        playerDiv += "<div class='row stat-col'>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p>A: </p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-6'>";
-                                playerDiv += "<p id='attempts-" + playerNum + "'>" + playerAttempts[playerNum] + "</p>";
-                            playerDiv += "</div>";
-                            playerDiv += "<div class='col-12'>";
-                                playerDiv += "<button onclick='addAttempt(" + playerNum + ")'>+</button>";
-                                playerDiv += "<button onclick='subAttempt(" + playerNum + ")'>-</button>";
-                            playerDiv += "</div>";
-                        playerDiv += "</div>";
-                    playerDiv += "</div>";
-
                 playerDiv += "</div>";
             playerDiv += "</div>";
 
@@ -180,61 +280,135 @@
             }
         }
 
-        function addKill(playerNum) {
+        function changeMode(mode) {
+            var all_stat_btns = document.getElementsByClassName('btn-update-stat');
+            if(mode == "plus") {
+                document.getElementById("page-container").style.backgroundColor = "var(--mode-green)";
+                for (var i = 0; i < all_stat_btns.length; i++) {
+                    all_stat_btns[i].style.backgroundColor =  "var(--mode-green)";
+                }
+            } else if(mode == "minus") {
+                document.getElementById("page-container").style.backgroundColor = "var(--mode-red)";
+                for (var i = 0; i < all_stat_btns.length; i++) {
+                    all_stat_btns[i].style.backgroundColor =  "var(--mode-red)";
+                }
+            }
+        }
+
+        function changeColor(playerNum) {
+            btn_id = "color-btn-" +  playerNum;
+            panel_id = "player-" +  playerNum;
+            if (document.getElementById(btn_id).innerHTML == "W") {
+                document.getElementById(btn_id).innerHTML = "G";
+                document.getElementById(btn_id).style.color = "var(--gt-navy)";
+                document.getElementById(btn_id).style.backgroundColor = "var(--gt-navy)";
+                document.getElementById(panel_id).style.backgroundColor = "var(--gt-gold)";
+                document.getElementById(panel_id).style.borderColor = "var(--gt-gold)";
+                document.getElementById(panel_id).style.color = "black";
+            } else if (document.getElementById(btn_id).innerHTML == "G") {
+                document.getElementById(btn_id).innerHTML = "N";
+                document.getElementById(btn_id).style.color = "white";
+                document.getElementById(btn_id).style.backgroundColor = "white";
+                document.getElementById(panel_id).style.backgroundColor = "var(--gt-navy)";
+                document.getElementById(panel_id).style.borderColor = "var(--gt-navy)";
+                document.getElementById(panel_id).style.color = "white";
+            } else if (document.getElementById(btn_id).innerHTML == "N") {
+                document.getElementById(btn_id).innerHTML = "W";
+                document.getElementById(btn_id).style.color = "var(--gt-gold)";
+                document.getElementById(btn_id).style.backgroundColor = "var(--gt-gold)";
+                document.getElementById(panel_id).style.backgroundColor = "white";
+                document.getElementById(panel_id).style.borderColor = "white";
+                document.getElementById(panel_id).style.color = "black";
+            }
+        }
+
+        function changeKills(playerNum) {
             var kills = playerKills[playerNum];
-            kills++;
+            if (document.getElementById("plus-mode").checked) {
+                kills++;
+            } else {
+                kills--;
+            }
             playerKills[playerNum] = kills;
 
             id_name = "kills-" +  playerNum
             document.getElementById(id_name).innerHTML = kills;
         }
 
-        function subKill(playerNum) {
-            var kills = playerKills[playerNum];
-            kills--;
-            playerKills[playerNum] = kills;
-
-            id_name = "kills-" +  playerNum
-            document.getElementById(id_name).innerHTML = kills;
-        }
-
-        function addError(playerNum) {
+        function changeErrors(playerNum) {
             var errors = playerErrors[playerNum];
-            errors++;
+            if (document.getElementById("plus-mode").checked) {
+                errors++;
+            } else {
+                errors--;
+            }
             playerErrors[playerNum] = errors;
 
             id_name = "errors-" +  playerNum
             document.getElementById(id_name).innerHTML = errors;
         }
 
-        function subError(playerNum) {
-            var errors = playerErrors[playerNum];
-            errors--;
-            playerErrors[playerNum] = errors;
-
-            id_name = "errors-" +  playerNum
-            document.getElementById(id_name).innerHTML = errors;
-        }
-
-        function addAttempt(playerNum) {
+        function changeAttempts(playerNum) {
             var attempts = playerAttempts[playerNum];
-            attempts++;
+            if (document.getElementById("plus-mode").checked) {
+                attempts++;
+            } else {
+                attempts--;
+            }
             playerAttempts[playerNum] = attempts;
 
             id_name = "attempts-" +  playerNum
             document.getElementById(id_name).innerHTML = attempts;
         }
 
-        function subAttempt(playerNum) {
-            var attempts = playerAttempts[playerNum];
-            attempts--;
-            playerAttempts[playerNum] = attempts;
+        function changePasses3(playerNum) {
+            var passes3 = playerPasses3[playerNum];
+            if (document.getElementById("plus-mode").checked) {
+                passes3++;
+            } else {
+                passes3--;
+            }
+            playerPasses3[playerNum] = passes3;
 
-            id_name = "attempts-" +  playerNum
-            document.getElementById(id_name).innerHTML = attempts;
+            id_name = "passes3-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes3;
         }
+        function changePasses2(playerNum) {
+            var passes2 = playerPasses2[playerNum];
+            if (document.getElementById("plus-mode").checked) {
+                passes2++;
+            } else {
+                passes2--;
+            }
+            playerPasses2[playerNum] = passes2;
 
+            id_name = "passes2-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes2;
+        }
+        function changePasses1(playerNum) {
+            var passes1 = playerPasses1[playerNum];
+            if (document.getElementById("plus-mode").checked) {
+                passes1++;
+            } else {
+                passes1--;
+            }
+            playerPasses1[playerNum] = passes1;
 
+            id_name = "passes1-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes1;
+        }
+        function changePasses0(playerNum) {
+            var passes0 = playerPasses0[playerNum];
+            if (document.getElementById("plus-mode").checked) {
+                passes0++;
+            } else {
+                passes0--;
+            }
+            playerPasses0[playerNum] = passes0;
+
+            id_name = "passes0-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes0;
+        }
     </script>
 
 
