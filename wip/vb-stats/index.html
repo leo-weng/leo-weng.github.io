@@ -5,10 +5,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>BuzzStats v0.5</title>
+    <title>BuzzStats v1.5</title>
     <meta charset="UTF-8">
     <meta name="description" content="">
-    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
     <style>
         :root {
             --mode-green: #A5D0A8;
@@ -43,7 +42,7 @@
             padding-right: 0;
         }
         .player-number {
-            font-size: 1.7rem;
+            font-size: 1.5rem;
             font-weight: bold;
         }
         .player-panel p {
@@ -68,10 +67,9 @@
         .btn:focus {
             box-shadow: 0 0 0 0;
         }
-        .btn-update-color-col {
+        .btn-update-color-col, .btn-update-position-col {
             margin-bottom: 20px;
             padding: 0px;
-
         }
         .btn-update-color {
             height: 30px;
@@ -87,6 +85,34 @@
             color: var(--gt-gold);
             border-color: var(--gt-gold);
         }
+        .btn-update-position {
+            height: 30px;
+            width: 40px;
+            padding: 0px;
+            margin-top: -20px;
+            border-radius: 5px;
+            background-color: var(--gt-gold);
+            z-index: 10;
+            color: var(--gt-gold);
+        }
+        .btn-update-position:hover {
+            color: var(--gt-gold);
+            border-color: var(--gt-gold);
+        }
+
+        .dropdown-menu {
+            min-width: 40px;
+            padding: 0px;
+
+        }
+        .dropdown-item {
+            padding: 20px 0;
+            text-align: center;
+            color: inherit;
+            border-top: 1px solid;
+            border-bottom: 1px solid;
+        }
+
         #plus-mode-label {
             background-color: var(--mode-green);
             border-radius: 0;
@@ -112,6 +138,7 @@
             color: white;
         }
 
+
         #page-container {
             background-color:  var(--mode-green);
         }
@@ -134,7 +161,7 @@
 
         <div class="row title justify-content-center">
             <div class="col-12 text-center">
-                <h1 class="page-title">BuzzStats v1.0</h1>
+                <h1 class="page-title">BuzzStats v1.5</h1>
             </div>
         </div>
         <div class="row justify-content-center" id="main-titles">
@@ -241,70 +268,68 @@
         var playerPasses2 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses1 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses0 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var allCols = [1,2,3,4,5,6]
 
-        players[2] = 'Dom';
-        players[3] = 'Savannah';
-        players[5] = 'Grace R.';
-        players[6] = 'Maddie';
-        players[7] = 'Liz';
-        players[9] = 'Grace M.';
-        players[10] = 'Bella';
-        players[11] = 'Breland';
-        players[13] = 'Mari';
-        players[14] = 'Cori';
-        players[17] = 'Julia';
-        players[22] = 'Matti';
-        players[23] = 'Erin';
-        players[24] = 'Mikaila';
-        players[25] = 'Kayla';
+        players[2] = ['Dom', 0];
+        players[3] = ['Savannah', 0];
+        players[5] = ['Grace R.', 2];
+        players[6] = ['Maddie', 5];
+        players[7] = ['Liz', 5];
+        players[9] = ['Grace M.', 2];
+        players[10] = ['Bella', 4];
+        players[11] = ['Breland', 3];
+        players[13] = ['Mari', 0];
+        players[14] = ['Cori', 2];
+        players[17] = ['Julia', 1];
+        players[22] = ['Matti', 4];
+        players[23] = ['Erin', 3];
+        players[24] = ['Mikaila', 1];
+        players[25] = ['Kayla', 3];
         // players[26] = 'Player1';
         // players[27] = 'Player2';
         // players[28] = 'Player3';
-
-        var outsides = [2, 3, 13];
-        var outsides2 = [17, 24];
-        var opposites = [5, 9, 14];
-        var middles = [11, 23, 25];
-        var setters = [10, 22];
-        var liberos = [6, 7];
-
-        var titles = ['OH', '', 'RS', 'MB', 'S', 'L/DS'];
-        var cols = ['outsides', 'outsides2', 'opposites', 'middles', 'setters', 'liberos'];
-
         addMainFrame();
         players.forEach(addPlayer);
 
         function addMainFrame() {
-            mainTitles = "";
             mainCols = "";
 
             for (var i = 0; i < 6; i++) {
-                mainTitles += '<div class="col-6 col-md-4 col-lg-2 text-center">';
-                mainTitles += '<h3>' + titles[i] + '</h3>';
-                mainTitles += '</div>';
-
                 mainCols += '<div class="col-6 col-md-4 col-lg-2">';
-                mainCols += '<div class="row" id="' + titles[i] + '">';
-                mainCols += '<div class="col text-center" id="' + cols[i] + '-col">';
+                mainCols += '<div class="row" id=main"' + i + '-row">';
+                mainCols += '<div class="col text-center" id="main' + i + '-col">';
                 mainCols += '</div>';
                 mainCols += '</div>';
                 mainCols += '</div>';
             }
-            document.getElementById("main-titles").insertAdjacentHTML('beforeend', mainTitles);
             document.getElementById("main-cols").insertAdjacentHTML('beforeend', mainCols);
         }
 
-        function addPlayer(playerName, playerNum) {
-            playerDiv = "<div class='row player-panel align-items-center' id='player-" + playerNum + "'>";
-                playerDiv += "<div class='col-2 btn-update-color-col'>";
+        function addPlayer(playerArr, playerNum) {
+            playerName = playerArr[0];
+            playerStart = playerArr[1];
+
+            playerDiv = "<div class='row player-panel align-items-center' id='player-" + playerNum + "-panel'>";
+                playerDiv += "<div class='col-2 btn-update-color-col' id='player-" + playerNum + "'>";
                     playerDiv += "<button class='btn btn-update-color' onclick='changeColor(" + playerNum + ")' id='color-btn-" + playerNum + "'>W</button>";
                 playerDiv += "</div>";
+
                 playerDiv += "<div class='col-2 player-number-col text-right'>";
                     playerDiv += "<h4 class='player-number' id='number-" + playerNum + "'>" + playerNum + "</h4>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-8 player-name-col  text-left'>";
+                playerDiv += "<div class='col-6 player-name-col  text-left'>";
                     playerDiv += "<h4 class='player-name' id='name-" + playerNum + "'>" + playerName + "</h4>";
                 playerDiv += "</div>";
+
+                playerDiv += "<div class='col-2 btn-update-position-col'>";
+                playerDiv += "<div class='dropdown'>";
+                    playerDiv += "<button class='btn btn-update-position dropdown-toggle' type='button' id='position-btn-" + playerNum + "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>W</button>";
+                    playerDiv += "<div class='dropdown-menu' id='position-menu-" + playerNum + "'aria-labelledby='position-btn-" + playerNum + "'>";
+                        allCols.forEach(element => playerDiv += "<a class='dropdown-item' onclick='changePosition(" + playerNum + ", " + element + ")'>" + element + "</a>");
+                    playerDiv += "</div>";
+                    playerDiv += "</div>";
+                playerDiv += "</div>";
+
                 playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>K</button>";
                 playerDiv += "</div>";
@@ -363,21 +388,8 @@
                 playerDiv += "</div>";
             playerDiv += "</div>";
 
-            if (outsides.includes(playerNum)) {
-                document.getElementById("outsides-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else if (outsides2.includes(playerNum)) {
-                document.getElementById("outsides2-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else if (opposites.includes(playerNum)) {
-                document.getElementById("opposites-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else if (middles.includes(playerNum)) {
-                document.getElementById("middles-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else if (setters.includes(playerNum)) {
-                document.getElementById("setters-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else if (liberos.includes(playerNum)) {
-                document.getElementById("liberos-col").insertAdjacentHTML('beforeend', playerDiv);
-            } else {
-                // document.getElementById("others-col").insertAdjacentHTML('beforeend', playerDiv);
-            }
+            document.getElementById("main" + playerStart + "-col").insertAdjacentHTML('beforeend', playerDiv);
+
         }
 
         function changeMode(mode) {
@@ -395,13 +407,35 @@
             }
         }
 
+        function changePosition(playerNum, positionNum) {
+            panel_id = "player-" +  playerNum + "-panel";
+            panel = document.getElementById(panel_id);
+            document.getElementById(panel_id).remove();
+
+            position_id = "main" + (positionNum-1) + "-col";
+
+            var insertHTML =  "<div class='row player-panel align-items-center' id='player-" + playerNum + "-panel'>";
+            insertHTML += panel.innerHTML;
+            insertHTML +=  "</div>";
+            document.getElementById(position_id).insertAdjacentHTML('afterbegin', insertHTML);
+
+            dropdown_id = "position-btn-" + playerNum;
+        }
+
         function changeColor(playerNum) {
             btn_id = "color-btn-" +  playerNum;
-            panel_id = "player-" +  playerNum;
+            btn_update_id = "position-btn-" +  playerNum;
+            menu_update_id = "position-menu-" +  playerNum;
+            panel_id = "player-" +  playerNum + "-panel";
             if (document.getElementById(btn_id).innerHTML == "W") {
                 document.getElementById(btn_id).innerHTML = "G";
                 document.getElementById(btn_id).style.color = "var(--gt-navy)";
                 document.getElementById(btn_id).style.backgroundColor = "var(--gt-navy)";
+                document.getElementById(btn_update_id).innerHTML = "G";
+                document.getElementById(btn_update_id).style.color = "var(--gt-navy)";
+                document.getElementById(btn_update_id).style.backgroundColor = "var(--gt-navy)";
+                // document.getElementById(menu_update_id).style.backgroundColor = "var(--gt-navy)";
+                // document.getElementById(menu_update_id).style.color = "white";
                 document.getElementById(panel_id).style.backgroundColor = "var(--gt-gold)";
                 document.getElementById(panel_id).style.borderColor = "var(--gt-gold)";
                 document.getElementById(panel_id).style.color = "black";
@@ -409,6 +443,11 @@
                 document.getElementById(btn_id).innerHTML = "N";
                 document.getElementById(btn_id).style.color = "white";
                 document.getElementById(btn_id).style.backgroundColor = "white";
+                document.getElementById(btn_update_id).innerHTML = "N";
+                document.getElementById(btn_update_id).style.color = "white";
+                document.getElementById(btn_update_id).style.backgroundColor = "white";
+                // document.getElementById(menu_update_id).style.backgroundColor = "white";
+                // document.getElementById(menu_update_id).style.color = "black";
                 document.getElementById(panel_id).style.backgroundColor = "var(--gt-navy)";
                 document.getElementById(panel_id).style.borderColor = "var(--gt-navy)";
                 document.getElementById(panel_id).style.color = "white";
@@ -416,6 +455,11 @@
                 document.getElementById(btn_id).innerHTML = "W";
                 document.getElementById(btn_id).style.color = "var(--gt-gold)";
                 document.getElementById(btn_id).style.backgroundColor = "var(--gt-gold)";
+                document.getElementById(btn_update_id).innerHTML = "W";
+                document.getElementById(btn_update_id).style.color = "var(--gt-gold)";
+                document.getElementById(btn_update_id).style.backgroundColor = "var(--gt-gold)";
+                // document.getElementById(menu_update_id).style.backgroundColor = "var(--gt-gold)";
+                // document.getElementById(menu_update_id).style.color = "black";
                 document.getElementById(panel_id).style.backgroundColor = "white";
                 document.getElementById(panel_id).style.borderColor = "white";
                 document.getElementById(panel_id).style.color = "black";
@@ -565,6 +609,9 @@
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
