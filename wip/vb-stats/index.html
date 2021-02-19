@@ -97,6 +97,21 @@
             border-radius: 0;
         }
 
+        #util-bar {
+            margin-bottom: 10px;
+        }
+
+        .google-sheets-buttons button {
+            margin: 5px;
+            background-color: var(--gt-navy);
+            border-radius: 0;
+            color: white;
+        }
+        .google-sheets-buttons button:hover {
+            background-color: var(--gt-gold);
+            color: white;
+        }
+
         #page-container {
             background-color:  var(--mode-green);
         }
@@ -104,62 +119,124 @@
 </head>
 <body>
     <div class="container-fluid" id="page-container">
-        <div class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
-            <label class="btn" id="plus-mode-label" for="plus-mode"><input type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>+ Mode</label>
-            <label class="btn" id="minus-mode-label" for="minus-mode"><input type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >- Mode</label>
+        <div id="util-bar">
+            <div class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
+                <label class="btn" id="plus-mode-label" for="plus-mode"><input type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>+ Mode</label>
+                <label class="btn" id="minus-mode-label" for="minus-mode"><input type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >- Mode</label>
+            </div>
+            <div class="btn-group float-right google-sheets-buttons">
+                <button class="btn" id="authorize_button" style="display: none;">Authorize</button>
+                <button class="btn" id="signout_button" style="display: none;">Sign Out</button>
+                <button class="btn" onclick="uploadToGoogleSheets()">Upload To Google Sheets</button>
+            </div>
         </div>
+
         <div class="row title justify-content-center">
-            <h1 class="page-title">BuzzStats v0.5</h1>
+            <div class="col-12 text-center">
+                <h1 class="page-title">BuzzStats v1.0</h1>
+            </div>
         </div>
-        <div class="row justify-content-center">
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="OH">
-                    <div class="col text-center" id="outsides-col">
-                        <h3>OH</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="RS">
-                    <div class="col text-center" id="opposites-col">
-                        <h3>RS</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="MB">
-                    <div class="col text-center" id="middles-col">
-                        <h3>MB</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="S">
-                    <div class="col text-center" id="setters-col">
-                        <h3>S</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="L / DS">
-                    <div class="col text-center" id="liberos-col">
-                        <h3>L / DS</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <div class="row" id="Other">
-                    <div class="col text-center" id="others-col">
-                        <h3>Others</h3>
-                    </div>
-                </div>
-            </div>
+        <div class="row justify-content-center" id="main-titles">
+        </div>
+        <div class="row justify-content-center" id="main-cols">
         </div>
 
 
     </div>
 
+    <!-- Google Sheets API -->
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '397646043092-nbjku2gai8rfiea37u9o14hn05j40hrk.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyCZV77t3Ana01JOFX5RHCuXykrzDRNjrXg';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+      var authorizeButton = document.getElementById('authorize_button');
+      var signoutButton = document.getElementById('signout_button');
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        }, function(error) {
+          appendPre(JSON.stringify(error, null, 2));
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+  </script>
+
     <script>
+        window.onbeforeunload = function ()
+        {
+            return "";
+        };
+
         var players = [];
         var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
@@ -184,17 +261,42 @@
         players[23] = 'Erin';
         players[24] = 'Mikaila';
         players[25] = 'Kayla';
-        players[26] = 'Player1';
-        players[27] = 'Player2';
-        players[28] = 'Player3';
+        // players[26] = 'Player1';
+        // players[27] = 'Player2';
+        // players[28] = 'Player3';
 
-        var outsides = [2, 3, 13, 17, 24];
+        var outsides = [2, 3, 13];
+        var outsides2 = [17, 24];
         var opposites = [5, 9, 14];
         var middles = [11, 23, 25];
         var setters = [10, 22];
         var liberos = [6, 7];
 
+        var titles = ['OH', '', 'RS', 'MB', 'S', 'L/DS'];
+        var cols = ['outsides', 'outsides2', 'opposites', 'middles', 'setters', 'liberos'];
+
+        addMainFrame();
         players.forEach(addPlayer);
+
+        function addMainFrame() {
+            mainTitles = "";
+            mainCols = "";
+
+            for (var i = 0; i < 6; i++) {
+                mainTitles += '<div class="col-6 col-md-4 col-lg-2 text-center">';
+                mainTitles += '<h3>' + titles[i] + '</h3>';
+                mainTitles += '</div>';
+
+                mainCols += '<div class="col-6 col-md-4 col-lg-2">';
+                mainCols += '<div class="row" id="' + titles[i] + '">';
+                mainCols += '<div class="col text-center" id="' + cols[i] + '-col">';
+                mainCols += '</div>';
+                mainCols += '</div>';
+                mainCols += '</div>';
+            }
+            document.getElementById("main-titles").insertAdjacentHTML('beforeend', mainTitles);
+            document.getElementById("main-cols").insertAdjacentHTML('beforeend', mainCols);
+        }
 
         function addPlayer(playerName, playerNum) {
             playerDiv = "<div class='row player-panel align-items-center' id='player-" + playerNum + "'>";
@@ -267,6 +369,8 @@
 
             if (outsides.includes(playerNum)) {
                 document.getElementById("outsides-col").insertAdjacentHTML('beforeend', playerDiv);
+            } else if (outsides2.includes(playerNum)) {
+                document.getElementById("outsides2-col").insertAdjacentHTML('beforeend', playerDiv);
             } else if (opposites.includes(playerNum)) {
                 document.getElementById("opposites-col").insertAdjacentHTML('beforeend', playerDiv);
             } else if (middles.includes(playerNum)) {
@@ -276,7 +380,7 @@
             } else if (liberos.includes(playerNum)) {
                 document.getElementById("liberos-col").insertAdjacentHTML('beforeend', playerDiv);
             } else {
-                document.getElementById("others-col").insertAdjacentHTML('beforeend', playerDiv);
+                // document.getElementById("others-col").insertAdjacentHTML('beforeend', playerDiv);
             }
         }
 
@@ -409,8 +513,62 @@
             id_name = "passes0-" +  playerNum
             document.getElementById(id_name).innerHTML = passes0;
         }
+
+        function uploadToGoogleSheets() {
+            if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                var template;
+                var spreadsheetId = '1vSH3PCElo6FzTzNjcjC7DNXkf2FynwCoeffhDdKMX7U';
+                var body;
+
+                var values;
+
+                gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: spreadsheetId,
+                    range: 'Template!A1:O19',
+                    valueRenderOption: 'FORMULA',
+                }).then(function(response) {
+                    template = response.result;
+                    // template.values[template.values.length+1] = [""];
+                    // template.values[template.values.length+2] = [""];
+                    tableValues = template.values;
+                    console.log(tableValues);
+
+                    for (var i = 2; i < template.values.length; i++) {
+                        var currNum = tableValues[i][1];
+                        tableValues[i][3] = playerKills[currNum];
+                        tableValues[i][4] = playerErrors[currNum];
+                        tableValues[i][5] = playerAttempts[currNum] + playerKills[currNum] + playerErrors[currNum];
+                        tableValues[i][7] = playerPasses3[currNum];
+                        tableValues[i][8] = playerPasses2[currNum];
+                        tableValues[i][9] = playerPasses1[currNum];
+                        tableValues[i][10] = playerPasses0[currNum];
+                        tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                    }
+                    tableValues[template.values.length+1] = [""];
+                    tableValues[template.values.length+2] = [""];
+
+                    gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: spreadsheetId,
+                        range: 'Test!A1',
+                        valueInputOption: 'USER_ENTERED',
+                        // valueInputOption: 'RAW',
+                        insertDataOption: 'INSERT_ROWS',
+                        resource: { values: tableValues }
+                    }).then((response) => {
+                        var result = response.result;
+                        console.log(result)
+                        console.log(`${result.updates.updatedCells} cells updated.`);
+                    });
+                });
+
+            }
+        }
     </script>
 
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
 
 </body>
 </html>
