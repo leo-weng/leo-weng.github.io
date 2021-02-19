@@ -35,7 +35,7 @@
             padding-left: 10px;
         }
         .player-name {
-            font-size: 1.7rem;
+            font-size: 1.2rem;
         }
         .player-number-col {
             margin-bottom: 20px;
@@ -43,7 +43,7 @@
             padding-right: 0;
         }
         .player-number {
-            font-size: 1.2rem;
+            font-size: 1.7rem;
             font-weight: bold;
         }
         .player-panel p {
@@ -232,11 +232,6 @@
   </script>
 
     <script>
-        window.onbeforeunload = function ()
-        {
-            return "";
-        };
-
         var players = [];
         var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
