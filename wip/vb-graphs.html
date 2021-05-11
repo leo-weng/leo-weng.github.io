@@ -1,0 +1,153 @@
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-145079031-1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-145079031-1');
+    </script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+
+
+    <title>NA LCS Summer Split Week 9</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="LCS Summer Split Week 9 - Preview for Playoffs">
+    <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
+</head>
+<style>
+    #embed_chart {
+        width: 100%;
+    }
+    body {
+        font-family: 'Lato', sans-serif;
+    }
+
+    .container{
+        padding: 05vh 01vw;
+    }
+    th, td {
+        border: solid;
+        border-width: 2px;
+        padding: 0.5em;
+        text-align: center;
+    }
+    .vs, .team_1 {
+        border-right: none;
+    }
+    .vs, .team_2 {
+        border-left: none;
+    }
+    input {
+        visibility:hidden;
+    }
+    label {
+        margin-right: 0.5em;
+        padding: 0.5em;
+        cursor: pointer;
+        width: 3em;
+        text-align: center;
+    }
+    input:checked + label {
+        background: #ffc107;
+    }
+    label.completed-win {
+        background: #b5b5b5;
+    }
+    table {
+        margin-top: 1vh;
+    }
+    .btn {
+        background-color: yellow;
+        border-color: yellow;
+    }
+    .team {
+        text-align: left;
+    }
+
+
+    @media (min-width: 576px) {
+        table, p {
+            font-size: 2em;
+        }
+        .btn-lg {
+            font-size: 3em;
+        }
+        .display-4 {
+            margin-top: 1em;
+        }
+        img {
+            width: 2em;
+            margin: 0 1em;
+        }
+        .team {
+            font-size: 0.5em;
+        }
+    }
+    @media (min-width: 768px) {
+
+    }
+    @media (min-width: 992px) {
+        table, p {
+            font-size: 1em;
+        }
+        .btn-lg {
+            font-size: 1em;
+        }
+        .display-4 {
+            margin-top: 0.25em;
+        }
+        img {
+            width: 2em;
+            margin: 0 1em;
+        }
+        .team {
+            font-size: 1em;
+        }
+    }
+    @media (min-width: 1200px) {
+
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
+                <div class="row justify-content-center">
+                    <h2 class="col-12 display-4" style='text-align: center;'>GTVB 2021</h2>
+                    <div class="col-12"><div class="embed-responsive  embed-responsive-16by9">
+                        <iframe width="100%" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
+                    </div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script
+src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
+</script>
+<script>
+$(function() {
+    $("#wrapper").each(function() {
+        var $wrap = $(this);
+        function iframeScaler(){
+            var wrapWidth = $wrap.width(); // width of the wrapper
+            var wrapHeight = $wrap.height();
+            var childWidth = $wrap.children("iframe").width(); // width of child iframe
+            var childHeight = $wrap.children("iframe").height(); // child height
+            var wScale = wrapWidth / childWidth;
+            var hScale = wrapHeight / childHeight;
+            var scale = Math.min(wScale,hScale);  // get the lowest ratio
+            $wrap.children("iframe").css({"transform": "scale("+scale+")", "transform-origin": "left top" });  // set scale
+        };
+        $(window).on("resize", iframeScaler);
+        $(document).ready( iframeScaler);
+    });
+});
+</script>
+</html>
