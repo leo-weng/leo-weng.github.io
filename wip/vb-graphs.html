@@ -119,7 +119,7 @@
             <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
                 <div class="row justify-content-center">
                     <h2 class="col-12 display-4">GTVB 2021</h2>
-                    <div class="col-3">
+                    <!-- <div class="col-3">
                         <ul class="nav flex-column">
                           <li class="nav-item">
                             <a id="href-2020-attacking" class="nav-link active" href="#">2020 Attacking</a>
@@ -129,30 +129,28 @@
                           </li>
 
                         </ul>
+                    </div> -->
+                    <div class="col-12">
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2020" aria-expanded="false" aria-controls="attacking2020">2020 Attacking</button>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2020" aria-expanded="false" aria-controls="blocking2020">2020 Blocking</button>
                     </div>
 
 
-                    <div class="col-9"><div class="embed-responsive  embed-responsive-16by9">
-                        <iframe id="2020-attacking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
-                        <iframe id="2020-blocking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=1547736381&amp;format=interactive"></iframe>
-                    </div></div>
+                    <div class="col-12 collapse" id="attacking2020">
+                        <div class="card card-body embed-responsive  embed-responsive-16by9">
+                            <iframe id="2020-attacking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
+                        </div>
+                    </div>
+                    <div class="col-12 collapse" id="blocking2020">
+                        <div class="card card-body embed-responsive  embed-responsive-16by9">
+                            <iframe id="2020-blocking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=1547736381&amp;format=interactive"></iframe>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
 </body>
-<script>
-$(document).ready(function(){
-    $("#href-2020-attacking").click(function(){
-        $("#2020-blocking").hide();
-        $("#2020-attacking").show();
-    });
-
-    $("#href-2020-blocking").click(function(){
-        $("#2020-attacking").hide();
-        $("#2020-blocking").show();
-    });
-});
-</script>
 </html>
