@@ -9,105 +9,28 @@
 
     gtag('config', 'UA-145079031-1');
     </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
 
-
-    <title>NA LCS Summer Split Week 9</title>
+    <title>GTVB 2021 Graphs</title>
     <meta charset="UTF-8">
-    <meta name="description" content="LCS Summer Split Week 9 - Preview for Playoffs">
+    <meta name="description" content="GTVB 2021 Graphs">
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 </head>
 <style>
-    #embed_chart {
-        width: 100%;
+    #buttons button {
+        margin-top: 10px;
     }
-    body {
-        font-family: 'Lato', sans-serif;
-    }
-
-    .container{
-        padding: 05vh 01vw;
-    }
-    th, td {
-        border: solid;
-        border-width: 2px;
-        padding: 0.5em;
-        text-align: center;
-    }
-    .vs, .team_1 {
-        border-right: none;
-    }
-    .vs, .team_2 {
-        border-left: none;
-    }
-    input {
-        visibility:hidden;
-    }
-    label {
-        margin-right: 0.5em;
-        padding: 0.5em;
-        cursor: pointer;
-        width: 3em;
-        text-align: center;
-    }
-    input:checked + label {
-        background: #ffc107;
-    }
-    label.completed-win {
-        background: #b5b5b5;
-    }
-    table {
-        margin-top: 1vh;
-    }
-    .btn {
-        background-color: yellow;
-        border-color: yellow;
-    }
-    .team {
-        text-align: left;
-    }
-
 
     @media (min-width: 576px) {
-        table, p {
-            font-size: 2em;
-        }
-        .btn-lg {
-            font-size: 3em;
-        }
-        .display-4 {
-            margin-top: 1em;
-        }
-        img {
-            width: 2em;
-            margin: 0 1em;
-        }
-        .team {
-            font-size: 0.5em;
-        }
+
     }
     @media (min-width: 768px) {
 
     }
     @media (min-width: 992px) {
-        table, p {
-            font-size: 1em;
-        }
-        .btn-lg {
-            font-size: 1em;
-        }
-        .display-4 {
-            margin-top: 0.25em;
-        }
-        img {
-            width: 2em;
-            margin: 0 1em;
-        }
-        .team {
-            font-size: 1em;
-        }
+
     }
     @media (min-width: 1200px) {
 
@@ -118,32 +41,45 @@
         <div class="row justify-content-center">
             <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
                 <div class="row justify-content-center">
-                    <h2 class="col-12 display-4">GTVB 2021</h2>
-                    <!-- <div class="col-3">
-                        <ul class="nav flex-column">
-                          <li class="nav-item">
-                            <a id="href-2020-attacking" class="nav-link active" href="#">2020 Attacking</a>
-                          </li>
-                          <li class="nav-item">
-                            <a id="href-2020-blocking" class="nav-link" href="#">2020 Blocking</a>
-                          </li>
-
-                        </ul>
-                    </div> -->
-                    <div class="col-12">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2020" aria-expanded="false" aria-controls="attacking2020">2020 Attacking</button>
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2020" aria-expanded="false" aria-controls="blocking2020">2020 Blocking</button>
+                    <h2 class="col-12 display-4">GTVB 2021 Graphs</h2>
+                    <div class="col-3" id="buttons">
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2020" aria-expanded="false" aria-controls="attacking2020">2020 Attacking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2020" aria-expanded="false" aria-controls="blocking2020">2020 Blocking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2019" aria-expanded="false" aria-controls="attacking2019">2019 Attacking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2019" aria-expanded="false" aria-controls="blocking2019">2019 Blocking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2018" aria-expanded="false" aria-controls="attacking2018">2018 Attacking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2018" aria-expanded="false" aria-controls="blocking2018">2018 Blocking</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearpct" aria-expanded="false" aria-controls="threeyearpct">3 Year Hitting Percentage</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearattacks" aria-expanded="false" aria-controls="threeyearattacks">3 Year Attacks Per Set</button>
+                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearblocks" aria-expanded="false" aria-controls="threeyearblocks">3 Year Blocks Per Set</button>
                     </div>
-
-
-                    <div class="col-12 collapse" id="attacking2020">
-                        <div class="card card-body embed-responsive  embed-responsive-16by9">
+                    <div class="col-9">
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse"  id="attacking2020">
                             <iframe id="2020-attacking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
                         </div>
-                    </div>
-                    <div class="col-12 collapse" id="blocking2020">
-                        <div class="card card-body embed-responsive  embed-responsive-16by9">
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="blocking2020">
                             <iframe id="2020-blocking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=1547736381&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="attacking2019">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRwLXOAdaESG8sdRLbT5Dt_BkM-NOBFAVOUpANqJHbKLou7JFRbRRdQbEvKzAJBhje0SXf9LSkz7VpY/pubchart?oid=485918533&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="blocking2019">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRwLXOAdaESG8sdRLbT5Dt_BkM-NOBFAVOUpANqJHbKLou7JFRbRRdQbEvKzAJBhje0SXf9LSkz7VpY/pubchart?oid=2002185872&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="attacking2018">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjhKEF9tGQYUNABQ0dGbMAsidl_GjSDt-PY10i9mynWS_8yALx-Qkq3Crti1F65OAuuY9TveVcH-5F/pubchart?oid=186166108&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="blocking2018">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRjhKEF9tGQYUNABQ0dGbMAsidl_GjSDt-PY10i9mynWS_8yALx-Qkq3Crti1F65OAuuY9TveVcH-5F/pubchart?oid=1753559314&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="threeyearpct">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS6FeEAQYvP4AlCjShgNNvqv-Q_Zh8G-stF8IXGJUgfPyZievI0LooaoY-NVn3xQdf2j_--Vn9tsYEF/pubchart?oid=1815938261&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="threeyearattacks">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS6FeEAQYvP4AlCjShgNNvqv-Q_Zh8G-stF8IXGJUgfPyZievI0LooaoY-NVn3xQdf2j_--Vn9tsYEF/pubchart?oid=1695271726&amp;format=interactive"></iframe>
+                        </div>
+                        <div class="card card-body embed-responsive embed-responsive-16by9 collapse" id="threeyearblocks">
+                            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS6FeEAQYvP4AlCjShgNNvqv-Q_Zh8G-stF8IXGJUgfPyZievI0LooaoY-NVn3xQdf2j_--Vn9tsYEF/pubchart?oid=523858495&amp;format=interactive"></iframe>
                         </div>
                     </div>
 
@@ -151,6 +87,8 @@
             </div>
         </div>
     </div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
 </body>
 </html>
