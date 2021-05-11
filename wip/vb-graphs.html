@@ -118,9 +118,23 @@
         <div class="row justify-content-center">
             <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
                 <div class="row justify-content-center">
-                    <h2 class="col-12 display-4" style='text-align: center;'>GTVB 2021</h2>
-                    <div class="col-12"><div class="embed-responsive  embed-responsive-16by9">
-                        <iframe width="100%" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
+                    <h2 class="col-12 display-4">GTVB 2021</h2>
+                    <div class="col-3">
+                        <ul class="nav flex-column">
+                          <li class="nav-item">
+                            <a id="href-2020-attacking" class="nav-link active" href="#">2020 Attacking</a>
+                          </li>
+                          <li class="nav-item">
+                            <a id="href-2020-blocking" class="nav-link" href="#">2020 Blocking</a>
+                          </li>
+
+                        </ul>
+                    </div>
+
+
+                    <div class="col-9"><div class="embed-responsive  embed-responsive-16by9">
+                        <iframe id="2020-attacking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
+                        <iframe id="2020-blocking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=1547736381&amp;format=interactive"></iframe>
                     </div></div>
                 </div>
             </div>
@@ -128,25 +142,16 @@
     </div>
 
 </body>
-<script
-src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
-</script>
 <script>
-$(function() {
-    $("#wrapper").each(function() {
-        var $wrap = $(this);
-        function iframeScaler(){
-            var wrapWidth = $wrap.width(); // width of the wrapper
-            var wrapHeight = $wrap.height();
-            var childWidth = $wrap.children("iframe").width(); // width of child iframe
-            var childHeight = $wrap.children("iframe").height(); // child height
-            var wScale = wrapWidth / childWidth;
-            var hScale = wrapHeight / childHeight;
-            var scale = Math.min(wScale,hScale);  // get the lowest ratio
-            $wrap.children("iframe").css({"transform": "scale("+scale+")", "transform-origin": "left top" });  // set scale
-        };
-        $(window).on("resize", iframeScaler);
-        $(document).ready( iframeScaler);
+$(document).ready(function(){
+    $("#href-2020-attacking").click(function(){
+        $("#2020-blocking").hide();
+        $("#2020-attacking").show();
+    });
+
+    $("#href-2020-blocking").click(function(){
+        $("#2020-attacking").hide();
+        $("#2020-blocking").show();
     });
 });
 </script>
