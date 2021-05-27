@@ -19,8 +19,28 @@
     <!-- <script src="https://d3js.org/d3.v5.min.js"></script> -->
 </head>
 <style>
-    #buttons button {
+    button {
         margin-top: 10px;
+    }
+
+    #filters-1 button, #filters-2 button, #filters-3 button {
+        background-color: #B3A369;
+        border: none;
+        color: white;
+    }
+    #filters-1 button.active, #filters-2 button.active, #filters-3 button.active, #filters-1 button:hover, #filters-2 button:hover, #filters-3 button:hover {
+        background-color: #54585A !important;
+    }
+
+    #buttons button[aria-expanded="true"] {
+        background-color: #54585A;
+    }
+    #buttons button {
+        background-color: #003057;
+    }
+
+    #buttons, #graphs {
+        margin-top: 20px;
     }
 
     @media (min-width: 576px) {
@@ -42,27 +62,44 @@
             <div class="col-xs-12 col-lg-12" style='margin: 0 0 2em 0;'>
                 <div class="row justify-content-center">
                     <h2 class="col-12 display-4">GTVB 2021 Graphs</h2>
-                    <div class="col-3" id="buttons">
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2020" aria-expanded="false" aria-controls="attacking2020">2020 Attacking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2019" aria-expanded="false" aria-controls="attacking2019">2019 Attacking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#attacking2018" aria-expanded="false" aria-controls="attacking2018">2018 Attacking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2020" aria-expanded="false" aria-controls="blocking2020">2020 Blocking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2019" aria-expanded="false" aria-controls="blocking2019">2019 Blocking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#blocking2018" aria-expanded="false" aria-controls="blocking2018">2018 Blocking</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#digging2020" aria-expanded="false" aria-controls="digging2020">2020 Digging</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#digging2019" aria-expanded="false" aria-controls="digging2019">2019 Digging</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#digging2018" aria-expanded="false" aria-controls="digging2018">2018 Digging</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearpct" aria-expanded="false" aria-controls="threeyearpct">3 Year Hitting Percentage</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearattacks" aria-expanded="false" aria-controls="threeyearattacks">3 Year Attacks Per Set</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyearblocks" aria-expanded="false" aria-controls="threeyearblocks">3 Year Blocks Per Set</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyeardigsselect" aria-expanded="false" aria-controls="threeyeardigsselect">3 Year Digs Per Set (Select)</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#threeyeardigsall" aria-expanded="false" aria-controls="threeyeardigsall">3 Year Digs Per Set (All)</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#allaccpct" aria-expanded="false" aria-controls="allaccpct">All-ACC Hitting Percentages</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#allaccattacks" aria-expanded="false" aria-controls="allaccattacks">All-ACC Attacks Per Set</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#allaccblocks" aria-expanded="false" aria-controls="allaccblocks">All-ACC Blocks Per Set</button>
-                        <button class="col-12 btn btn-primary" type="button" data-toggle="collapse" data-target="#allaccdigs" aria-expanded="false" aria-controls="allaccdigs">All-ACC Digs Per Set</button>
+                    <div class="col-12 filters" id="filters-1">
+                        <button class="col-2 btn btn-primary active" onclick="filterSelection('all')">All</button>
+                        <button class="col-2 offset-1 btn btn-primary" onclick="filterSelection('filterattacking')">Attacking</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filterblocking')">Blocking</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filterdigging')">Digging</button>
                     </div>
-                    <div class="col-9">
+                    <div class="col-12 filters" id="filters-2">
+                        <button class="col-2 offset-3 btn btn-primary" onclick="filterSelection('filter2020')">2020</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filter2019')">2019</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filter2018')">2018</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filter3year')">3 Year</button>
+                    </div>
+                    <div class="col-12 filters" id="filters-3">
+                        <button class="col-2 offset-3 btn btn-primary" onclick="filterSelection('filterncaa')">NCAA</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filterallam')">All-American</button>
+                        <button class="col-2 btn btn-primary" onclick="filterSelection('filterallacc')">All-ACC</button>
+                    </div>
+                    <div class="col-3" id="buttons">
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter2020 filterncaa show" type="button" data-toggle="collapse" id="attacking2020btn" data-target="#attacking2020" aria-expanded="false" aria-controls="attacking2020">2020 Attacking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter2019 filterncaa show" type="button" data-toggle="collapse" id="attacking2019btn" data-target="#attacking2019" aria-expanded="false" aria-controls="attacking2019">2019 Attacking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter2018 filterncaa show" type="button" data-toggle="collapse" id="attacking2018btn" data-target="#attacking2018" aria-expanded="false" aria-controls="attacking2018">2018 Attacking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterblocking filter2020 filterncaa show" type="button" data-toggle="collapse" id="blocking2020btn" data-target="#blocking2020" aria-expanded="false" aria-controls="blocking2020">2020 Blocking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterblocking filter2019 filterncaa show" type="button" data-toggle="collapse" id="blocking2019btn" data-target="#blocking2019" aria-expanded="false" aria-controls="blocking2019">2019 Blocking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterblocking filter2018 filterncaa show" type="button" data-toggle="collapse" id="blocking2018btn" data-target="#blocking2018" aria-expanded="false" aria-controls="blocking2018">2018 Blocking</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter2020 filterncaa show" type="button" data-toggle="collapse" id="digging2020btn" data-target="#digging2020" aria-expanded="false" aria-controls="digging2020">2020 Digging</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter2019 filterncaa show" type="button" data-toggle="collapse" id="digging2019btn" data-target="#digging2019" aria-expanded="false" aria-controls="digging2019">2019 Digging</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter2018 filterncaa show" type="button" data-toggle="collapse" id="digging2018btn" data-target="#digging2018" aria-expanded="false" aria-controls="digging2018">2018 Digging</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter3year filterallam show" type="button" data-toggle="collapse" id="threeyearpctbtn" data-target="#threeyearpct" aria-expanded="false" aria-controls="threeyearpct">3 Year Hitting Pct.</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter3year filterallam show" type="button" data-toggle="collapse" id="threeyearattacksbtn" data-target="#threeyearattacks" aria-expanded="false" aria-controls="threeyearattacks">3 Year Attacks Per Set</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterblocking filter3year filterallam show" type="button" data-toggle="collapse" id="threeyearblocksbtn" data-target="#threeyearblocks" aria-expanded="false" aria-controls="threeyearblocks">3 Year Blocks Per Set</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter3year filterallam show" type="button" data-toggle="collapse" id="threeyeardigsselectbtn" data-target="#threeyeardigsselect" aria-expanded="false" aria-controls="threeyeardigsselect">3 Year Digs Per Set (Rpt.)</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter3year filterallam show" type="button" data-toggle="collapse" id="threeyeardigsallbtn" data-target="#threeyeardigsall" aria-expanded="false" aria-controls="threeyeardigsall">3 Year Digs Per Set (All)</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter3year filterallacc show" type="button" data-toggle="collapse" id="allaccpctbtn" data-target="#allaccpct" aria-expanded="false" aria-controls="allaccpct">All-ACC Hitting Pct.</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterattacking filter3year filterallacc show" type="button" data-toggle="collapse" id="allaccattacksbtn" data-target="#allaccattacks" aria-expanded="false" aria-controls="allaccattacks">All-ACC Attacks Per Set</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterblocking filter3year filterallacc show" type="button" data-toggle="collapse" id="allaccblocksbtn" data-target="#allaccblocks" aria-expanded="false" aria-controls="allaccblocks">All-ACC Blocks Per Set</button>
+                        <button class="col-12 btn btn-primary collapse filterall filterdigging filter3year filterallacc show" type="button" data-toggle="collapse" id="allaccdigsbtn" data-target="#allaccdigs" aria-expanded="false" aria-controls="allaccdigs">All-ACC Digs Per Set</button>
+                    </div>
+                    <div class="col-9" id="graphs">
                         <div class="card card-body embed-responsive embed-responsive-16by9 collapse"  id="attacking2020">
                             <iframe id="2020-attacking" class="embed-responsive-item" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTyVl50khVyNH9byUWoF5nf37feCGjCUo0wDhHQ_uPqI0vcDOSfki4GGa_TEm8XdANHRungCVjBhdTW/pubchart?oid=398413517&amp;format=interactive"></iframe>
                         </div>
@@ -124,6 +161,70 @@
             </div>
         </div>
     </div>
+
+    <script>
+    filterSelection("all")
+    function filterSelection(c) {
+        var x, i;
+        x = document.getElementsByClassName("filterall");
+        if (c == "all") c = "";
+        // Add the "show" class (display:block) to the filtered elements, and remove the "show" class from the elements that are not selected
+        for (i = 0; i < x.length; i++) {
+            w3RemoveClass(x[i], "show");
+            if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+        }
+    }
+
+    function w3AddClass(element, name) {
+        var i, arr1, arr2;
+        arr1 = element.className.split(" ");
+        arr2 = name.split(" ");
+        for (i = 0; i < arr2.length; i++) {
+            if (arr1.indexOf(arr2[i]) == -1) {
+                element.className += " " + arr2[i];
+            }
+        }
+    }
+
+    function w3RemoveClass(element, name) {
+        var i, arr1, arr2;
+        arr1 = element.className.split(" ");
+        arr2 = name.split(" ");
+        for (i = 0; i < arr2.length; i++) {
+            while (arr1.indexOf(arr2[i]) > -1) {
+                arr1.splice(arr1.indexOf(arr2[i]), 1);
+            }
+        }
+        element.className = arr1.join(" ");
+    }
+
+    var btns1 = document.getElementById("filters-1").getElementsByClassName("btn");
+    var btns2 = document.getElementById("filters-2").getElementsByClassName("btn");
+    var btns3 = document.getElementById("filters-3").getElementsByClassName("btn");
+    for (var i = 0; i < btns1.length; i++) {
+        btns1[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace(" active", "");
+            this.className += " active";
+        });
+    }
+    for (var i = 0; i < btns2.length; i++) {
+        btns2[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace(" active", "");
+            this.className += " active";
+        });
+    }
+    for (var i = 0; i < btns3.length; i++) {
+        btns3[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace(" active", "");
+            this.className += " active";
+        });
+    }
+
+    </script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
