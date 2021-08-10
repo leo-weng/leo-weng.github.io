@@ -577,7 +577,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template!A1:O21',
+                    range: 'Template!A1:O20',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -596,9 +596,13 @@
                         tableValues[i][9] = playerPasses1[currNum];
                         tableValues[i][10] = playerPasses0[currNum];
                         tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                        console.log(tableValues);
+
                     }
                     tableValues[template.values.length+1] = [""];
                     tableValues[template.values.length+2] = [""];
+
+                    console.log(tableValues);
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
