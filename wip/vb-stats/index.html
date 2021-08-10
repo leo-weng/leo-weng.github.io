@@ -113,14 +113,20 @@
             border-bottom: 1px solid;
         }
 
-        #plus-mode-label {
+        #plus-mode-label, #plus-mode {
             background-color: var(--mode-green);
             border-radius: 0;
-
+            margin: 0;
         }
-        #minus-mode-label {
+        #minus-mode-label, #minus-mode {
             background-color: var(--mode-red);
             border-radius: 0;
+            margin: 0;
+        }
+
+        #plus-mode, #minus-mode {
+            padding: 0 10px;
+            border: none;
         }
 
         #util-bar {
@@ -148,8 +154,12 @@
     <div class="container-fluid" id="page-container">
         <div id="util-bar">
             <div class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
-                <label class="btn" id="plus-mode-label" for="plus-mode"><input type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>+ Mode</label>
-                <label class="btn" id="minus-mode-label" for="minus-mode"><input type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >- Mode</label>
+                <button type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>
+                    <label class="btn" id="plus-mode-label" for="plus-mode">+ Mode</label>
+                </button>
+                <button type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >
+                    <label class="btn" id="minus-mode-label" for="minus-mode">- Mode</label>
+                </button>
             </div>
             <div class="btn-group float-right google-sheets-buttons">
                 <button class="btn" id="authorize_button" style="display: none;">Authorize</button>
