@@ -596,13 +596,15 @@
                         tableValues[i][9] = playerPasses1[currNum];
                         tableValues[i][10] = playerPasses0[currNum];
                         tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
-                        console.log(tableValues);
-
                     }
                     tableValues[template.values.length+1] = [""];
                     tableValues[template.values.length+2] = [""];
 
-                    console.log(tableValues);
+                    n =  new Date();
+                    y = n.getFullYear();
+                    m = n.getMonth() + 1;
+                    d = n.getDate();
+                    tableValues[0][0] = m + "/" + d + "/" + y;
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
