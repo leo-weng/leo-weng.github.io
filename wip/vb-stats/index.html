@@ -297,9 +297,9 @@
         function addMainFrame() {
             mainCols = "";
 
-            for (var i = 0; i < 6; i++) {
+            for (var i = 0; i < 5; i++) {
                 mainCols += '<div class="col-6 col-md-4 col-lg-2">';
-                mainCols += '<div class="row" id=main"' + i + '-row">';
+                mainCols += '<div class="row" id=main' + i + '-row">';
                 mainCols += '<div class="col text-center" id="main' + i + '-col">';
                 mainCols += '</div>';
                 mainCols += '</div>';
@@ -324,14 +324,14 @@
                     playerDiv += "<h4 class='player-name' id='name-" + playerNum + "'>" + playerName + "</h4>";
                 playerDiv += "</div>";
 
-                playerDiv += "<div class='col-2 btn-update-position-col'>";
-                playerDiv += "<div class='dropdown'>";
-                    playerDiv += "<button class='btn btn-update-position dropdown-toggle' type='button' id='position-btn-" + playerNum + "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>W</button>";
-                    playerDiv += "<div class='dropdown-menu' id='position-menu-" + playerNum + "'aria-labelledby='position-btn-" + playerNum + "'>";
-                        allCols.forEach(element => playerDiv += "<a class='dropdown-item' onclick='changePosition(" + playerNum + ", " + element + ")'>" + element + "</a>");
-                    playerDiv += "</div>";
-                    playerDiv += "</div>";
-                playerDiv += "</div>";
+                // playerDiv += "<div class='col-2 btn-update-position-col'>";
+                // playerDiv += "<div class='dropdown'>";
+                //     playerDiv += "<button class='btn btn-update-position dropdown-toggle' type='button' id='position-btn-" + playerNum + "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>W</button>";
+                //     playerDiv += "<div class='dropdown-menu' id='position-menu-" + playerNum + "'aria-labelledby='position-btn-" + playerNum + "'>";
+                //         allCols.forEach(element => playerDiv += "<a class='dropdown-item' onclick='changePosition(" + playerNum + ", " + element + ")'>" + element + "</a>");
+                //     playerDiv += "</div>";
+                //     playerDiv += "</div>";
+                // playerDiv += "</div>";
 
                 playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>K</button>";
