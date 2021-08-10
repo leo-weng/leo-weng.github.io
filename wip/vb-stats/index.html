@@ -125,7 +125,7 @@
         }
 
         #plus-mode, #minus-mode {
-            padding: 0 10px;
+            padding: 10px 10px;
             border: none;
         }
 
@@ -153,13 +153,10 @@
 <body>
     <div class="container-fluid" id="page-container">
         <div id="util-bar">
-            <div class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
-                <button type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')" checked>
-                    <label class="btn" id="plus-mode-label" for="plus-mode">+ Mode</label>
-                </button>
-                <button type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')" >
-                    <label class="btn" id="minus-mode-label" for="minus-mode">- Mode</label>
-                </button>
+            <div id="mode-div" class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
+                <h2 id="mode-text" style="display:none;">plus</h2>
+                <button type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')">+ Mode</button>
+                <button type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')">- Mode</button>
             </div>
             <div class="btn-group float-right google-sheets-buttons">
                 <button class="btn" id="authorize_button" style="display: none;">Authorize</button>
@@ -408,15 +405,18 @@
         function changeMode(mode) {
             var all_stat_btns = document.getElementsByClassName('btn-update-stat');
             if(mode == "plus") {
+                document.getElementById('mode-text').innerHTML = "plus";
                 document.getElementById("page-container").style.backgroundColor = "var(--mode-green)";
                 for (var i = 0; i < all_stat_btns.length; i++) {
                     all_stat_btns[i].style.backgroundColor =  "var(--mode-green)";
                 }
             } else if(mode == "minus") {
+                document.getElementById('mode-text').innerHTML = "minus";
                 document.getElementById("page-container").style.backgroundColor = "var(--mode-red)";
                 for (var i = 0; i < all_stat_btns.length; i++) {
                     all_stat_btns[i].style.backgroundColor =  "var(--mode-red)";
                 }
+
             }
         }
 
@@ -481,7 +481,7 @@
 
         function changeKills(playerNum) {
             var kills = playerKills[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 kills++;
             } else {
                 kills--;
@@ -494,7 +494,7 @@
 
         function changeErrors(playerNum) {
             var errors = playerErrors[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 errors++;
             } else {
                 errors--;
@@ -507,7 +507,7 @@
 
         function changeAttempts(playerNum) {
             var attempts = playerAttempts[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 attempts++;
             } else {
                 attempts--;
@@ -520,7 +520,7 @@
 
         function changePasses3(playerNum) {
             var passes3 = playerPasses3[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 passes3++;
             } else {
                 passes3--;
@@ -532,7 +532,7 @@
         }
         function changePasses2(playerNum) {
             var passes2 = playerPasses2[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 passes2++;
             } else {
                 passes2--;
@@ -544,7 +544,7 @@
         }
         function changePasses1(playerNum) {
             var passes1 = playerPasses1[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 passes1++;
             } else {
                 passes1--;
@@ -556,7 +556,7 @@
         }
         function changePasses0(playerNum) {
             var passes0 = playerPasses0[playerNum];
-            if (document.getElementById("plus-mode").checked) {
+            if (document.getElementById("mode-text").innerHTML == "plus") {
                 passes0++;
             } else {
                 passes0--;
