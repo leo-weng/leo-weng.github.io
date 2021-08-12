@@ -577,7 +577,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template!A1:O20',
+                    range: 'Template!A1:O22',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -598,7 +598,6 @@
                         tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
                     }
                     tableValues[template.values.length+1] = [""];
-                    tableValues[template.values.length+2] = [""];
 
                     n =  new Date();
                     y = n.getFullYear();
@@ -610,7 +609,7 @@
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
-                        range: '2021Preseason!A1:A1',
+                        range: '2021Preseason!A1',
                         valueInputOption: 'USER_ENTERED',
                         // valueInputOption: 'RAW',
                         insertDataOption: 'INSERT_ROWS',
