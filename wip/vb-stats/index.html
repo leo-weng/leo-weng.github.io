@@ -275,13 +275,13 @@
         var playerPasses2 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses1 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses0 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
-        var allCols = [1,2,3,4,5,6]
+        var allCols = 6;
 
         players[4] = ['Lauren', 4];
         players[5] = ['Bianca', 0];
         players[6] = ['Maddie', 4];
-        players[7] = ['Liz', 4];
-        players[8] = ['Paola', 4];
+        players[7] = ['Liz', 5];
+        players[8] = ['Paola', 5];
         players[10] = ['Bella', 3];
         players[11] = ['Breland', 2];
         players[12] = ['Leia', 0];
@@ -304,7 +304,7 @@
         function addMainFrame() {
             mainCols = "";
 
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < allCols; i++) {
                 mainCols += '<div class="col-6 col-md-4 col-lg-2">';
                 mainCols += '<div class="row" id=main' + i + '-row">';
                 mainCols += '<div class="col text-center" id="main' + i + '-col">';
