@@ -606,6 +606,8 @@
                     d = n.getDate();
                     tableValues[0][0] = m + "/" + d + "/" + y;
 
+                    console.log(tableValues);
+
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
                         range: '2021Preseason!A1',
