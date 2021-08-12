@@ -577,7 +577,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template!A1:O22',
+                    range: 'Template!A1:O21',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -609,7 +609,7 @@
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
-                        range: '2021Preseason!A1:O22',
+                        range: '2021Preseason!A1',
                         valueInputOption: 'USER_ENTERED',
                         // valueInputOption: 'RAW',
                         insertDataOption: 'INSERT_ROWS',
