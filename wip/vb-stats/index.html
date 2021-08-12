@@ -597,7 +597,6 @@
                         tableValues[i][10] = playerPasses0[currNum];
                         tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
                     }
-                    tableValues = [""] + tableValues;
                     tableValues[template.values.length+1] = [""];
                     tableValues[template.values.length+2] = [""];
 
@@ -611,7 +610,7 @@
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
-                        range: '2021Preseason!A0',
+                        range: '2021Preseason!A1:A1',
                         valueInputOption: 'USER_ENTERED',
                         // valueInputOption: 'RAW',
                         insertDataOption: 'INSERT_ROWS',
