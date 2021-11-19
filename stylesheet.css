@@ -236,6 +236,8 @@ body {
     display: inline-block;
     margin-bottom: 0;
 }
+
+.tag-btn,
 .contact-detail,
 .work-detail,
 .project-course,
@@ -269,10 +271,11 @@ body {
 .project-course-link h6:hover {
     background-color: inherit;
     color: var(--color-accent1);
+    border-color: var(--color-accent1);
 }
 .work-section,
 .project-section {
-    margin: 100px auto;
+    margin: 50px auto 80px auto;
 }
 .work-info {
     margin-bottom: 25px;
@@ -318,6 +321,29 @@ body {
     padding: 5px;
     font-size: 1em;
 }
+#tags-div {
+    margin-top: 20px;
+}
+button.tag-btn, button {
+    background-color: transparent;
+    color: var(--color-text2);
+    border-color: var(--color-text2);
+    padding: 10px;
+    border-radius: 2px;
+    margin-left: 10px;
+}
+.tag-btn:hover {
+    color: var(--color-accent1);
+    border-color: var(--color-accent1);
+}
+button.active:hover {
+    color: white;
+}
+button.active {
+    background-color: var(--color-accent1);
+    color: white;;
+}
+
 /* about */
 .about-profile {
     margin-bottom: 25px;
