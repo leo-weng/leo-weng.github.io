@@ -5,7 +5,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <title>BuzzStats v2.0</title>
+    <title>BuzzStats v3.1</title>
     <meta charset="UTF-8">
     <meta name="description" content="">
     <style>
@@ -168,7 +168,7 @@
 
         <div class="row title justify-content-center">
             <div class="col-12 text-center">
-                <h1 class="page-title">BuzzStats v2.0</h1>
+                <h1 class="page-title">BuzzStats v3.1</h1>
             </div>
         </div>
         <div class="row justify-content-center" id="main-titles">
@@ -300,6 +300,7 @@
         players[18] = ['Laura', 1];
         players[20] = ['Nicole', 3];
         players[23] = ['Erin', 2];
+        players[24] = ['Mikayla', 2];
         // players[26] = 'Player1';
         // players[27] = 'Player2';
         // players[28] = 'Player3';
@@ -575,7 +576,7 @@
         function uploadToGoogleSheets() {
             if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
                 var template;
-                var spreadsheetId = '1vSH3PCElo6FzTzNjcjC7DNXkf2FynwCoeffhDdKMX7U';
+                var spreadsheetId = '1DNSMoLouWXfyLDmx-5XHaRhnSzyKv0jXHYHxkMbHnkQ';
                 var body;
 
                 var values;
@@ -614,7 +615,7 @@
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
-                        range: '2021Preseason!A1',
+                        range: '2022Preseason!A1',
                         valueInputOption: 'USER_ENTERED',
                         // valueInputOption: 'RAW',
                         insertDataOption: 'INSERT_ROWS',
