@@ -270,31 +270,39 @@
         var players = [];
         var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerBlocked = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerAttempts = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses3 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses2 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses1 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var playerPasses0 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockSolo = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockAssist = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockTooled = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var digs = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockError = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var aces = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var assists = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
         var allCols = 6;
 
-        players[1] = ['Hunter', 0];
-        players[2] = ['Kyle', 0];
-        players[3] = ['Lee', 0];
-        players[4] = ['Drew', 1];
-        players[5] = ['Matt', 1];
+        players[14] = ['Hunter', 0];
+        players[3] = ['Kyle', 0];
+        players[12] = ['Lee', 0];
+        players[21] = ['Matt', 0];
         players[6] = ['Tyler', 1];
-        players[7] = ['Owen', 2];
-        players[8] = ['Peter', 2];
-        players[9] = ['Michael', 2];
-        players[21] = ['Neal', 3];
-        players[22] = ['Daniel', 3];
-        players[10] = ['Bradley', 3];
-        players[23] = ['Dylan', 4];
-        players[24] = ['Seb', 4];
-        players[25] = ['Carlo', 4];
-        players[26] = ['Ethan', 5];
-        players[27] = ['Gabriel', 5];
-        players[28] = ['Raymond', 5];
+        players[10] = ['Neal', 1];
+        players[22] = ['Bradley', 1];
+        players[23] = ['Daniel', 1];
+        players[13] = ['Peter', 2];
+        players[9] = ['Owen', 2];
+        players[11] = ['Michael', 2];
+        players[24] = ['Drew', 2];
+        players[4] = ['Dylan', 3];
+        players[7] = ['Seb', 4];
+        players[5] = ['Carlo', 4];
+        players[8] = ['Ethan', 3];
+        players[1] = ['Gabriel', 5];
+        players[2] = ['Raymond', 5];
         // players[26] = 'Player1';
         // players[27] = 'Player2';
         // players[28] = 'Player3';
@@ -340,62 +348,108 @@
                 //     playerDiv += "</div>";
                 // playerDiv += "</div>";
 
-                playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>K</button>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>AK</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
-                    playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeErrors(" + playerNum + ")'>AE</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlocked(" + playerNum + ")'>AB</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAttempts(" + playerNum + ")'>AA</button>";
                 playerDiv += "</div>";
 
-                playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeErrors(" + playerNum + ")'>E</button>";
+                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='errors-" + playerNum + "'>" + playerErrors[playerNum] + "</p>";
                 playerDiv += "</div>";
-
-                playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAttempts(" + playerNum + ")'>A</button>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocked-" + playerNum + "'>" + playerBlocked[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='attempts-" + playerNum + "'>" + playerAttempts[playerNum] + "</p>";
                 playerDiv += "</div>";
 
-                playerDiv += "<div class='panel-sep col-12'>";
+                // playerDiv += "<div class='panel-sep col-12'>";
+                // playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>P3</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>P2</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>P1</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
 
-                playerDiv += "<div class='col-4 text-right'>";
-                    playerDiv += "<p>Pass: </p>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-8'>";
-                    playerDiv += "<div class='row'>";
-                        playerDiv += "<div class='col-3 button-col'>";
-                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>3</button>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 button-col'>";
-                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>2</button>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 button-col'>";
-                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>1</button>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 button-col'>";
-                            playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>0</button>";
-                        playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
+                playerDiv += "</div>";
 
-                        playerDiv += "<div class='col-3 number-col'>";
-                            playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 number-col'>";
-                            playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 number-col'>";
-                            playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
-                        playerDiv += "</div>";
-                        playerDiv += "<div class='col-3 number-col'>";
-                            playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
-                        playerDiv += "</div>";
-                    playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockSolo(" + playerNum + ")'>BS</button>";
                 playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockAssist(" + playerNum + ")'>BA</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockTooled(" + playerNum + ")'>BT</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockError(" + playerNum + ")'>BE</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocksolo-" + playerNum + "'>" + blockSolo[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blockassist-" + playerNum + "'>" + blockAssist[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocktooled-" + playerNum + "'>" + blockTooled[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blockerror-" + playerNum + "'>" + blockError[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeDigs(" + playerNum + ")'>Digs</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAces(" + playerNum + ")'>Aces</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAssists(" + playerNum + ")'>Asst.</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='digs-" + playerNum + "'>" + digs[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='aces-" + playerNum + "'>" + aces[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='assists-" + playerNum + "'>" + assists[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+
             playerDiv += "</div>";
 
             document.getElementById("main" + playerStart + "-col").insertAdjacentHTML('beforeend', playerDiv);
@@ -505,6 +559,19 @@
             document.getElementById(id_name).innerHTML = errors;
         }
 
+        function changeBlocked(playerNum) {
+            var blocked = playerBlocked[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                blocked++;
+            } else {
+                blocked--;
+            }
+            playerBlocked[playerNum] = blocked;
+
+            id_name = "blocked-" +  playerNum
+            document.getElementById(id_name).innerHTML = blocked;
+        }
+
         function changeAttempts(playerNum) {
             var attempts = playerAttempts[playerNum];
             if (document.getElementById("mode-text").innerHTML == "plus") {
@@ -567,17 +634,108 @@
             document.getElementById(id_name).innerHTML = passes0;
         }
 
+        function changeBlockSolo(playerNum) {
+            var bs = blockSolo[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                bs++;
+            } else {
+                bs--;
+            }
+            blockSolo[playerNum] = bs;
+
+            id_name = "blocksolo-" +  playerNum
+            document.getElementById(id_name).innerHTML = bs;
+        }
+
+        function changeBlockAssist(playerNum) {
+            var ba = blockAssist[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ba++;
+            } else {
+                ba--;
+            }
+            blockAssist[playerNum] = ba;
+
+            id_name = "blockassist-" +  playerNum
+            document.getElementById(id_name).innerHTML = ba;
+        }
+
+        function changeBlockTooled(playerNum) {
+            var bt = blockTooled[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                bt++;
+            } else {
+                bt--;
+            }
+            blockTooled[playerNum] = bt;
+
+            id_name = "blocktooled-" +  playerNum
+            document.getElementById(id_name).innerHTML = bt;
+        }
+
+        function changeBlockError(playerNum) {
+            var be = blockError[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                be++;
+            } else {
+                be--;
+            }
+            blockError[playerNum] = be;
+
+            id_name = "blockerror-" +  playerNum
+            document.getElementById(id_name).innerHTML = be;
+        }
+
+        function changeDigs(playerNum) {
+            var dig = digs[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                dig++;
+            } else {
+                dig--;
+            }
+            digs[playerNum] = dig;
+
+            id_name = "digs-" +  playerNum
+            document.getElementById(id_name).innerHTML = dig;
+        }
+
+        function changeAces(playerNum) {
+            var ace = aces[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ace++;
+            } else {
+                ace--;
+            }
+            aces[playerNum] = ace;
+
+            id_name = "aces-" +  playerNum
+            document.getElementById(id_name).innerHTML = ace;
+        }
+
+        function changeAssists(playerNum) {
+            var ass = assists[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ass++;
+            } else {
+                ass--;
+            }
+            assists[playerNum] = ass;
+
+            id_name = "assists-" +  playerNum
+            document.getElementById(id_name).innerHTML = ass;
+        }
+
         function uploadToGoogleSheets() {
             if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
                 var template;
-                var spreadsheetId = '1vSH3PCElo6FzTzNjcjC7DNXkf2FynwCoeffhDdKMX7U';
+                var spreadsheetId = '1Psph4vKA0iocY2cW62-7Y5hEgECnKbhN5GvL7zyE39E';
                 var body;
 
                 var values;
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template!A1:O21',
+                    range: 'Template!A1:Z23',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -586,16 +744,25 @@
                     tableValues = template.values;
                     console.log(tableValues);
 
-                    for (var i = 4; i < template.values.length; i++) {
-                        var currNum = tableValues[i][1];
-                        tableValues[i][3] = playerKills[currNum];
-                        tableValues[i][4] = playerErrors[currNum];
-                        tableValues[i][5] = playerAttempts[currNum] + playerKills[currNum] + playerErrors[currNum];
-                        tableValues[i][7] = playerPasses3[currNum];
-                        tableValues[i][8] = playerPasses2[currNum];
-                        tableValues[i][9] = playerPasses1[currNum];
-                        tableValues[i][10] = playerPasses0[currNum];
-                        tableValues[i][14] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                    // for (var i = 3; i < template.values.length; i++) {
+                    for (var i = 3; i < 21; i++) {
+                        var currNum = tableValues[i][2];
+                        tableValues[i][4] = playerKills[currNum];
+                        tableValues[i][5] = playerErrors[currNum];
+                        tableValues[i][6] = playerBlocked[currNum];
+                        tableValues[i][7] = playerAttempts[currNum] + playerKills[currNum] + playerErrors[currNum] + playerBlocked[currNum] ;
+                        tableValues[i][11] = blockSolo[currNum];
+                        tableValues[i][12] = blockAssist[currNum];
+                        tableValues[i][13] = blockTooled[currNum];
+                        tableValues[i][14] = blockError[currNum];
+                        tableValues[i][15] = aces[currNum];
+                        tableValues[i][16] = digs[currNum];
+                        tableValues[i][17] = assists[currNum];
+                        tableValues[i][19] = playerPasses3[currNum];
+                        tableValues[i][20] = playerPasses2[currNum];
+                        tableValues[i][21] = playerPasses1[currNum];
+                        tableValues[i][22] = playerPasses0[currNum];
+                        tableValues[i][25] = document.getElementById("color-btn-" +  currNum).innerHTML;
                     }
                     tableValues[template.values.length+1] = [""];
 
@@ -609,7 +776,7 @@
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
-                        range: '2021Preseason!A1',
+                        range: '2023Spring!A1',
                         valueInputOption: 'USER_ENTERED',
                         // valueInputOption: 'RAW',
                         insertDataOption: 'INSERT_ROWS',
