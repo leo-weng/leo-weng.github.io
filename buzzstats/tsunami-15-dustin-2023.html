@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>BuzzStats - Tsunami 15 Dustin</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <style>
+        :root {
+            --mode-green: #A5D0A8;
+            --mode-red: #F76C5E;
+            --gt-gold: #B3A369;
+            --gt-navy: #003057;
+            --def-green: #127475;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+        .page-title {
+            margin-bottom: 30px;
+        }
+        .player-panel {
+            padding: 10px 5px;
+            border: solid 1px white;
+            border-radius: 5px;
+            margin: 15px -10px;
+            background-color: white;
+        }
+        .player-name-col {
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+        .player-name {
+            font-size: 1.2rem;
+        }
+        .player-number-col {
+            margin-bottom: 20px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .player-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .player-panel p {
+            margin: 0;
+        }
+
+
+        .button-col, .number-col {
+            padding: 0;
+        }
+
+        .panel-sep {
+            height: 20px;
+        }
+
+        .btn-update-stat {
+            background-color: var(--mode-green);
+            border-color: var(--mode-green);
+            color: black;
+            font-weight: bold;
+        }
+        .btn:focus {
+            box-shadow: 0 0 0 0;
+        }
+        .btn-update-color-col, .btn-update-position-col {
+            margin-bottom: 20px;
+            padding: 0px;
+        }
+        .btn-update-color {
+            height: 30px;
+            width: 30px;
+            padding: 0px;
+            margin-top: -20px;
+            border-radius: 15px;
+            background-color: var(--gt-gold);
+            z-index: 10;
+            color: var(--gt-gold);
+        }
+        .btn-update-color:hover {
+            color: var(--gt-gold);
+            border-color: var(--gt-gold);
+        }
+        .btn-update-position {
+            height: 30px;
+            width: 40px;
+            padding: 0px;
+            margin-top: -20px;
+            border-radius: 5px;
+            background-color: var(--gt-gold);
+            z-index: 10;
+            color: var(--gt-gold);
+        }
+        .btn-update-position:hover {
+            color: var(--gt-gold);
+            border-color: var(--gt-gold);
+        }
+
+        .dropdown-menu {
+            min-width: 40px;
+            padding: 0px;
+
+        }
+        .dropdown-item {
+            padding: 20px 0;
+            text-align: center;
+            color: inherit;
+            border-top: 1px solid;
+            border-bottom: 1px solid;
+        }
+
+        #plus-mode-label, #plus-mode {
+            background-color: var(--mode-green);
+            border-radius: 0;
+            margin: 0;
+        }
+        #minus-mode-label, #minus-mode {
+            background-color: var(--mode-red);
+            border-radius: 0;
+            margin: 0;
+        }
+
+        #plus-mode, #minus-mode {
+            padding: 10px 10px;
+            border: none;
+        }
+
+        #util-bar {
+            margin-bottom: 10px;
+        }
+
+        .google-sheets-buttons button {
+            margin: 5px;
+            background-color: var(--gt-navy);
+            border-radius: 0;
+            color: white;
+        }
+        .google-sheets-buttons button:hover {
+            background-color: var(--gt-gold);
+            color: white;
+        }
+
+
+        #page-container {
+            background-color:  var(--mode-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" id="page-container">
+        <div id="util-bar">
+            <div id="mode-div" class="btn-group btn-group-toggle mode-toggle" data-toggle="buttons">
+                <h2 id="mode-text" style="display:none;">plus</h2>
+                <button type="radio" id="plus-mode" name="mode" onclick="changeMode('plus')">+ Mode</button>
+                <button type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')">- Mode</button>
+            </div>
+            <div class="btn-group float-right google-sheets-buttons">
+                <button class="btn" id="authorize_button" style="display: none;">Authorize</button>
+                <button class="btn" id="signout_button" style="display: none;">Sign Out</button>
+                <button class="btn" onclick="uploadToGoogleSheets()">Upload To Google Sheets</button>
+            </div>
+            <pre id="content" style="white-space: pre-wrap;"></pre>
+        </div>
+
+        <div class="row title justify-content-center">
+            <div class="col-12 text-center">
+                <h1 class="page-title">BuzzStats - Tsunami 15 Dustin</h1>
+            </div>
+        </div>
+        <div class="row justify-content-center" id="main-titles">
+        </div>
+        <div class="row justify-content-center" id="main-cols">
+        </div>
+
+        <div class="row justify-content-center" id="main-cols">
+          <div class="col-8 text-center"></div>
+          <div class="col-4 text-center">
+              <p class="page-title" style="font-size:12px;">BuzzStats v3.0 <br>Create with love by Leo Weng &lt3</h1>
+          </div>
+        </div>
+
+
+    </div>
+
+    <!-- Google Sheets API -->
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '397646043092-nbjku2gai8rfiea37u9o14hn05j40hrk.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyCZV77t3Ana01JOFX5RHCuXykrzDRNjrXg';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+      var authorizeButton = document.getElementById('authorize_button');
+      var signoutButton = document.getElementById('signout_button');
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        }, function(error) {
+          appendPre(JSON.stringify(error, null, 2));
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+  </script>
+
+    <script>
+        var players = [];
+        var playerKills = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerErrors = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerBlocked = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerAttempts = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses3 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses2 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses1 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var playerPasses0 = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockSolo = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockAssist = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockTooled = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var digs = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var blockError = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var aces = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var assists = Array.apply(null, new Array(30)).map(Number.prototype.valueOf,0);
+        var allCols = 6;
+
+        players[7] = ['Ansley', 0];
+        players[14] = ['Leni', 0];
+        players[12] = ['Kat', 0];
+        players[4] = ['Maddie', 1];
+        players[5] = ['Emma', 1];
+        players[13] = ['Parin', 2];
+        players[10] = ['Reagan', 2];
+        players[11] = ['Cailynn', 2];
+        players[1] = ['Lily', 3];
+        players[2] = ['Grace', 3];
+        players[3] = ['Tyler', 4];
+        players[8] = ['Harper', 4];
+        players[9] = ['Elena', 5];
+        // players[6] = ['Player1',5];
+        // players[27] = 'Player2';
+        // players[28] = 'Player3';
+        addMainFrame();
+        players.forEach(addPlayer);
+
+        function addMainFrame() {
+            mainCols = "";
+
+            for (var i = 0; i < allCols; i++) {
+                mainCols += '<div class="col-6 col-md-4 col-lg-2">';
+                mainCols += '<div class="row" id=main' + i + '-row">';
+                mainCols += '<div class="col text-center" id="main' + i + '-col">';
+                mainCols += '</div>';
+                mainCols += '</div>';
+                mainCols += '</div>';
+            }
+            document.getElementById("main-cols").insertAdjacentHTML('beforeend', mainCols);
+        }
+
+        function addPlayer(playerArr, playerNum) {
+            playerName = playerArr[0];
+            playerStart = playerArr[1];
+
+            playerDiv = "<div class='row player-panel align-items-center' id='player-" + playerNum + "-panel'>";
+                playerDiv += "<div class='col-2 btn-update-color-col' id='player-" + playerNum + "'>";
+                    playerDiv += "<button class='btn btn-update-color' onclick='changeColor(" + playerNum + ")' id='color-btn-" + playerNum + "'>W</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 player-number-col text-right'>";
+                    playerDiv += "<h4 class='player-number' id='number-" + playerNum + "'>" + playerNum + "</h4>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-7 player-name-col  text-left'>";
+                    playerDiv += "<h4 class='player-name' id='name-" + playerNum + "'>" + playerName + "</h4>";
+                playerDiv += "</div>";
+
+                // playerDiv += "<div class='col-2 btn-update-position-col'>";
+                // playerDiv += "<div class='dropdown'>";
+                //     playerDiv += "<button class='btn btn-update-position dropdown-toggle' type='button' id='position-btn-" + playerNum + "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>W</button>";
+                //     playerDiv += "<div class='dropdown-menu' id='position-menu-" + playerNum + "'aria-labelledby='position-btn-" + playerNum + "'>";
+                //         allCols.forEach(element => playerDiv += "<a class='dropdown-item' onclick='changePosition(" + playerNum + ", " + element + ")'>" + element + "</a>");
+                //     playerDiv += "</div>";
+                //     playerDiv += "</div>";
+                // playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeKills(" + playerNum + ")'>AK</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeErrors(" + playerNum + ")'>AE</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlocked(" + playerNum + ")'>AB</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAttempts(" + playerNum + ")'>AA</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<p id='kills-" + playerNum + "'>" + playerKills[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='errors-" + playerNum + "'>" + playerErrors[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocked-" + playerNum + "'>" + playerBlocked[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='attempts-" + playerNum + "'>" + playerAttempts[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                // playerDiv += "<div class='panel-sep col-12'>";
+                // playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>P3</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>P2</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>P1</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockSolo(" + playerNum + ")'>BS</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockAssist(" + playerNum + ")'>BA</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockTooled(" + playerNum + ")'>BT</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockError(" + playerNum + ")'>BE</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocksolo-" + playerNum + "'>" + blockSolo[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blockassist-" + playerNum + "'>" + blockAssist[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blocktooled-" + playerNum + "'>" + blockTooled[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
+                    playerDiv += "<p id='blockerror-" + playerNum + "'>" + blockError[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeDigs(" + playerNum + ")'>Digs</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAces(" + playerNum + ")'>Aces</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAssists(" + playerNum + ")'>Asst.</button>";
+                playerDiv += "</div>";
+
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='digs-" + playerNum + "'>" + digs[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='aces-" + playerNum + "'>" + aces[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-4 number-col'>";
+                    playerDiv += "<p id='assists-" + playerNum + "'>" + assists[playerNum] + "</p>";
+                playerDiv += "</div>";
+
+
+            playerDiv += "</div>";
+
+            document.getElementById("main" + playerStart + "-col").insertAdjacentHTML('beforeend', playerDiv);
+
+        }
+
+        function changeMode(mode) {
+            var all_stat_btns = document.getElementsByClassName('btn-update-stat');
+            if(mode == "plus") {
+                document.getElementById('mode-text').innerHTML = "plus";
+                document.getElementById("page-container").style.backgroundColor = "var(--mode-green)";
+                for (var i = 0; i < all_stat_btns.length; i++) {
+                    all_stat_btns[i].style.backgroundColor =  "var(--mode-green)";
+                }
+            } else if(mode == "minus") {
+                document.getElementById('mode-text').innerHTML = "minus";
+                document.getElementById("page-container").style.backgroundColor = "var(--mode-red)";
+                for (var i = 0; i < all_stat_btns.length; i++) {
+                    all_stat_btns[i].style.backgroundColor =  "var(--mode-red)";
+                }
+
+            }
+        }
+
+        function changePosition(playerNum, positionNum) {
+            panel_id = "player-" +  playerNum + "-panel";
+            panel = document.getElementById(panel_id);
+            document.getElementById(panel_id).remove();
+
+            position_id = "main" + (positionNum-1) + "-col";
+
+            var insertHTML =  "<div class='row player-panel align-items-center' id='player-" + playerNum + "-panel'>";
+            insertHTML += panel.innerHTML;
+            insertHTML +=  "</div>";
+            document.getElementById(position_id).insertAdjacentHTML('afterbegin', insertHTML);
+
+            dropdown_id = "position-btn-" + playerNum;
+        }
+
+        function changeColor(playerNum) {
+            btn_id = "color-btn-" +  playerNum;
+            btn_update_id = "position-btn-" +  playerNum;
+            menu_update_id = "position-menu-" +  playerNum;
+            panel_id = "player-" +  playerNum + "-panel";
+            if (document.getElementById(btn_id).innerHTML == "W") {
+                document.getElementById(btn_id).innerHTML = "G";
+                document.getElementById(btn_id).style.color = "var(--gt-navy)";
+                document.getElementById(btn_id).style.backgroundColor = "var(--gt-navy)";
+                // document.getElementById(btn_update_id).innerHTML = "G";
+                // document.getElementById(btn_update_id).style.color = "var(--gt-navy)";
+                // document.getElementById(btn_update_id).style.backgroundColor = "var(--gt-navy)";
+                // document.getElementById(menu_update_id).style.backgroundColor = "var(--gt-navy)";
+                // document.getElementById(menu_update_id).style.color = "white";
+                document.getElementById(panel_id).style.backgroundColor = "var(--gt-gold)";
+                document.getElementById(panel_id).style.borderColor = "var(--gt-gold)";
+                document.getElementById(panel_id).style.color = "black";
+            } else if (document.getElementById(btn_id).innerHTML == "G") {
+                document.getElementById(btn_id).innerHTML = "N";
+                document.getElementById(btn_id).style.color = "white";
+                document.getElementById(btn_id).style.backgroundColor = "white";
+                // document.getElementById(btn_update_id).innerHTML = "N";
+                // document.getElementById(btn_update_id).style.color = "white";
+                // document.getElementById(btn_update_id).style.backgroundColor = "white";
+                // document.getElementById(menu_update_id).style.backgroundColor = "white";
+                // document.getElementById(menu_update_id).style.color = "black";
+                document.getElementById(panel_id).style.backgroundColor = "var(--gt-navy)";
+                document.getElementById(panel_id).style.borderColor = "var(--gt-navy)";
+                document.getElementById(panel_id).style.color = "white";
+            } else if (document.getElementById(btn_id).innerHTML == "N") {
+                document.getElementById(btn_id).innerHTML = "W";
+                document.getElementById(btn_id).style.color = "var(--gt-gold)";
+                document.getElementById(btn_id).style.backgroundColor = "var(--gt-gold)";
+                // document.getElementById(btn_update_id).innerHTML = "W";
+                // document.getElementById(btn_update_id).style.color = "var(--gt-gold)";
+                // document.getElementById(btn_update_id).style.backgroundColor = "var(--gt-gold)";
+                // document.getElementById(menu_update_id).style.backgroundColor = "var(--gt-gold)";
+                // document.getElementById(menu_update_id).style.color = "black";
+                document.getElementById(panel_id).style.backgroundColor = "white";
+                document.getElementById(panel_id).style.borderColor = "white";
+                document.getElementById(panel_id).style.color = "black";
+            }
+        }
+
+        function changeKills(playerNum) {
+            var kills = playerKills[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                kills++;
+            } else {
+                kills--;
+            }
+            playerKills[playerNum] = kills;
+
+            id_name = "kills-" +  playerNum
+            document.getElementById(id_name).innerHTML = kills;
+        }
+
+        function changeErrors(playerNum) {
+            var errors = playerErrors[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                errors++;
+            } else {
+                errors--;
+            }
+            playerErrors[playerNum] = errors;
+
+            id_name = "errors-" +  playerNum
+            document.getElementById(id_name).innerHTML = errors;
+        }
+
+        function changeBlocked(playerNum) {
+            var blocked = playerBlocked[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                blocked++;
+            } else {
+                blocked--;
+            }
+            playerBlocked[playerNum] = blocked;
+
+            id_name = "blocked-" +  playerNum
+            document.getElementById(id_name).innerHTML = blocked;
+        }
+
+        function changeAttempts(playerNum) {
+            var attempts = playerAttempts[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                attempts++;
+            } else {
+                attempts--;
+            }
+            playerAttempts[playerNum] = attempts;
+
+            id_name = "attempts-" +  playerNum
+            document.getElementById(id_name).innerHTML = attempts;
+        }
+
+        function changePasses3(playerNum) {
+            var passes3 = playerPasses3[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes3++;
+            } else {
+                passes3--;
+            }
+            playerPasses3[playerNum] = passes3;
+
+            id_name = "passes3-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes3;
+        }
+        function changePasses2(playerNum) {
+            var passes2 = playerPasses2[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes2++;
+            } else {
+                passes2--;
+            }
+            playerPasses2[playerNum] = passes2;
+
+            id_name = "passes2-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes2;
+        }
+        function changePasses1(playerNum) {
+            var passes1 = playerPasses1[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes1++;
+            } else {
+                passes1--;
+            }
+            playerPasses1[playerNum] = passes1;
+
+            id_name = "passes1-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes1;
+        }
+        function changePasses0(playerNum) {
+            var passes0 = playerPasses0[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes0++;
+            } else {
+                passes0--;
+            }
+            playerPasses0[playerNum] = passes0;
+
+            id_name = "passes0-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes0;
+        }
+
+        function changeBlockSolo(playerNum) {
+            var bs = blockSolo[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                bs++;
+            } else {
+                bs--;
+            }
+            blockSolo[playerNum] = bs;
+
+            id_name = "blocksolo-" +  playerNum
+            document.getElementById(id_name).innerHTML = bs;
+        }
+
+        function changeBlockAssist(playerNum) {
+            var ba = blockAssist[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ba++;
+            } else {
+                ba--;
+            }
+            blockAssist[playerNum] = ba;
+
+            id_name = "blockassist-" +  playerNum
+            document.getElementById(id_name).innerHTML = ba;
+        }
+
+        function changeBlockTooled(playerNum) {
+            var bt = blockTooled[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                bt++;
+            } else {
+                bt--;
+            }
+            blockTooled[playerNum] = bt;
+
+            id_name = "blocktooled-" +  playerNum
+            document.getElementById(id_name).innerHTML = bt;
+        }
+
+        function changeBlockError(playerNum) {
+            var be = blockError[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                be++;
+            } else {
+                be--;
+            }
+            blockError[playerNum] = be;
+
+            id_name = "blockerror-" +  playerNum
+            document.getElementById(id_name).innerHTML = be;
+        }
+
+        function changeDigs(playerNum) {
+            var dig = digs[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                dig++;
+            } else {
+                dig--;
+            }
+            digs[playerNum] = dig;
+
+            id_name = "digs-" +  playerNum
+            document.getElementById(id_name).innerHTML = dig;
+        }
+
+        function changeAces(playerNum) {
+            var ace = aces[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ace++;
+            } else {
+                ace--;
+            }
+            aces[playerNum] = ace;
+
+            id_name = "aces-" +  playerNum
+            document.getElementById(id_name).innerHTML = ace;
+        }
+
+        function changeAssists(playerNum) {
+            var ass = assists[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                ass++;
+            } else {
+                ass--;
+            }
+            assists[playerNum] = ass;
+
+            id_name = "assists-" +  playerNum
+            document.getElementById(id_name).innerHTML = ass;
+        }
+
+        function uploadToGoogleSheets() {
+            if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                var template;
+                var spreadsheetId = '18vxNatU8Er7DIMfVAJXsA3z4-4JwVTrUGjSkta6v-xw';
+                var body;
+
+                var values;
+
+                gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: spreadsheetId,
+                    range: 'Template!A1:Z23',
+                    valueRenderOption: 'FORMULA',
+                }).then(function(response) {
+                    template = response.result;
+                    // template.values[template.values.length+1] = [""];
+                    // template.values[template.values.length+2] = [""];
+                    tableValues = template.values;
+                    console.log(tableValues);
+
+                    // for (var i = 3; i < template.values.length; i++) {
+                    for (var i = 3; i < 21; i++) {
+                        var currNum = tableValues[i][2];
+                        console.log(currNum);
+                        tableValues[i][4] = playerKills[currNum];
+                        tableValues[i][5] = playerErrors[currNum];
+                        tableValues[i][6] = playerBlocked[currNum];
+                        tableValues[i][7] = playerAttempts[currNum] + playerKills[currNum] + playerErrors[currNum] + playerBlocked[currNum] ;
+                        tableValues[i][11] = blockSolo[currNum];
+                        tableValues[i][12] = blockAssist[currNum];
+                        tableValues[i][13] = blockTooled[currNum];
+                        tableValues[i][14] = blockError[currNum];
+                        tableValues[i][15] = aces[currNum];
+                        tableValues[i][16] = digs[currNum];
+                        tableValues[i][17] = assists[currNum];
+                        tableValues[i][19] = playerPasses3[currNum];
+                        tableValues[i][20] = playerPasses2[currNum];
+                        tableValues[i][21] = playerPasses1[currNum];
+                        tableValues[i][22] = playerPasses0[currNum];
+                        if(currNum) {
+                          tableValues[i][25] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                        }
+                    }
+                    tableValues[template.values.length+1] = [""];
+
+                    n =  new Date();
+                    y = n.getFullYear();
+                    m = n.getMonth() + 1;
+                    d = n.getDate();
+                    tableValues[1][0] = m + "/" + d + "/" + y;
+
+                    console.log(tableValues);
+
+                    gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: spreadsheetId,
+                        range: 'WebStats!A1',
+                        valueInputOption: 'USER_ENTERED',
+                        // valueInputOption: 'RAW',
+                        insertDataOption: 'INSERT_ROWS',
+                        resource: { values: tableValues }
+                    }).then((response) => {
+                        var result = response.result;
+                        console.log(result)
+                        console.log(`${result.updates.updatedCells} cells updated.`);
+                    });
+                });
+
+            }
+        }
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>
