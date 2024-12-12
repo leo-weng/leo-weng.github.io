@@ -389,17 +389,19 @@
 
                 // playerDiv += "<div class='panel-sep col-12'>";
                 // playerDiv += "</div>";
-
-                playerDiv += "<div class='col-3 button-col'>";
+                playerDiv += "<div class='col-2 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses4(" + playerNum + ")'>P4</button>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>P3</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 button-col'>";
+                playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>P2</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 button-col'>";
+                playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>P1</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 button-col'>";
+                playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
                 playerDiv += "<div class='col-2 number-col'>";
