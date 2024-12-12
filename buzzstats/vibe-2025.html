@@ -389,7 +389,6 @@
 
                 // playerDiv += "<div class='panel-sep col-12'>";
                 // playerDiv += "</div>";
-                playerDiv += "<div class='row'>";
 
                 playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses4(" + playerNum + ")'>P4</button>";
@@ -406,10 +405,10 @@
                 playerDiv += "<div class='col-2 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
-
+                playerDiv += "<div class='col-2 button-col'>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark'>-</button>";
                 playerDiv += "</div>";
 
-                playerDiv += "<div class='row'>";
 
                 playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes4-" + playerNum + "'>" + playerPasses4[playerNum] + "</p>";
@@ -426,8 +425,10 @@
                 playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
                 playerDiv += "</div>";
-
+                playerDiv += "<div class='col-2 number-col'>";
+                    playerDiv += "<p></p>";
                 playerDiv += "</div>";
+
 
                 playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeBlockSolo(" + playerNum + ")'>BS</button>";
