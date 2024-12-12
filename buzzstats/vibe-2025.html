@@ -287,11 +287,16 @@
 
         players[8] = ['Mai Mai', 0];
         players[40] = ['Nomaris', 0];
-        players[9] = ['Morgan', 1];
+        players[9] = ['Morgan', 0];
         // players[1] = ['Lek', 1];
-        players[13] = ['Leah', 2];
+        players[7] = ['Pia', 1];
+        players[13] = ['Leah', 1];
+        players[18] = ['Jen', 1];
         // players[22] = ['Yossi', 2];
+        players[20] = ['Maddie', 2];
         players[23] = ['Kacie', 2];
+        players[24] = ['Anna', 2];
+
         players[27] = ['Temp', 3];
         players[28] = ['Temp', 4];
         // players[12] = ['Lee', 0];
@@ -396,17 +401,19 @@
                 playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
-
-                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<div class='col-2 number-col'>";
+                    playerDiv += "<p id='passes4-" + playerNum + "'>" + playerPasses4[playerNum] + "</p>";
+                playerDiv += "</div>";
+                playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-3 number-col'>";
+                playerDiv += "<div class='col-2 number-col'>";
                     playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
                 playerDiv += "</div>";
 
@@ -591,7 +598,18 @@
             id_name = "attempts-" +  playerNum
             document.getElementById(id_name).innerHTML = attempts;
         }
+        function changePasses4(playerNum) {
+            var passes4 = playerPasses4[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes4++;
+            } else {
+                passes4--;
+            }
+            playerPasses4[playerNum] = passes3;
 
+            id_name = "passes4-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes4;
+        }
         function changePasses3(playerNum) {
             var passes3 = playerPasses3[playerNum];
             if (document.getElementById("mode-text").innerHTML == "plus") {
@@ -742,7 +760,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template-Web!A1:Z23',
+                    range: 'Template-Web!A1:AA23',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -765,11 +783,12 @@
                         tableValues[i][15] = aces[currNum];
                         tableValues[i][16] = digs[currNum];
                         tableValues[i][17] = assists[currNum];
-                        tableValues[i][19] = playerPasses3[currNum];
-                        tableValues[i][20] = playerPasses2[currNum];
-                        tableValues[i][21] = playerPasses1[currNum];
-                        tableValues[i][22] = playerPasses0[currNum];
-                        // tableValues[i][25] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                        tableValues[i][19] = playerPasses4[currNum];
+                        tableValues[i][20] = playerPasses3[currNum];
+                        tableValues[i][21] = playerPasses2[currNum];
+                        tableValues[i][22] = playerPasses1[currNum];
+                        tableValues[i][23] = playerPasses0[currNum];
+                        // tableValues[i][26] = document.getElementById("color-btn-" +  currNum).innerHTML;
                     }
                     tableValues[template.values.length+1] = [""];
 
