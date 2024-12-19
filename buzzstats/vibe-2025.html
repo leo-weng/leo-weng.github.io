@@ -276,6 +276,7 @@
         var playerPasses3 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses2 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses1 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
+        var playerPasses05 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses0 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var blockSolo = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var blockAssist = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
@@ -403,10 +404,10 @@
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>P1</button>";
                 playerDiv += "</div>";
                 playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses05(" + playerNum + ")'>P0.5</button>";
                 playerDiv += "</div>";
                 playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark'>-</button>";
+                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
 
 
@@ -423,10 +424,10 @@
                     playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
                 playerDiv += "</div>";
                 playerDiv += "<div class='col-2 number-col'>";
-                    playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
+                    playerDiv += "<p id='passes05-" + playerNum + "'>" + playerPasses05[playerNum] + "</p>";
                 playerDiv += "</div>";
                 playerDiv += "<div class='col-2 number-col'>";
-                    playerDiv += "<p></p>";
+                    playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
                 playerDiv += "</div>";
 
 
@@ -648,6 +649,7 @@
             id_name = "passes2-" +  playerNum
             document.getElementById(id_name).innerHTML = passes2;
         }
+
         function changePasses1(playerNum) {
             var passes1 = playerPasses1[playerNum];
             if (document.getElementById("mode-text").innerHTML == "plus") {
@@ -660,6 +662,20 @@
             id_name = "passes1-" +  playerNum
             document.getElementById(id_name).innerHTML = passes1;
         }
+
+        function changePasses05(playerNum) {
+            var passes05 = playerPasses05[playerNum];
+            if (document.getElementById("mode-text").innerHTML == "plus") {
+                passes05++;
+            } else {
+                passes05--;
+            }
+            playerPasses05[playerNum] = passes05;
+
+            id_name = "passes05-" +  playerNum
+            document.getElementById(id_name).innerHTML = passes05;
+        }
+
         function changePasses0(playerNum) {
             var passes0 = playerPasses0[playerNum];
             if (document.getElementById("mode-text").innerHTML == "plus") {
@@ -774,7 +790,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template-Web!A1:Z23',
+                    range: 'Template-Web!A1:AD14',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
@@ -783,8 +799,8 @@
                     tableValues = template.values;
                     console.log(tableValues);
 
-                    // for (var i = 3; i < template.values.length; i++) {
-                    for (var i = 3; i < 21; i++) {
+                    for (var i = 3; i < template.values.length; i++) {
+                    // for (var i = 3; i < 13; i++) {
                         var currNum = tableValues[i][2];
                         tableValues[i][4] = playerKills[currNum];
                         tableValues[i][5] = playerErrors[currNum];
@@ -801,8 +817,11 @@
                         tableValues[i][20] = playerPasses3[currNum];
                         tableValues[i][21] = playerPasses2[currNum];
                         tableValues[i][22] = playerPasses1[currNum];
-                        tableValues[i][23] = playerPasses0[currNum];
-                        // tableValues[i][25] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                        tableValues[i][23] = playerPasses05[currNum];
+                        tableValues[i][24] = playerPasses0[currNum];
+                        if (currNum != 0) {
+                            tableValues[i][29] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                        }
                     }
                     tableValues[template.values.length+1] = [""];
 
