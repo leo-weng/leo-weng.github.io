@@ -31,34 +31,35 @@
 
 
     <div id="page-container" class="container-fluid">
-        <div class="row align-items-center justify-content-center">
-            <div class="d-grid gap-2">
-                <button class="btn btn-outline-dark" onclick="openFullscreen()" >Fullscreen</button>
+        <div id="ui-container" class="container-fluid">
+            <div class="row align-items-center justify-content-center">
+                <div class="position-absolute top-0 start-0">
+                    <button class="btn btn-outline-dark" onclick="toggleFullscreen()" >Fullscreen</button>
+                </div>
+                <!-- <div class="d-grid gap-2">
+                </div> -->
             </div>
-        </div>
-        <div class="row align-items-center justify-content-center">
-            <div class="col-3">
-                <h3 class="text-end">Sequence:</h3>
-            </div>
-            <div class="col-6">
-                <div class="input-group">
-                    <!-- <span class="input-group-text" id="basic-addon1">@</span> -->
-                    <input id="sequence-text" type="text" class="form-control" placeholder="Sequence" aria-label="Sequence" value="LLRRL">
-                    <button id="go-button" class="btn outline-secondary" onclick="randomSequence()">Randomize</button>
-                    <button id="go-button" class="btn btn-primary btn-lg" onclick="startSequence()">GO!</button>
+            <div class="row align-items-center justify-content-center">
+                <div class="col-3">
+                    <h3 class="text-end">Sequence:</h3>
+                </div>
+                <div class="col-6">
+                    <div class="input-group">
+                        <!-- <span class="input-group-text" id="basic-addon1">@</span> -->
+                        <input id="sequence-text" type="text" class="form-control" placeholder="Sequence" aria-label="Sequence" value="LLRRL">
+                        <button id="go-button" class="btn outline-secondary" onclick="randomSequence()">Randomize</button>
+                        <button id="go-button" class="btn btn-primary btn-lg" onclick="startSequence()">GO!</button>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- <div class="row align-items-center justify-content-center">
-            <div class="d-grid gap-2">
-                <button id="go-button" class="btn btn-primary btn-lg" onclick="startSequence()">GO!</button>
-            </div>
-        </div> -->
-        <div id="main-imgs" class = "row align-items-center justify-content-center">
-            <div class="col-6 offset-3">
-                <h1 id="countdown" style="display: none"></h1>
-                <img id="left-arrow" src='left-arrow.png' style="display: none;">
-                <img id="right-arrow" src='right-arrow.png' style="display: none">
+        <div id="main-container" class="container-fluid">
+            <div id="main-imgs" class = "row align-items-center justify-content-center">
+                <div class="col-6 offset-3">
+                    <h1 id="countdown" style="display: none"></h1>
+                    <img id="left-arrow" src='left-arrow.png' style="display: none;">
+                    <img id="right-arrow" src='right-arrow.png' style="display: none">
+                </div>
             </div>
         </div>
     </div>
@@ -90,8 +91,7 @@
 
         function countdown() {
             console.log("Counting Down...")
-            document.getElementById("page-container").style.backgroundColor = 'green';
-            document.getElementById("go-button").style.display = 'none';
+            hideUI();
             document.getElementById("countdown").style.display = 'inline';
 
             interval = 1000; // 1 sec
@@ -101,7 +101,19 @@
                 setTimeout(function() {document.getElementById("countdown").textContent = countdownSequence.charAt(i);}, currInterval);
             }
             setTimeout(function() {document.getElementById("countdown").style.display = 'none';}, interval * countdownSecs);
+1
+        }
 
+        function hideUI() {
+            console.log("hiding UI")
+            document.getElementById("page-container").style.backgroundColor = 'green';
+            document.getElementById("ui-container").style.display = 'none';
+        }
+
+        function resetUI() {
+            console.log("reseting UI")
+            document.getElementById("page-container").style.backgroundColor = 'white';
+            document.getElementById("ui-container").style.display = 'inline';
         }
 
 
@@ -121,8 +133,7 @@
             }
 
             var resetTime = countdownSecs * 1000 + buffer + interval * (sequence.length + 1);
-            setTimeout(function() {document.getElementById("page-container").style.backgroundColor = 'white';}, resetTime);
-            setTimeout(function() {document.getElementById("go-button").style.display = 'inline';}, resetTime);
+            setTimeout(function() {resetUI()}, resetTime);
         }
 
 
@@ -140,6 +151,22 @@
         }
 
         var elem = document.documentElement;
+        var fsFlag = false;
+
+        function toggleFullscreen() {
+            switch (fsFlag) {
+                case true:
+                    closeFullscreen();
+                    fsFlag = false;
+                    break;
+                case false:
+                    openFullscreen();
+                    fsFlag = true;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         /* View in fullscreen */
         function openFullscreen() {
