@@ -6,6 +6,7 @@
     <title>Experiences</title>
     <!-- <link rel="stylesheet" href="stylesheet.css" type="text/css"> -->
     <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script> -->
+    <script src="https://kit.fontawesome.com/a09736098e.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="jQuery.js"></script>
     <script type="text/javascript">
         $(function(){
@@ -30,35 +31,38 @@
     <div id="header"></div>
 
 
-    <div id="page-container" class="container-fluid">
+    <div id="page-container" class="container-fluid mt-5">
         <div id="ui-container" class="container-fluid">
             <div class="row align-items-center justify-content-center">
-                <div class="position-absolute top-0 start-0">
-                    <button class="btn btn-outline-dark" onclick="toggleFullscreen()" >Fullscreen</button>
+                <div class="position-absolute top-0 start-0 mt-2">
+                    <button class="btn btn-outline-dark btn-lg" onclick="toggleFullscreen()" >
+                        <i id="fullscreen-icon" class="fa-solid fa-maximize" style="display: inline-block;"></i>
+                    </button>
+
                 </div>
                 <!-- <div class="d-grid gap-2">
                 </div> -->
             </div>
             <div class="row align-items-center justify-content-center">
-                <div class="col-3">
+                <div class="col-2">
                     <h3 class="text-end">Sequence:</h3>
                 </div>
-                <div class="col-6">
+                <div class="col-8">
                     <div class="input-group">
                         <!-- <span class="input-group-text" id="basic-addon1">@</span> -->
                         <input id="sequence-text" type="text" class="form-control" placeholder="Sequence" aria-label="Sequence" value="LLRRL">
-                        <button id="go-button" class="btn outline-secondary" onclick="randomSequence()">Randomize</button>
+                        <button id="go-button" class="btn btn-outline-secondary" onclick="randomSequence()">Randomize</button>
                         <button id="go-button" class="btn btn-primary btn-lg" onclick="startSequence()">GO!</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="main-container" class="container-fluid">
+        <div id="main-container" class="container-fluid h-100 d-inline-block" style="display: inline;">
             <div id="main-imgs" class = "row align-items-center justify-content-center">
                 <div class="col-6 offset-3">
-                    <h1 id="countdown" style="display: none"></h1>
-                    <img id="left-arrow" src='left-arrow.png' style="display: none;">
-                    <img id="right-arrow" src='right-arrow.png' style="display: none">
+                    <h1 class="position-absolute top-50 start-50 translate-middle" id="countdown" style="display: none"></h1>
+                    <img class="position-absolute top-50 start-50 translate-middle" id="left-arrow" src='left-arrow.png' style="display: none;">
+                    <img class="position-absolute top-50 start-50 translate-middle" id="right-arrow" src='right-arrow.png' style="display: none">
                 </div>
             </div>
         </div>
@@ -105,13 +109,18 @@
         }
 
         function hideUI() {
-            console.log("hiding UI")
+            console.log("hiding UI");
             document.getElementById("page-container").style.backgroundColor = 'green';
             document.getElementById("ui-container").style.display = 'none';
+
+            document.getElementById("main-container").style.display = 'inline';
+
         }
 
         function resetUI() {
             console.log("reseting UI")
+            document.getElementById("main-container").style.display = 'none';
+
             document.getElementById("page-container").style.backgroundColor = 'white';
             document.getElementById("ui-container").style.display = 'inline';
         }
@@ -170,6 +179,8 @@
 
         /* View in fullscreen */
         function openFullscreen() {
+            document.getElementById("fullscreen-icon").className = "fa-solid fa-minimize";
+
           if (elem.requestFullscreen) {
             elem.requestFullscreen();
           } else if (elem.webkitRequestFullscreen) { /* Safari */
@@ -181,6 +192,9 @@
 
         /* Close fullscreen */
         function closeFullscreen() {
+            document.getElementById("fullscreen-icon").className = "fa-solid fa-maximize";
+
+
           if (document.exitFullscreen) {
             document.exitFullscreen();
           } else if (document.webkitExitFullscreen) { /* Safari */
