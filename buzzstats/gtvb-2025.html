@@ -291,21 +291,25 @@
         players[40] = ['Dani', 0];
         // players[1] = ['Lek', 1];
         players[7] = ['Noemi', 0];
-        players[13] = ['Anna', 1];
+        players[19] = ['Anna', 1];
         players[18] = ['Anika', 1];
         players[27] = ['Mimi', 1];
-        players[31] = ['Gabi', 1];
-        // players[22] = ['Yossi', 2];
-        players[0] = ['Liv', 2];
-        players[1] = ['DeAndra', 2];
-        players[3] = ['Bobo', 2];
-        players[29] = ['Bianca', 2];
+        players[31] = ['Gabi', 2];
+        players[32] = ['OH1', 2];
+        players[33] = ['OH2', 2];
 
         players[11] = ['Larissa', 3];
         players[28] = ['Ital', 3];
-        players[13] = ['Helo', 4];
-        players[17] = ['Abi', 4];
-        players[30] = ['Sara', 4];
+        // players[22] = ['Yossi', 2];
+        players[0] = ['Liv', 3];
+        players[1] = ['DeAndra', 4];
+        players[3] = ['Bobo', 4];
+        players[29] = ['Bianca', 4];
+
+
+        players[13] = ['Helo', 5];
+        players[17] = ['Abi', 5];
+        players[30] = ['Sara', 5];
 
         addMainFrame();
         players.forEach(addPlayer);
@@ -777,7 +781,7 @@
 
                 gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Template-Web!A1:AD21',
+                    range: 'Template-Web!A1:AD23',
                     valueRenderOption: 'FORMULA',
                 }).then(function(response) {
                     template = response.result;
