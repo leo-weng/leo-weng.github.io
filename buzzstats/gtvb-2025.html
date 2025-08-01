@@ -285,11 +285,11 @@
         var playerErrors = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerBlocked = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerAttempts = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
-        var playerPasses4 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
+        // var playerPasses4 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses3 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses2 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses1 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
-        var playerPasses05 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
+        // var playerPasses05 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var playerPasses0 = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var blockSolo = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
         var blockAssist = Array.apply(null, new Array(42)).map(Number.prototype.valueOf,0);
@@ -395,42 +395,42 @@
                 // playerDiv += "<div class='panel-sep col-12'>";
                 // playerDiv += "</div>";
 
-                playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses4(" + playerNum + ")'>P4</button>";
-                playerDiv += "</div>";
-                playerDiv += "<div class='col-2 button-col'>";
+                // playerDiv += "<div class='col-2 button-col'>";
+                //     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses4(" + playerNum + ")'>P4</button>";
+                // playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses3(" + playerNum + ")'>P3</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 button-col'>";
+                playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses2(" + playerNum + ")'>P2</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 button-col'>";
+                playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses1(" + playerNum + ")'>P1</button>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 button-col'>";
-                    playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses05(" + playerNum + ")'>P0.5</button>";
-                playerDiv += "</div>";
-                playerDiv += "<div class='col-2 button-col'>";
+                // playerDiv += "<div class='col-2 button-col'>";
+                //     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses05(" + playerNum + ")'>P0.5</button>";
+                // playerDiv += "</div>";
+                playerDiv += "<div class='col-3 button-col'>";
                     playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changePasses0(" + playerNum + ")'>P0</button>";
                 playerDiv += "</div>";
 
 
-                playerDiv += "<div class='col-2 number-col'>";
-                    playerDiv += "<p id='passes4-" + playerNum + "'>" + playerPasses4[playerNum] + "</p>";
-                playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                // playerDiv += "<div class='col-2 number-col'>";
+                //     playerDiv += "<p id='passes4-" + playerNum + "'>" + playerPasses4[playerNum] + "</p>";
+                // playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='passes3-" + playerNum + "'>" + playerPasses3[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='passes2-" + playerNum + "'>" + playerPasses2[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='passes1-" + playerNum + "'>" + playerPasses1[playerNum] + "</p>";
                 playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
-                    playerDiv += "<p id='passes05-" + playerNum + "'>" + playerPasses05[playerNum] + "</p>";
-                playerDiv += "</div>";
-                playerDiv += "<div class='col-2 number-col'>";
+                // playerDiv += "<div class='col-2 number-col'>";
+                //     playerDiv += "<p id='passes05-" + playerNum + "'>" + playerPasses05[playerNum] + "</p>";
+                // playerDiv += "</div>";
+                playerDiv += "<div class='col-3 number-col'>";
                     playerDiv += "<p id='passes0-" + playerNum + "'>" + playerPasses0[playerNum] + "</p>";
                 playerDiv += "</div>";
 
@@ -817,14 +817,14 @@
                         tableValues[i][15] = aces[currNum];
                         tableValues[i][16] = digs[currNum];
                         tableValues[i][17] = assists[currNum];
-                        tableValues[i][19] = playerPasses4[currNum];
-                        tableValues[i][20] = playerPasses3[currNum];
-                        tableValues[i][21] = playerPasses2[currNum];
-                        tableValues[i][22] = playerPasses1[currNum];
-                        tableValues[i][23] = playerPasses05[currNum];
-                        tableValues[i][24] = playerPasses0[currNum];
+                        // tableValues[i][19] = playerPasses4[currNum];
+                        tableValues[i][19] = playerPasses3[currNum];
+                        tableValues[i][20] = playerPasses2[currNum];
+                        tableValues[i][21] = playerPasses1[currNum];
+                        // tableValues[i][23] = playerPasses05[currNum];
+                        tableValues[i][22] = playerPasses0[currNum];
                         if (currNum != 0) {
-                            tableValues[i][29] = document.getElementById("color-btn-" +  currNum).innerHTML;
+                            tableValues[i][27] = document.getElementById("color-btn-" +  currNum).innerHTML;
                         }
                     }
                     tableValues[template.values.length+1] = [""];
