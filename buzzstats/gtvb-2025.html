@@ -144,6 +144,17 @@
             color: white;
         }
 
+        .google-sheets-buttons a {
+            margin: 5px;
+            background-color: var(--gt-navy);
+            border-radius: 0;
+            color: white;
+        }
+        .google-sheets-buttons a:hover {
+            background-color: var(--gt-gold);
+            color: white;
+        }
+
 
         #page-container {
             background-color:  var(--mode-green);
@@ -159,6 +170,8 @@
                 <button type="radio" id="minus-mode" name="mode" onclick="changeMode('minus')">- Mode</button>
             </div>
             <div class="btn-group float-right google-sheets-buttons">
+                <a class="btn" id="sheet-button" role="button" href="https://docs.google.com/spreadsheets/d/1kbEDi-6-bY7lZVicnSQ2nGzknXFJ-QQafe4wtHUS9yM/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Go To Sheet
+                </a>
                 <button class="btn" id="authorize_button" style="display: none;">Authorize</button>
                 <button class="btn" id="signout_button" style="display: none;">Sign Out</button>
                 <button class="btn" onclick="uploadToGoogleSheets()">Upload To Google Sheets</button>
@@ -293,10 +306,10 @@
         players[6] = ['Anika', 1];
         players[12] = ['Mimi', 1];
         players[19] = ['Anna', 1];
-        players[21] = ['Noemi', 0];
+        players[21] = ['Noemi', 2];
         players[31] = ['Gabi', 2];
         players[32] = ['OH1', 2];
-        players[33] = ['OH2', 2];
+        // players[33] = ['OH2', 2];
 
         players[11] = ['Larissa', 3];
         players[22] = ['Ital', 3];
