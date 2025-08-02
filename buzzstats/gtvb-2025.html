@@ -9,6 +9,30 @@
     <meta charset="UTF-8">
     <meta name="description" content="">
     <style>
+        /* prevent pull-to-refresh for Safari 16+ */
+        @media screen and (pointer: coarse) {
+          @supports (-webkit-backdrop-filter: blur(1px)) and (overscroll-behavior-y: none)  {
+            html {
+              min-height: 100.3%;
+              overscroll-behavior-y: none;
+            }
+          }
+        }
+        /* prevent pull-to-refresh for Safari 9~15 */
+        @media screen and (pointer: coarse) {
+          @supports (-webkit-backdrop-filter: blur(1px)) and (not (overscroll-behavior-y: none))  {
+            html {
+              height: 100%;
+              overflow: hidden;
+            }
+            body {
+              margin: 0px;
+              max-height: 100%; /* or `height: calc(100% - 16px);` if body has default margin */
+              overflow: auto;
+              -webkit-overflow-scrolling: touch;
+            }
+          }
+        }
         :root {
             --mode-green: #A5D0A8;
             --mode-red: #F76C5E;
