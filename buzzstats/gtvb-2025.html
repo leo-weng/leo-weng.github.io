@@ -314,11 +314,11 @@
         players[2] = 'Sofia';
         players[18] = 'Dani';
         // players[1] = ['Lek', 1];
+        players[4] = 'Gabi';
         players[6] = 'Anika';
         players[12] = 'Mimi';
         players[19] = 'Anna';
         players[21] = 'Noemi';
-        players[31] = 'Gabi';
         players[32] = 'OH1';
         players[33] = 'OH2';
 
@@ -328,7 +328,7 @@
         players[0] = 'Liv';
         players[1] = 'DeAndra';
         players[3] = 'Bobo';
-        players[29] = 'Bianca';
+        players[5] = 'Bianca';
 
         players[8] = 'Sara';
         players[13] = 'Helo';
@@ -387,7 +387,7 @@
                 // Add player number options
                 playerNumberList.forEach(playerNum => {
                     var isSelected = (playerNum === defaultPlayer) ? "selected" : "";
-                    panelsDiv += `<option value="${playerNum}" ${isSelected}>#${playerNum}</option>`;
+                    panelsDiv += `<option value="${playerNum}" ${isSelected}>#${playerNum}  ${players[playerNum]}</option>`;
                 });
 
                 panelsDiv += "</select>";
@@ -540,13 +540,13 @@
                     playerDiv += "</div>";
 
                     playerDiv += "<div class='col-4 button-col'>";
-                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeDigs(" + playerNum + ")'>Digs</button>";
+                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeDigs(" + playerNum + ")'>Dig</button>";
                     playerDiv += "</div>";
                     playerDiv += "<div class='col-4 button-col'>";
-                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAces(" + playerNum + ")'>Aces</button>";
+                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAces(" + playerNum + ")'>Ace</button>";
                     playerDiv += "</div>";
                     playerDiv += "<div class='col-4 button-col'>";
-                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAssists(" + playerNum + ")'>Asst.</button>";
+                        playerDiv += "<button class='btn btn-update-stat btn-dark' onclick='changeAssists(" + playerNum + ")'>Ast</button>";
                     playerDiv += "</div>";
 
                     playerDiv += "<div class='col-4 number-col'>";
