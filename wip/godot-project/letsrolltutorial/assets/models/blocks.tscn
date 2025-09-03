@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bocp0m4mgveve"]
+
+[ext_resource type="PackedScene" uid="uid://ddyhqg8fuy8kl" path="res://assets/models/blocks.gltf" id="1_hch05"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="blocks" parent="." instance=ExtResource("1_hch05")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.78859, 0.561048, -3.45516)

@@ -1,0 +1,167 @@
+[gd_scene load_steps=18 format=3 uid="uid://dp4vdbcxeseqd"]
+
+[ext_resource type="Script" uid="uid://b4bamaw22pllr" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://js50qpm1ixf" path="res://player.tscn" id="1_ig7tw"]
+[ext_resource type="VoxelGIData" uid="uid://exigwr6tolbp" path="res://main.VoxelGI_data.res" id="3_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://dee76msf3xryv" path="res://volleyball.tscn" id="3_h2yge"]
+
+[sub_resource type="Environment" id="Environment_1bvp3"]
+background_mode = 1
+background_color = Color(0.340339, 0.340339, 0.340339, 1)
+background_energy_multiplier = 0.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig7tw"]
+albedo_color = Color(0.302558, 0.274531, 0.160423, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0xm2m"]
+size = Vector3(15, 0.08, 24)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7dm0k"]
+albedo_color = Color(0.768627, 0.721569, 0.529412, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ig7tw"]
+size = Vector3(9, 0.1, 18)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0xm2m"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_h2yge"]
+material = SubResource("StandardMaterial3D_0xm2m")
+size = Vector3(9, 0.12, 0.05)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1bvp3"]
+material = SubResource("StandardMaterial3D_0xm2m")
+size = Vector3(0.05, 0.12, 18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lquwl"]
+material = SubResource("StandardMaterial3D_0xm2m")
+size = Vector3(9, 0.12, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2yge"]
+albedo_color = Color(0.233925, 0.233925, 0.233925, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1bvp3"]
+material = SubResource("StandardMaterial3D_h2yge")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 2.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lquwl"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.392157)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7mycd"]
+material = SubResource("StandardMaterial3D_lquwl")
+size = Vector3(9, 1, 0.02)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_0xm2m")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, -0.297308, 0.954782, 0, -0.954782, -0.297308, 0, 7.16051, 0)
+
+[node name="VoxelGI" type="VoxelGI" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.06146, -0.655212)
+size = Vector3(20, 18.0126, 29.1427)
+data = ExtResource("3_1bvp3")
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.07343, 0.554138)
+size = Vector3(20, 23.5863, 32.1893)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_1bvp3")
+
+[node name="Court" type="Node3D" parent="."]
+
+[node name="Outside Boundary" type="MeshInstance3D" parent="Court"]
+material_override = SubResource("StandardMaterial3D_ig7tw")
+mesh = SubResource("BoxMesh_0xm2m")
+skeleton = NodePath("../..")
+
+[node name="Floor" type="MeshInstance3D" parent="Court"]
+material_override = SubResource("StandardMaterial3D_7dm0k")
+mesh = SubResource("BoxMesh_ig7tw")
+skeleton = NodePath("../..")
+
+[node name="Center Line" type="MeshInstance3D" parent="Court"]
+mesh = SubResource("BoxMesh_h2yge")
+skeleton = NodePath("../..")
+
+[node name="Side Line 1" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, 0)
+mesh = SubResource("BoxMesh_1bvp3")
+skeleton = NodePath("../..")
+
+[node name="Side Line 2" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, 0)
+mesh = SubResource("BoxMesh_1bvp3")
+skeleton = NodePath("../..")
+
+[node name="End Line 1" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 9)
+mesh = SubResource("BoxMesh_lquwl")
+skeleton = NodePath("../..")
+
+[node name="End Line 2" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9)
+mesh = SubResource("BoxMesh_lquwl")
+skeleton = NodePath("../..")
+
+[node name="Attack Line 1" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+mesh = SubResource("BoxMesh_lquwl")
+skeleton = NodePath("../..")
+
+[node name="Attack Line 2" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
+mesh = SubResource("BoxMesh_lquwl")
+skeleton = NodePath("../..")
+
+[node name="Pole1" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8, 1.25, 0)
+mesh = SubResource("CylinderMesh_1bvp3")
+
+[node name="Pole2" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 1.25, 0)
+mesh = SubResource("CylinderMesh_1bvp3")
+
+[node name="Net" type="MeshInstance3D" parent="Court"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("BoxMesh_7mycd")
+
+[node name="Actors" type="Node" parent="."]
+
+[node name="Player1" parent="Actors" instance=ExtResource("1_ig7tw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 7.05939)
+
+[node name="Volleyball" parent="Actors" instance=ExtResource("3_h2yge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.99209, 1.7207, 1.78647)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.956305, -0.146186, 0.253201, 0, 0.866025, 0.5, -0.292372, -0.478152, 0.828184, 4.15, 8.15, 14.8)
+current = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PlayButton" type="Button" parent="UI/HBoxContainer"]
+layout_mode = 2
+text = "Play"
+
+[node name="PauseButton" type="Button" parent="UI/HBoxContainer"]
+layout_mode = 2
+text = "Pause"
+
+[node name="ResetButton" type="Button" parent="UI/HBoxContainer"]
+layout_mode = 2
+text = "Reset
+"
+
+[connection signal="pressed" from="UI/HBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="UI/HBoxContainer/PauseButton" to="." method="_on_pause_button_pressed"]
+[connection signal="pressed" from="UI/HBoxContainer/ResetButton" to="." method="_on_reset_button_pressed"]

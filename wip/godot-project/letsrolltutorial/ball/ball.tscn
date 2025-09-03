@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://bvojp24sxd8g2"]
+
+[ext_resource type="Texture2D" uid="uid://c3leth4u35bt4" path="res://assets/textures/pixar-ball.png" id="1_pwunn"]
+[ext_resource type="ArrayMesh" uid="uid://c3vfmx4pxfame" path="res://assets/models/pixar-ball.obj" id="2_biv8x"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6xd6y"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0p2w7"]
+albedo_texture = ExtResource("1_pwunn")
+roughness = 0.4
+
+[node name="Ball" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_6xd6y")
+
+[node name="Model" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_0p2w7")
+mesh = ExtResource("2_biv8x")
+
+[node name="CameraRig" type="Marker3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2.85, 3.5)
+current = true
