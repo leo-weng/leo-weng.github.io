@@ -940,9 +940,18 @@
                     tableValues = template.values;
                     console.log(tableValues);
 
+                    n =  new Date();
+                    y = n.getFullYear();
+                    m = n.getMonth() + 1;
+                    d = n.getDate();
+                    mdy = m + "/" + d + "/" + y
+                    tableValues[1][0] = mdy;
+
+
                     for (var i = 3; i < template.values.length; i++) {
                     // for (var i = 3; i < 13; i++) {
                         var currNum = tableValues[i][2];
+                        tableValues[i][0] = mdy;
                         tableValues[i][4] = playerKills[currNum];
                         tableValues[i][5] = playerErrors[currNum];
                         tableValues[i][6] = playerBlocked[currNum];
@@ -970,13 +979,8 @@
                     }
                     tableValues[template.values.length+1] = [""];
 
-                    n =  new Date();
-                    y = n.getFullYear();
-                    m = n.getMonth() + 1;
-                    d = n.getDate();
-                    tableValues[1][0] = m + "/" + d + "/" + y;
-
                     console.log(tableValues);
+
 
                     gapi.client.sheets.spreadsheets.values.append({
                         spreadsheetId: spreadsheetId,
