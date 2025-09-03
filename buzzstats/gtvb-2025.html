@@ -337,18 +337,18 @@
 
         players[2] = 'Sofia';
         players[18] = 'Dani';
-        // players[1] = ['Lek', 1];
-        players[4] = 'Gabi';
+
         players[6] = 'Anika';
         players[12] = 'Mimi';
-        players[19] = 'Anna';
+        players[20] = 'Laura';
         players[21] = 'Noemi';
-        players[32] = 'OH1';
-        players[33] = 'OH2';
+        players[27] = 'Ania';
 
+        players[4] = 'Gabi';
+        players[9] = 'Bjanka';
         players[11] = 'Larissa';
         players[22] = 'Ital';
-        // players[22] = ['Yossi', 2];
+
         players[0] = 'Liv';
         players[1] = 'DeAndra';
         players[3] = 'Bobo';
@@ -358,7 +358,13 @@
         players[13] = 'Helo';
         players[15] = 'Abi';
 
-        var playerNumberList = Object.keys(players).map(Number).sort((a, b) => a - b);
+        // this uses default numerical order
+        // var playerNumberList = Object.keys(players).map(Number).sort((a, b) => a - b);
+        // Define your custom default order here
+        var defaultOrder = [2,9,6,21,1,8,18,11,12,27,3,13,4,22,20,0,5,15];
+
+        // Use this custom order for the dropdowns
+        var playerNumberList = defaultOrder;
 
         addPositionPanel();
         addMainFrame();
@@ -396,7 +402,6 @@
         function addPositionPanel() {
             var panelsDiv = "";
 
-            // ======================= MODIFIED CODE START (2 of 3) =======================
             for (var i = 0; i < 18; i++) {
                 panelsDiv += "<div class='col-2 text-center position-panel' id='position-panel-" + i + "'>";
                 panelsDiv += "<select class='form-control player-dropdown'>";
@@ -422,7 +427,6 @@
             panelsDiv += `<div class="col-12 text-center" style="margin-top: 20px;">
                               <button type="submit" id="submit-button" class="btn btn-primary">Generate Panels</button>
                           </div>`;
-            // ======================= MODIFIED CODE END (2 of 3) =======================
 
             document.getElementById("position-panels").insertAdjacentHTML('beforeend', panelsDiv);
         }
