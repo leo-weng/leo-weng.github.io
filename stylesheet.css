@@ -194,17 +194,24 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
     display: block;
     width: 72px; height: 72px;
     border-radius: var(--radius);
-    background: #F2EFEA;
-    padding: 8px;
-    border: 2px solid transparent;
+    background: var(--logo-bg, #FFFFFF);
+    padding: var(--logo-pad, 8px);
+    border: 2px solid var(--logo-border, transparent);
+    overflow: hidden;
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
+.job-logo.dark { --logo-border: var(--rule-strong); }
+.job-logo.bleed { --logo-pad: 0; }
 .job-logo img { width: 100%; height: 100%; object-fit: contain; }
-.job-logo:hover, .job:has(.job-head a:hover) .job-logo {
+.job-logo.bleed img { object-fit: cover; }
+.job-head h2 a { transition: color 0.2s ease; }
+/* logo and title act as one link: hovering either highlights both */
+.job:has(.job-logo:hover, .job-logo:focus-visible, .job-head h2 a:hover, .job-head h2 a:focus-visible) .job-logo {
     transform: translateY(-3px) scale(1.05);
     border-color: var(--accent);
     box-shadow: 0 8px 20px rgba(255, 77, 77, 0.25);
 }
+.job:has(.job-logo:hover, .job-logo:focus-visible, .job-head h2 a:hover, .job-head h2 a:focus-visible) .job-head h2 a { color: var(--accent); }
 .job-body { display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
 .job-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .job-head h2 { font-size: 26px; }
@@ -221,7 +228,7 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 
 @media (max-width: 760px) {
     .job { grid-template-columns: 48px minmax(0, 1fr); gap: 16px; }
-    .job-logo { width: 48px; height: 48px; padding: 4px; }
+    .job-logo { width: 48px; height: 48px; }
     .job-head h2 { font-size: 22px; }
 }
 
@@ -279,5 +286,5 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
-    .job-logo:hover, .job:has(.job-head a:hover) .job-logo { transform: none; }
+    .job .job-logo { transform: none !important; }
 }
