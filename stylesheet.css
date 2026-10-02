@@ -215,7 +215,7 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 .job-text { display: flex; flex-direction: column; gap: 12px; }
 .job-text p { margin: 0; color: var(--text-2); }
 .job-text p.job-context { color: var(--muted); font-size: 15px; padding-left: 14px; border-left: 2px solid var(--rule-strong); }
-.role-loc { color: var(--muted); }
+.job-loc { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-top: -6px; }
 .job-points li { position: relative; padding-left: 18px; color: var(--muted); margin-top: 6px; }
 .job-points li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
