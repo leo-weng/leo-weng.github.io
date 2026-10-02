@@ -191,11 +191,19 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 }
 .job:last-child { border-bottom: 1px solid var(--rule); }
 .job-logo {
+    display: block;
     width: 72px; height: 72px;
     border-radius: var(--radius);
     background: #F2EFEA;
     padding: 8px;
-    object-fit: contain;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.job-logo img { width: 100%; height: 100%; object-fit: contain; }
+.job-logo:hover, .job:has(.job-head a:hover) .job-logo {
+    transform: translateY(-3px) scale(1.05);
+    border-color: var(--accent);
+    box-shadow: 0 8px 20px rgba(255, 77, 77, 0.25);
 }
 .job-body { display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
 .job-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
@@ -204,12 +212,16 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 .job-roles, .job-points { list-style: none; margin: 0; padding: 0; }
 .job-roles li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; color: var(--text-2); padding: 2px 0; }
 .role-date { font-family: var(--font-mono); font-size: 13px; color: var(--muted); white-space: nowrap; }
+.job-text { display: flex; flex-direction: column; gap: 12px; }
+.job-text p { margin: 0; color: var(--text-2); }
+.job-text p.job-context { color: var(--muted); font-size: 15px; padding-left: 14px; border-left: 2px solid var(--rule-strong); }
+.role-loc { color: var(--muted); }
 .job-points li { position: relative; padding-left: 18px; color: var(--muted); margin-top: 6px; }
 .job-points li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
 @media (max-width: 760px) {
     .job { grid-template-columns: 48px minmax(0, 1fr); gap: 16px; }
-    .job-logo { width: 48px; height: 48px; padding: 5px; }
+    .job-logo { width: 48px; height: 48px; padding: 4px; }
     .job-head h2 { font-size: 22px; }
 }
 
@@ -267,4 +279,5 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
+    .job-logo:hover, .job:has(.job-head a:hover) .job-logo { transform: none; }
 }
