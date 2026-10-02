@@ -184,13 +184,12 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
 .timeline { list-style: none; margin: 0; padding: 0; }
 .job {
     display: grid;
-    grid-template-columns: 180px 72px minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr);
     gap: 32px;
     padding: 36px 0;
     border-top: 1px solid var(--rule);
 }
 .job:last-child { border-bottom: 1px solid var(--rule); }
-.job-date { font-family: var(--font-mono); font-size: 14px; color: var(--muted); }
 .job-logo {
     width: 72px; height: 72px;
     border-radius: var(--radius);
@@ -198,19 +197,19 @@ main { padding: 0 var(--gutter) 96px; max-width: 1280px; margin: 0 auto; }
     padding: 8px;
     object-fit: contain;
 }
-.job-body { display: flex; flex-direction: column; gap: 10px; }
+.job-body { display: flex; flex-direction: column; gap: 12px; max-width: 860px; }
 .job-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .job-head h2 { font-size: 26px; }
 .job-head h2 a { text-decoration: none; }
-.job-role { color: var(--text-2); }
-.job-role > span { display: block; }
-.role-date { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
-.job-body p { margin: 0; color: var(--muted); max-width: 760px; }
+.job-roles, .job-points { list-style: none; margin: 0; padding: 0; }
+.job-roles li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; color: var(--text-2); padding: 2px 0; }
+.role-date { font-family: var(--font-mono); font-size: 13px; color: var(--muted); white-space: nowrap; }
+.job-points li { position: relative; padding-left: 18px; color: var(--muted); margin-top: 6px; }
+.job-points li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
 @media (max-width: 760px) {
-    .job { grid-template-columns: 56px minmax(0, 1fr); gap: 8px 20px; }
-    .job-date { grid-column: 1 / -1; }
-    .job-logo { width: 56px; height: 56px; }
+    .job { grid-template-columns: 48px minmax(0, 1fr); gap: 16px; }
+    .job-logo { width: 48px; height: 48px; padding: 5px; }
     .job-head h2 { font-size: 22px; }
 }
 
