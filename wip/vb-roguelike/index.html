@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Set &amp; Hit Sandbox</title>
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a coach's clipboard. The live decision on the left, the stat sheet on the right; stacks on phones. */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #15202b;
+  --muted: #5b6977;
+  --line: #d3dae1;
+  --accent: #c8501d;      /* court orange */
+  --net: #24508f;         /* net / block blue */
+  --kill: #2e7d4f;
+  --blocked: #24508f;
+  --dug: #8a96a3;
+  --error: #b3362f;
+  --late: #8fa9d1;
+  --flash: #ffe2c9;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151b; --surface: #17202a; --ink: #e3e9ef; --muted: #93a1af; --line: #2a3644;
+    --accent: #f07a45; --net: #7ea6e6; --kill: #5cc286; --blocked: #7ea6e6; --dug: #6c7a88; --error: #f0756c;
+    --late: #46618c; --flash: #4a2c1c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #17202a; --ink: #e3e9ef; --muted: #93a1af; --line: #2a3644;
+  --accent: #f07a45; --net: #7ea6e6; --kill: #5cc286; --blocked: #7ea6e6; --dug: #6c7a88; --error: #f0756c;
+  --late: #46618c; --flash: #4a2c1c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); padding-inline: 16px; padding-block: 20px 40px; }
+.top { max-width: 1120px; margin: 0 auto 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.top h1 { font: 700 2rem/1 var(--font-display); letter-spacing: 0.01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); }
+.layout { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.stage, .side { min-width: 0; display: grid; gap: 16px; }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; }
+.phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.phase h2 { font: 700 1.6rem/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; margin: 0; }
+.lede { margin: 0; }
+.hint { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.muted { color: var(--muted); }
+.small { font-size: 0.82rem; }
+.chip { font: 600 0.72rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; padding: 5px 8px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.chip-clear { color: var(--kill); } .chip-fuzzy { color: var(--accent); } .chip-blind { color: var(--muted); }
+
+.net { display: inline-grid; max-width: 100%; overflow-x: auto; justify-self: start; }
+.ruler { font: 600 1.15rem/1 var(--font-mono); letter-spacing: 0.12em; color: var(--muted); white-space: nowrap; padding: 6px 0 2px; border-bottom: 3px solid var(--net); }
+.ruler .ant { color: var(--accent); }
+.ruler b { font-weight: 700; }
+.m-setter { color: var(--ink); } .m-block { color: var(--net); } .m-late { color: var(--late); } .m-guess { color: var(--accent); } .m-ball { color: var(--accent); }
+.ruler-scale { display: flex; justify-content: space-between; font: 0.7rem var(--font-mono); color: var(--muted); padding-top: 3px; }
+
+.hitters { display: grid; gap: 12px; }
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.hitter-row { display: grid; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--line); align-content: start; min-width: 0; }
+.hitter-row.compact .calls { grid-template-columns: minmax(0, 1fr); }
+.hitter-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 600; }
+.pos { font: 700 0.95rem/1 var(--font-display); background: var(--ink); color: var(--surface); padding: 4px 7px; border-radius: 4px; letter-spacing: 0.04em; }
+.swap { margin-left: auto; flex-wrap: wrap; display: flex; gap: 6px; align-items: center; font-weight: 400; font-size: 0.85rem; color: var(--muted); }
+.calls { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.call, .shot { text-align: left; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 3px; min-width: 0; }
+.call:hover:not(:disabled), .shot:hover:not(:disabled) { border-color: var(--accent); }
+.call:disabled, .shot:disabled { opacity: 0.5; cursor: not-allowed; }
+.call-name, .shot-name { font: 700 1.25rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: 0.02em; }
+.call-meta, .cone { font: 0.78rem var(--font-mono); color: var(--muted); }
+.call-odds { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.q { font-weight: 600; } .q-perfect { color: var(--kill); } .q-good { color: var(--ink); } .q-off { color: var(--error); }
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag { font: 600 0.68rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 6px; border-radius: 4px; background: var(--line); color: var(--ink); vertical-align: middle; }
+.tag-trick { background: var(--accent); color: var(--surface); }
+.locked { font: 0.78rem var(--font-mono); color: var(--muted); }
+
+.shots { display: grid; gap: 8px; }
+.shot-default { border-color: var(--ink); }
+.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--line); margin-top: 4px; }
+.seg { display: block; flex-grow: 0; flex-shrink: 0; }
+.seg-kill { background: var(--kill); } .seg-blocked { background: var(--blocked); } .seg-dug { background: var(--dug); } .seg-error { background: var(--error); }
+.nums { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 0.85rem var(--font-mono); font-variant-numeric: tabular-nums; }
+.num i { font-style: normal; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 5px; color: var(--muted); }
+.num-kill { color: var(--kill); font-weight: 600; } .num-error { color: var(--error); }
+
+.result { text-align: left; transition: background-color 0.5s ease; }
+.result.pending { background: var(--flash); }
+.result.pending .callout, .result.pending .result-line, .result.pending .why { visibility: hidden; }
+.callout { font: 700 clamp(2.4rem, 7vw, 3.6rem)/0.95 var(--font-display); text-transform: uppercase; margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+.tone-big .callout { color: var(--accent); }
+.tone-good .callout { color: var(--kill); }
+.tone-bad .callout { color: var(--error); }
+.tone-neutral .callout { color: var(--muted); }
+.result-line { margin: 0; font-size: 1.05rem; }
+.why { margin: 0; padding-left: 18px; color: var(--muted); }
+.primary { justify-self: start; background: var(--ink); color: var(--surface); border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; display: inline-flex; gap: 10px; align-items: center; }
+kbd { font: 0.72rem var(--font-mono); border: 1px solid currentColor; border-radius: 4px; padding: 1px 5px; opacity: 0.75; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; }
+.panel h3 { font: 700 1.1rem/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { color: var(--muted); font-weight: 500; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+tbody th { font-weight: 500; }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font: 0.8rem var(--font-mono); }
+.log li { display: grid; grid-template-columns: 3ch minmax(0, 1fr) auto; gap: 8px; padding-block: 4px; border-bottom: 1px solid var(--line); }
+.log .ln { color: var(--muted); }
+.log .steps { color: var(--muted); }
+.log li b { white-space: nowrap; }
+.o-us b { color: var(--kill); } .o-them b { color: var(--error); }
+.scoreboard { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; background: var(--ink); color: var(--surface); border-radius: 10px; padding: 10px 18px; }
+.scoreboard .team { display: flex; align-items: baseline; gap: 10px; }
+.scoreboard .tname { font: 700 1rem/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; }
+.scoreboard .pts { font: 700 2.6rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.score-mid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; font: 0.75rem var(--font-mono); opacity: 0.8; text-align: center; }
+.point { margin: 0; font: 700 1.2rem/1.2 var(--font-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.point-us { color: var(--kill); } .point-them { color: var(--error); }
+.field { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.9rem; }
+select { font: inherit; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 0.9rem; }
+.stats { display: grid; gap: 6px; }
+.stat-row { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; gap: 8px; }
+.stat-row .pos { justify-self: start; }
+.stat-list { display: grid; grid-template-columns: repeat(2, max-content); gap: 6px 14px; }
+.stat { display: inline-flex; align-items: center; gap: 3px; font: 0.78rem var(--font-mono); }
+.stat i { font-style: normal; color: var(--muted); margin-right: 2px; }
+.stat b { min-width: 2ch; text-align: center; }
+.mini { width: 22px; height: 22px; border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 0; line-height: 1; }
+.ghost { justify-self: start; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; }
+@media (prefers-reduced-motion: reduce) { .result { transition: none; } }
+</style>
+<header class="top">
+  <h1>Set &amp; Hit Sandbox</h1>
+  <p>Volleyball roguelike v0.1. Free ball in: pick the set, then the shot. A point only counts when the rally ends.</p>
+</header>
+<main id="app"></main>
+<script>(()=>{var M=e=>({jump:5,power:5,control:5,stamina:5,vision:5,composure:5,speed:5,reaction:5,...e}),G={S:{role:"S",name:"Setter",stats:M({control:6,vision:5})},OH:{role:"OH",name:"Outside",stats:M({jump:6,power:6})},MB:{role:"MB",name:"Middle",stats:M({jump:6,vision:4})},OPP:{role:"OPP",name:"Opposite",stats:M({jump:6,power:6})},L:{role:"L",name:"Libero",stats:M({control:6,reaction:6})}},C={name:"Practice Squad",blockJump:5,blockerSpeed:5,blockerReaction:5,defenderSpeed:5,defenderReaction:5},O=[{id:"4",hitter:"OH",type:"Spot",x:.5,tempo:"High",time:1.8,isDefault:!0},{id:"Go",hitter:"OH",type:"Spot",x:.5,tempo:"Medium",time:1.3},{id:"Shoot",hitter:"OH",type:"Spot",x:.5,tempo:"Fast",time:.95},{id:"32",hitter:"OH",type:"Spot",x:3,tempo:"Medium",time:1.1},{id:"1",hitter:"MB",type:"Distance",x:-1,tempo:"Fast",time:.55,isDefault:!0,isQuick:!0},{id:"3",hitter:"MB",type:"Spot",x:3.5,tempo:"Fast",time:.65,isQuick:!0},{id:"Gap",hitter:"MB",type:"Distance",x:-2,tempo:"Fast",time:.6,isQuick:!0},{id:"Back 1",hitter:"MB",type:"Distance",x:1,tempo:"Fast",time:.6,isQuick:!0},{id:"5",hitter:"OPP",type:"Spot",x:8.5,tempo:"High",time:1.8,isDefault:!0},{id:"Flat",hitter:"OPP",type:"Spot",x:8.5,tempo:"Fast",time:.95},{id:"Pole",hitter:"OPP",type:"Spot",x:7,tempo:"Medium",time:1.1},{id:"Back 2",hitter:"OPP",type:"Distance",x:1,tempo:"Medium",time:1.05}],L=e=>{let t=O.find(o=>o.id===e);if(!t)throw new Error(`Unknown set call ${e}`);return t},F={OH:"Go",MB:"1",OPP:"5"},E=6,$=[{id:"Seam",label:"Seam to 6",unlocked:!0,depthSpread:2.3,widthSpread:1.8,netChance:.07,speed:1,blockLane:"seam",isDefault:!0},{id:"Line",label:"Line",unlocked:!0,depthSpread:2,widthSpread:1.3,netChance:.07,speed:.95,blockLane:"edge"},{id:"Cross",label:"Cross",unlocked:!0,depthSpread:1.8,widthSpread:1.8,netChance:.07,speed:.95,blockLane:"inside"},{id:"Tip",label:"Tip",unlocked:!0,depthSpread:1,widthSpread:1,netChance:.02,speed:.3,blockLane:"over"},{id:"Roll",label:"Roll shot",unlocked:!0,depthSpread:.8,widthSpread:.8,netChance:.01,speed:.25,blockLane:"over"},{id:"HardLine",label:"Hard line",unlocked:!1,depthSpread:1.9,widthSpread:1.15,netChance:.08,speed:1.35,blockLane:"edge"},{id:"HardCross",label:"Hard cross",unlocked:!1,depthSpread:1.7,widthSpread:1.6,netChance:.08,speed:1.35,blockLane:"inside"},{id:"Tool",label:"Tool off the block",unlocked:!1,depthSpread:1,widthSpread:1,netChance:.05,speed:1.1,blockLane:"hands"}];var Z={Bunch:[3.3,4.5,5.7],Spread:[1.2,4.5,7.8]},ee=4,g={readReactionBase:.3,reactionPerPoint:.03,speedBase:4,speedPerPoint:.25,reactionJitter:.08,formedMargin:.15,deceptionDelay:.15,quickFreezeDelay:.1,deceptionRadius:1.5,deceptionTempoWindow:.3},te=[{name:"left back",x:1.8,y:6.5},{name:"middle back",x:4.5,y:8},{name:"right back",x:7.2,y:6.5},{name:"tip cover",x:4.5,y:3}],se=3.5,b={offSpeedExponent:1.6,baseRadius:2.2,closeRange:.6,closeChance:.9,offSpeedCloseChance:.97,hardBallPenalty:.1,secondDefenderShare:.35,noBlockReach:.75,reachPerBlocker:.15,powerPerPoint:.06,defenderSpeedPerPoint:.05},q={3:2,2:0,1:-3},oe={High:0,Medium:1,Fast:3},ae={High:2,Medium:0,Fast:-2},ne=1.5,H={Perfect:{cone:.8,net:-.02,jump:0},Good:{cone:1,net:0,jump:0},Off:{cone:1.4,net:.06,jump:-2}},re=.08,le=.12,ie={edge:{formed:.22,late:.08},inside:{formed:.2,late:.07},seam:{formed:.16,late:.06},over:{formed:.03,late:.01},hands:{formed:.08,late:.04}},X=e=>e>=8?"Clear":e>=5?"Fuzzy":"Blind",x={kill:.33,error:.14,digPass:{3:.25,2:.45,1:.3}},ce=11,de=15;function v(e){let t=e>>>0;return()=>{t=t+1831565813>>>0;let o=t;return o=Math.imul(o^o>>>15,o|1),o^=o+Math.imul(o^o>>>7,o|61),((o^o>>>14)>>>0)/4294967296}}function B(e){let t=Math.max(e(),1e-9);return Math.sqrt(-2*Math.log(t))*Math.cos(2*Math.PI*e())}var S=(e,t,o)=>Math.max(t,Math.min(o,e));function be(e,t){let o;if(t==="Perfect")o=3;else if(t==="OK")o=2;else if(t==="Poor")o=1;else{let n=e();o=t==="Free ball"?n<.98?3:2:n<.4?3:n<.8?2:1}let a={3:.25,2:1,1:1.8}[o],r=S(E+B(e)*a,2,8.5);return{rating:o,setterX:r}}var A=(e,t)=>S(e.type==="Spot"?e.x:t+e.x,.3,8.7),Q=(e,t)=>e.tempo==="High"||t.rating>=2;function fe(e,t){let o={};for(let a of["OH","MB","OPP"]){let r=L(e[a]);o[a]=Q(r,t)?r:O.find(n=>n.hitter===a&&n.tempo==="High")??r}return o}function Y(e,t,o){let a=[],r=e.stats.control;a.push(`setter Control ${e.stats.control}`);let n=q[o.rating];r+=n,n&&a.push(`pass ${o.rating} ${n>0?"+":""}${n}`);let i=oe[t.tempo];if(r-=i,i&&a.push(`${t.tempo} tempo \u2212${i}`),t.type==="Spot"){let c=Math.floor(Math.abs(o.setterX-E)/ne);r-=c,c&&a.push(`setter pulled ${Math.abs(o.setterX-E).toFixed(1)} m on a spot set \u2212${c}`)}return{quality:r>=7?"Perfect":r>=4?"Good":"Off",score:r,parts:a}}function ye(e,t,o){let a=o.some(n=>Math.abs(n.spot-t)<=g.deceptionRadius&&Math.abs(n.call.time-e.time)<=g.deceptionTempoWindow),r=!e.isQuick&&o.some(n=>n.call.isQuick);return{deceived:a,frozen:r}}function D(e,t,o,a,r){let{deceived:n,frozen:i}=ye(t,o,a),p=g.speedBase+g.speedPerPoint*(C.blockerSpeed-5);return{blockers:Z[r].map((m,u)=>{let l=u,d=Math.abs(o-m);if(l!==1&&d>ee)return{slot:l,startX:m,state:"Home",margin:-9,delays:[]};let f=[],h=g.readReactionBase-g.reactionPerPoint*(C.blockerReaction-5)+B(e)*g.reactionJitter;n&&(h+=g.deceptionDelay,f.push("fooled by a look-alike call")),i&&l===1&&(h+=g.quickFreezeDelay,f.push("held by the quick hitter"));let k=t.time-(Math.max(.05,h)+d/p),y=k>=g.formedMargin?"Formed":k>=0?"Late":"Missing";return{slot:l,startX:m,state:y,margin:k,delays:f}}),deceived:n,frozen:i}}var P=e=>e.blockers.filter(t=>t.state==="Formed"||t.state==="Late");function ve(e,t){let o=t<4.5,a=t<2||t>7,r=o?1:-1;switch(e){case"Seam":return{x:a?o?5.8:3.2:o?5.9:3.1,y:6.3};case"Line":case"HardLine":return a?{x:o?.8:8.2,y:7.9}:{x:S(t,1.5,7.5),y:7};case"Cross":case"HardCross":return a?{x:o?7.9:1.1,y:4.5}:{x:o?7.8:1.2,y:5.5};case"Tip":return{x:S(t+r*1,.8,8.2),y:1.6};case"Roll":return{x:S(t+r*2.5,1,8),y:3.8};case"Tool":return{x:o?-.6:9.6,y:5}}}function ue(e,t){let o=P(t.block).sort((u,l)=>Math.abs(u.startX-t.hitterX)-Math.abs(l.startX-t.hitterX));if(!o.length)return{p:0,note:"no block"};let a=ie[e.blockLane],r=u=>u.state==="Formed"?a.formed:a.late,n;e.blockLane==="edge"?n=r(o[0]):e.blockLane==="inside"?n=o[1]?r(o[1]):r(o[0])*.5:e.blockLane==="seam"?o.length>=2?n=o[0].state==="Late"||o[1].state==="Late"?a.late:a.formed:n=r(o[0])*.6:n=Math.max(...o.map(r)),o.length===3&&o[2].state==="Formed"&&(n+=.05);let i=t.hitter.stats.jump+H[t.set.quality].jump,p=Math.max(.2,1+le*(C.blockJump-i));n*=p;let c=o.filter(u=>u.state==="Formed").length,m=o.length-c;return{p:n,note:`${o.length} blocker${o.length>1?"s":""} (${c} formed, ${m} late), your Jump ${i} vs block ${C.blockJump}`}}function _(e){return H[e.set.quality].cone*Math.max(.3,1-re*(e.hitter.stats.control-5))}function Le(e,t,o){let a=b.noBlockReach+b.reachPerBlocker*P(o).length,r=(1+b.defenderSpeedPerPoint*(C.defenderSpeed-5))*a,n=b.baseRadius*r/Math.pow(t,t<1?b.offSpeedExponent:1),i=t<.5?b.offSpeedCloseChance:b.closeChance,p=o.blockers.filter(u=>u.state==="Home").map(u=>({name:"off-blocker",x:u.startX<4.5?1.5:7.5,y:se})),c=[];for(let u of[...te,...p]){let l=Math.hypot(u.x-e.x,u.y-e.y),d=0;l<=b.closeRange?d=i:l<n&&(d=i*(1-Math.pow((l-b.closeRange)/(n-b.closeRange),2))),d*=1-b.hardBallPenalty*Math.max(0,t-1),c.push({p:S(d,0,.97),who:u.name})}return c.sort((u,l)=>l.p-u.p),{p:c[0].p+b.secondDefenderShare*c[1].p*(1-c[0].p),who:c[0].p>0?c[0].who:"nobody"}}function U(e,t,o){let a=$.find(h=>h.id===t),r=[],n=H[o.set.quality],i=o.hitter.stats,p=Math.max(.005,a.netChance+n.net-.01*(i.jump-5));if(e()<p)return{outcome:"Error",why:[`Into the net (${pe(p)} net chance on a ${o.set.quality.toLowerCase()} set).`]};if(t==="Tool"){if(!P(o.block).length)return{outcome:"Error",why:["No block to tool \u2014 the ball sails wide."],tool:!0};let k=ue(a,o);if(e()<k.p)return{outcome:"Blocked",why:[`Tried to tool, but the hands stayed strong: ${k.note}.`],tool:!0};let y=.28*_(o);return e()<y?{outcome:"Error",why:["Missed the hands \u2014 ball goes wide."],tool:!0}:{outcome:"Kill",why:["Off the blocker's hands and out of play."],tool:!0}}let c=ue(a,o);if(e()<c.p)return{outcome:"Blocked",why:[`Stuffed: ${c.note}.`]};c.p>0&&r.push(`Beat the block: ${c.note}.`);let m=ve(t,o.hitterX),u=_(o),l={x:m.x+B(e)*a.widthSpread*.75*u,y:m.y+B(e)*a.depthSpread*.75*u};if(l.y>9)return{outcome:"Error",why:[...r,`Long by ${(l.y-9).toFixed(1)} m (cone \xD7${u.toFixed(2)}).`],land:l};if(l.x<0||l.x>9){let h=l.x<0?-l.x:l.x-9;return{outcome:"Error",why:[...r,`Wide by ${h.toFixed(1)} m (cone \xD7${u.toFixed(2)}).`],land:l}}l.y=Math.max(.3,l.y);let d=a.speed*(1+b.powerPerPoint*(i.power-5)),f=Le(l,d,o.block);return e()<f.p?{outcome:"Dug",why:[...r,`Landed ${me(l)}; their ${f.who} got to it (${pe(f.p)} dig chance).`],land:l}:{outcome:"Kill",why:[...r,`Landed ${me(l)}; ${f.p<.05?"nobody near it":`their ${f.who} couldn't hold it`}.`],land:l}}var pe=e=>`${Math.round(e*100)}%`,me=e=>`${e.y<3?"short":e.y>6.5?"deep":"mid-court"}, ${e.x<3?"left":e.x>6?"right":"middle"}`;function N(e,t,o=1500,a=7){let r=v(a),n={Kill:0,Blocked:0,Dug:0,Error:0};for(let i=0;i<o;i++)n[U(r,e,t).outcome]++;for(let i in n)n[i]/=o;return n}var he=(e,t)=>({...e,blockers:e.blockers.map(o=>{if(o.state==="Home")return o;let a=["Missing","Late","Formed"],r=S(a.indexOf(o.state)+t,0,2);return{...o,state:a[r]}})});function ke(e,t,o,a){if(o==="Clear"){let n=N(e,t);return{lo:n,hi:n,mid:n}}if(o==="Fuzzy"){let n=[t.block,he(t.block,1),he(t.block,-1)].map(c=>N(e,{...t,block:c},800)),i={},p={};for(let c of["Kill","Blocked","Dug","Error"])i[c]=Math.min(...n.map(m=>m[c])),p[c]=Math.max(...n.map(m=>m[c]));return{lo:i,hi:p,mid:n[0]}}let r={Kill:0,Blocked:0,Dug:0,Error:0};for(let n of a){let i=N(e,{...t,block:n},300);for(let p in r)r[p]+=i[p]/a.length}return{lo:r,hi:r,mid:r}}var ge=(e,t)=>X(e.stats.vision+q[t.rating]),Se=(e,t)=>X(e.stats.vision+ae[t.tempo]);function $e(e,t,o,a,r,n=24){let i=A(t,o.setterX),p=Y(e.S,t,o),c=v(99),m=0,u=0,l=e[t.hitter];for(let h=0;h<n;h++){let k=D(c,t,i,a,r);m+=P(k).length,u+=N("Seam",{hitter:l,hitterX:i,set:p,block:k},120,h+1).Kill}let{deceived:d,frozen:f}=ye(t,i,a);return{call:t,spot:i,set:p,avgBlockers:m/n,roughKill:u/n,deceived:d,frozen:f}}function K(e,t,o){return Object.keys(t).filter(a=>a!==e.hitter).map(a=>({call:t[a],spot:A(t[a],o)}))}function xe(e,t){let o=P(t),a=o.filter(r=>r.state==="Formed").length;return e.outcome==="Kill"?e.tool?{text:"Off the hands!",tone:"big"}:a>=2?{text:"Off the floor. Through a formed block.",tone:"big"}:(t.deceived||t.frozen)&&o.length<=1?{text:"Fooled them. Clean look.",tone:"big"}:o.length?{text:"Kill.",tone:"good"}:{text:"Nobody there. Put away.",tone:"good"}:e.outcome==="Blocked"?{text:a>=2?"STUFFED.":"Blocked.",tone:"bad"}:e.outcome==="Error"?{text:"Error.",tone:"bad"}:{text:"Dug. Rally on.",tone:"neutral"}}function Pe(e){let t=e();if(t<x.kill)return{outcome:"TheirKill"};if(t<x.kill+x.error)return{outcome:"TheirError"};let o=e(),a=o<x.digPass[3]?3:o<x.digPass[3]+x.digPass[2]?2:1,r={3:.25,2:1,1:1.8}[a];return{outcome:"YouDig",pass:{rating:a,setterX:S(E+B(e)*r,2,8.5)}}}function Re(e,t){let o=Math.max(e,t);return o>=de||o>=ce&&Math.abs(e-t)>=2?e>t?"us":"them":null}var Ce=["OH","MB","OPP"],j={OH:"Outside",MB:"Middle",OPP:"Opposite"},Oe=["Kill","Blocked","Dug","Error"],s={seed:Date.now()>>>0,rng:v(Date.now()>>>0),team:JSON.parse(JSON.stringify(G)),plan:{...F},planEdited:null,passMode:"Free ball",system:"Bunch",unlockAll:!1,phase:"set",pass:null,call:null,set:null,block:null,hitterX:0,result:null,n:0,tally:{},score:{us:0,them:0},games:{us:0,them:0},rallyNo:0,steps:[],counter:null,pointTo:null,gameOver:null,history:[]},Te=e=>document.querySelector(e),R=e=>e.replace(/[&<>"]/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[t]),T=e=>`${Math.round(e*100)}%`;function Me(e){let t=Array.from({length:19},()=>({ch:"\xB7",cls:""}));for(let a of e){let r=Math.max(0,Math.min(18,Math.round(a.x*2)));t[r]={ch:a.ch,cls:a.cls}}return`<div class="net"><div class="ruler" aria-label="Net, left antenna to right antenna"><span class="ant">|</span>${t.map(a=>a.cls?`<b class="${a.cls}">${a.ch}</b>`:a.ch).join("")}<span class="ant">|</span></div>
+  <div class="ruler-scale"><span>0 m</span><span>4.5 m</span><span>9 m</span></div></div>`}function Ee(e,t){let o={Clear:"Clear read",Fuzzy:"Fuzzy read",Blind:"No read"}[e];return`<span class="chip chip-${e.toLowerCase()}" title="${R(t)}'s Vision decides how clearly you see the block">${o}</span>`}function z(){s.gameOver&&(s.score={us:0,them:0},s.gameOver=null,s.rallyNo=0,s.history=[]),s.rallyNo++,s.steps=[],W(be(s.rng,s.passMode))}function W(e){s.pass=e,s.counter=null,s.pointTo=null,s.phase="set",s.call=s.set=s.block=null,s.result=null,s.planEdited=null,s.plan={...F,...Fe},w()}var Fe={};function V(){return fe(s.plan,s.pass)}function He(e){let t={...V(),[e.hitter]:e},o=A(e,s.pass.setterX);s.call=e,s.hitterX=o,s.set=Y(s.team.S,e,s.pass),s.block=D(s.rng,e,o,K(e,t,s.pass.setterX),s.system),s.phase="hit",w()}function Be(){return{hitter:s.team[s.call.hitter],hitterX:s.hitterX,set:s.set,block:s.block}}function Ne(e){var a;let t=U(s.rng,e,Be());s.result={...t,shot:e},s.phase="result",s.n++;let o=`${s.call.id} \xB7 ${$.find(r=>r.id===e).label}`;if((a=s.tally)[o]??(a[o]={Kill:0,Blocked:0,Dug:0,Error:0}),s.tally[o][t.outcome]++,s.steps.push(`${s.call.hitter} ${s.call.id} \xB7 ${$.find(r=>r.id===e).label} \u2192 ${t.outcome}`),t.outcome==="Kill")I("us");else if(t.outcome==="Blocked"||t.outcome==="Error")I("them");else{s.counter=Pe(s.rng);let r=s.counter;s.steps.push(r.outcome==="TheirKill"?"their counter \u2192 Kill":r.outcome==="TheirError"?"their counter \u2192 Error":`their counter \u2192 you dig it (pass ${r.pass.rating})`),r.outcome==="TheirKill"?I("them"):r.outcome==="TheirError"&&I("us")}w(!0)}function I(e){s.pointTo=e,s.score[e]++,s.history.unshift({n:s.rallyNo,steps:[...s.steps],winner:e,score:`${s.score.us}\u2013${s.score.them}`});let t=Re(s.score.us,s.score.them);t&&(s.gameOver=t,s.games[t]++)}function _e(){let e=s.pass,t=ge(s.team.S,e),o=V(),a=e.rating===3,r={3:"Perfect pass",2:"OK pass",1:"Poor pass"}[e.rating],n=e.setterX-6,i=Math.abs(n)<.4?"Setter is at the target spot":`Setter pulled ${Math.abs(n).toFixed(1)} m ${n<0?"toward the left":"toward the right"}`,p={Bunch:[3.3,4.5,5.7],Spread:[1.2,4.5,7.8]}[s.system],c,m=[{x:e.setterX,ch:"S",cls:"m-setter"}];t==="Clear"?(c=`Their block is lined up <b>${s.system.toLowerCase()}</b>.`,m=[...p.map(l=>({x:l,ch:"B",cls:"m-block"})),...m]):t==="Fuzzy"?(c=s.system==="Bunch"?"Their blockers look pinched in toward the middle.":"Their blockers look spread out to the pins.",m=[...p.map(l=>({x:l,ch:"?",cls:"m-guess"})),...m]):c="You can't get a look at their block off this pass.";let u=Ce.map(l=>{let d=o[l],h=(a?[d]:O.filter(y=>y.hitter===l)).map(y=>Ae(y,o,t)).join(""),k=a?`<label class="swap"><span>Change call</span><select id="swap-${l}" data-hitter="${l}" ${s.planEdited&&s.planEdited!==l?"disabled":""}>
+          ${O.filter(y=>y.hitter===l).map(y=>`<option value="${y.id}" ${y.id===d.id?"selected":""}>${y.id}</option>`).join("")}
+        </select></label>`:"";return`<div class="hitter-row${a?" compact":""}"><div class="hitter-head"><span class="pos">${l}</span><span>${j[l]}</span>${k}</div><div class="calls">${h}</div></div>`}).join("");return`
+  <section class="phase" aria-labelledby="ph-set">
+    <header class="phase-head"><h2 id="ph-set">Setter</h2>${Ee(t,"Setter")}</header>
+    <p class="lede"><b>${r}.</b> ${i}. ${c}</p>
+    ${Me(m)}
+    <p class="hint">${a?`Perfect pass: your game plan is on (${Ce.map(l=>`${l} ${o[l].id}`).join(", ")}). Pick who gets the ball. You can change one hitter's call.`:"The game plan is off. Pick any call; Medium and Fast sets need at least an OK pass."}</p>
+    <div class="${a?"plan-grid":"hitters"}">${u}</div>
+  </section>`}function Ae(e,t,o){if(!Q(e,s.pass))return`<button class="call" disabled><span class="call-name">${e.id}</span><span class="call-meta">${e.tempo} \xB7 needs a 2+ pass</span></button>`;let r={...t,[e.hitter]:e},n=$e(s.team,e,s.pass,K(e,r,s.pass.setterX),s.system),i=o==="Clear"?`~${n.avgBlockers.toFixed(1)} blockers`:o==="Fuzzy"?`${Math.max(0,Math.floor(n.avgBlockers-.5))}\u2013${Math.min(3,Math.ceil(n.avgBlockers+.5))} blockers`:"block ?",p=o==="Blind"?"kill ?":o==="Fuzzy"?`kill ${T(Math.max(0,n.roughKill-.06))}\u2013${T(n.roughKill+.06)}`:`kill ~${T(n.roughKill)}`,c=[n.deceived?'<span class="tag tag-trick">look-alike</span>':"",n.frozen&&!e.isQuick?'<span class="tag tag-trick">quick holds middle</span>':""].join("");return`<button class="call" data-call="${e.id}">
+    <span class="call-name">${e.id}</span>
+    <span class="call-meta">${e.tempo} \xB7 ${e.type.toLowerCase()} set \xB7 ${n.spot.toFixed(1)} m</span>
+    <span class="call-odds"><span class="q q-${n.set.quality.toLowerCase()}">${n.set.quality} set</span> \xB7 ${i} \xB7 ${p}</span>
+    ${c?`<span class="tags">${c}</span>`:""}
+  </button>`}function De(e,t){let o=P(e),a=o.filter(r=>r.state==="Formed").length;if(t==="Blind")return"You swing without seeing the block.";if(t==="Fuzzy"){let r=Math.max(0,o.length-1),n=Math.min(3,o.length+1);return`Looks like ${r===n?r:`${r}\u2013${n}`} blockers up. Hard to tell if they're set.`}return o.length?`${o.length} blocker${o.length>1?"s":""} up: ${a} formed, ${o.length-a} late.`:"Nobody up. Open net."}function Ke(e){let t=Oe.map(a=>`<span class="seg seg-${a.toLowerCase()}" style="flex-basis:${(e.mid[a]*100).toFixed(1)}%"></span>`).join(""),o=Oe.map(a=>{let r=Math.round(e.lo[a]*100),n=Math.round(e.hi[a]*100),i=r===n?`${r}%`:`${r}\u2013${n}%`;return`<span class="num num-${a.toLowerCase()}"><i>${a}</i>${i}</span>`}).join("");return`<span class="bar" aria-hidden="true">${t}</span><span class="nums">${o}</span>`}function Ie(){let e=s.call,t=s.team[e.hitter],o=Se(t,e),a=s.block,r=[{x:s.hitterX,ch:"\u25B2",cls:"m-ball"}];if(o!=="Blind")for(let d of a.blockers)(d.state==="Formed"||d.state==="Late")&&r.push({x:s.hitterX+(d.startX<s.hitterX?-.5:.5)*(d.slot===1?.6:1.2),ch:o==="Clear"?d.state==="Formed"?"B":"b":"?",cls:o==="Clear"?d.state==="Formed"?"m-block":"m-late":"m-guess"});let n=[],i=v(5),p={...V(),[e.hitter]:e};for(let d=0;d<10;d++)n.push(D(i,e,s.hitterX,K(e,p,s.pass.setterX),s.system));let c=Be(),m=_(c),u=$.map(d=>{if(!(d.unlocked||s.unlockAll))return`<button class="shot" disabled><span class="shot-name">${d.label}</span><span class="locked">Unlock later</span></button>`;let h=ke(d.id,c,o,n);return`<button class="shot${d.isDefault?" shot-default":""}" data-shot="${d.id}">
+      <span class="shot-name">${d.label}${d.isDefault?' <span class="tag">default</span>':""}</span>
+      <span class="cone">cone \xB1${(d.depthSpread*.75*m).toFixed(1)} m deep, \xB1${(d.widthSpread*.75*m).toFixed(1)} m wide</span>
+      ${Ke(h)}
+    </button>`}).join(""),l=[...new Set(a.blockers.flatMap(d=>d.delays))];return`
+  <section class="phase" aria-labelledby="ph-hit">
+    <header class="phase-head"><h2 id="ph-hit">${j[e.hitter]} \xB7 ${e.id}</h2>${Ee(o,j[e.hitter])}</header>
+    <p class="lede"><b class="q q-${s.set.quality.toLowerCase()}">${s.set.quality} set</b> <span class="muted">(${R(s.set.parts.join(", "))})</span>. ${De(a,o)}</p>
+    ${Me(r)}
+    ${o==="Clear"&&l.length?`<p class="hint">Their block was slow: ${R(l.join("; "))}.</p>`:""}
+    <p class="hint">${o==="Clear"?"Odds are exact for this block.":o==="Fuzzy"?"Your read is fuzzy, so odds show a range.":"No read, so odds assume a typical block for this set."} Stats: Jump ${t.stats.jump}, Power ${t.stats.power}, Control ${t.stats.control}, Vision ${t.stats.vision}.</p>
+    <div class="shots">${u}</div>
+  </section>`}function je(){let e=s.counter;return s.gameOver?{text:s.gameOver==="us"?`Game. You win ${s.score.us}\u2013${s.score.them}.`:`Game. They win ${s.score.them}\u2013${s.score.us}.`,tone:s.gameOver==="us"?"big":"bad"}:e?e.outcome==="TheirKill"?{text:"Dug, and they put it away.",tone:"bad"}:e.outcome==="TheirError"?{text:"Dug, but their swing goes out.",tone:"good"}:{text:"Dug both ways. Rally on.",tone:"neutral"}:xe(s.result,s.block)}function ze(){let e=s.result,t=je(),o=$.find(p=>p.id===e.shot).label,a=s.counter,r=a?`<p class="result-line">Their counterattack \u2192 <b>${a.outcome==="TheirKill"?"Kill":a.outcome==="TheirError"?"Error":`you dig it (pass ${a.pass.rating})`}</b> <span class="muted small">(flat odds until defense lands in v0.2)</span></p>`:"",n=s.pointTo?`<p class="point point-${s.pointTo}">Point ${s.pointTo==="us"?"you":"them"}. ${s.score.us}\u2013${s.score.them}</p>`:'<p class="point">Rally continues. No point yet.</p>',i=s.gameOver?'<button class="primary" id="new-game">New game <kbd>Enter</kbd></button>':s.pointTo?'<button class="primary" id="next">Next free ball <kbd>Enter</kbd></button>':'<button class="primary" id="again">Attack again <kbd>Enter</kbd></button>';return`
+  <section class="phase result tone-${t.tone}" aria-live="polite">
+    <p class="callout">${R(t.text)}</p>
+    <p class="result-line">${j[s.call.hitter]} \xB7 ${s.call.id} \xB7 ${o} \u2192 <b>${e.outcome}</b></p>
+    <ul class="why">${e.why.map(p=>`<li>${R(p)}</li>`).join("")}</ul>
+    ${r}
+    ${n}
+    ${i}
+  </section>`}function Ge(){let e=s.steps.filter(t=>!t.startsWith("their")).length;return`<section class="scoreboard" aria-label="Score">
+    <div class="team"><span class="tname">You</span><span class="pts">${s.score.us}</span></div>
+    <div class="score-mid"><span>Game to 11 \xB7 win by 2</span><span>Rally ${s.rallyNo}${e&&!s.pointTo?` \xB7 attack ${e+1}`:""}</span><span>Games ${s.games.us}\u2013${s.games.them}</span></div>
+    <div class="team them"><span class="pts">${s.score.them}</span><span class="tname">Them</span></div>
+  </section>`}function qe(){let e=Object.entries(s.tally).sort((a,r)=>J(r[1])-J(a[1])).slice(0,12).map(([a,r])=>{let n=J(r);return`<tr><th scope="row">${R(a)}</th><td>${n}</td><td>${T(r.Kill/n)}</td><td>${T(r.Error/n)}</td><td>${T(r.Blocked/n)}</td></tr>`}).join(""),t=s.history.slice(0,15).map(a=>`<li class="o-${a.winner}"><span class="ln">${a.n}</span><span class="steps">${a.steps.map(R).join("<br>")}</span><b>${a.winner==="us"?"You":"Them"} ${a.score}</b></li>`).join(""),o=["S","OH","MB","OPP"].map(a=>`<div class="stat-row"><span class="pos">${a}</span><span class="stat-list">${(a==="S"?["control","vision"]:["jump","power","control","vision"]).map(n=>`<span class="stat"><i>${n}</i><button class="mini" data-stat="${a}:${n}:-1" aria-label="Lower ${a} ${n}">\u2212</button><b>${s.team[a].stats[n]}</b><button class="mini" data-stat="${a}:${n}:1" aria-label="Raise ${a} ${n}">+</button></span>`).join("")}</span></div>`).join("");return`
+  <aside class="side">
+    <section class="panel">
+      <h3>This session</h3>
+      ${s.n?`<div class="table-wrap"><table><thead><tr><th>Call \xB7 shot</th><th>n</th><th>Kill</th><th>Err</th><th>Blk</th></tr></thead><tbody>${e}</tbody></table></div>`:'<p class="muted">Play a few rallies. Results by call and shot collect here so you can see if one choice always wins.</p>'}
+    </section>
+    ${s.history.length?`<section class="panel"><h3>Rally log</h3><ol class="log">${t}</ol></section>`:""}
+    <section class="panel">
+      <h3>Sandbox</h3>
+      <label class="field" for="pass-mode">Pass<select id="pass-mode">${["Free ball","Random","Perfect","OK","Poor"].map(a=>`<option ${a===s.passMode?"selected":""}>${a}</option>`).join("")}</select></label>
+      <label class="field" for="block-system">Their block<select id="block-system">${["Bunch","Spread"].map(a=>`<option ${a===s.system?"selected":""}>${a}</option>`).join("")}</select></label>
+      <label class="check" for="unlock-all"><input type="checkbox" id="unlock-all" ${s.unlockAll?"checked":""}> Unlock all shots (testing)</label>
+      <p class="muted small">Changes apply from the next ball. Stat tweaks show how upgrades move the odds.</p>
+      <div class="stats">${o}</div>
+      <button class="ghost" id="reset">Reset stats and session</button>
+    </section>
+  </aside>`}var J=e=>e.Kill+e.Blocked+e.Dug+e.Error;function w(e=!1){let t=s.phase==="set"?_e():s.phase==="hit"?Ie():ze();if(Te("#app").innerHTML=`<div class="layout"><div class="stage">${Ge()}${t}</div>${qe()}</div>`,e&&s.result){let o=Te(".result");o.classList.add("pending"),setTimeout(()=>o.classList.remove("pending"),matchMedia("(prefers-reduced-motion: reduce)").matches?0:380)}Xe()}document.addEventListener("click",e=>{let t=e.target.closest("button");if(!(!t||t.disabled))if(t.dataset.call)He(L(t.dataset.call));else if(t.dataset.shot)Ne(t.dataset.shot);else if(t.id==="next"||t.id==="new-game")z();else if(t.id==="again")W(s.counter.pass);else if(t.dataset.stat){let[o,a,r]=t.dataset.stat.split(":"),n=s.team[o].stats;n[a]=Math.max(1,Math.min(10,n[a]+Number(r))),w()}else t.id==="reset"&&(s.team=JSON.parse(JSON.stringify(G)),s.tally={},s.n=0,s.history=[],s.score={us:0,them:0},s.games={us:0,them:0},s.rallyNo=0,s.gameOver=null,z())});document.addEventListener("change",e=>{let t=e.target;if(t.id==="pass-mode")s.passMode=t.value;else if(t.id==="block-system")s.system=t.value;else if(t.id==="unlock-all")s.unlockAll=t.checked;else if(t.dataset.hitter){let o=t.dataset.hitter;s.plan={...s.plan,[o]:t.value},s.planEdited=t.value===F[o]?null:o,w();return}s.phase!=="result"&&w()});document.addEventListener("keydown",e=>{e.key==="Enter"&&s.phase==="result"&&!(e.target instanceof HTMLSelectElement)&&(e.preventDefault(),!s.gameOver&&!s.pointTo&&s.counter?.pass?W(s.counter.pass):z())});function Xe(){try{window.claude?.hot?.snapshot?.(()=>({team:s.team,passMode:s.passMode,system:s.system,unlockAll:s.unlockAll,n:s.n,tally:s.tally,score:s.score,games:s.games,rallyNo:s.rallyNo,history:s.history}))}catch{}}function we(e){let t=e??{};t.team&&Object.assign(s,t),s.rallyNo>0&&s.rallyNo--,z()}window.claude?.hot?.ready?window.claude.hot.ready(we):we(window.claude?.hot?.data??{});})();
+</script>
+
+</body>
+</html>
