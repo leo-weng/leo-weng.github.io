@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Defense Board</title>
+<style>
+:root{--bg:#f4efe6;--court:#e9c99a;--line:#fff;--ink:#1b2430;--muted:#6b7380;--them:#c0392b;--blk:#7f1d1d;--us:#1f4e8c;--panel:#fff;--border:#d9d2c5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181d;--court:#5a4630;--line:#e8e2d6;--ink:#eef0f3;--muted:#9aa3ae;--panel:#1f242b;--border:#333a44}}
+:root[data-theme="dark"]{--bg:#15181d;--court:#5a4630;--line:#e8e2d6;--ink:#eef0f3;--muted:#9aa3ae;--panel:#1f242b;--border:#333a44}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr) 300px}
+@media (max-width:760px){main{grid-template-columns:1fr}}
+h1{font-size:20px;margin:0 0 4px}p{margin:0 0 8px;color:var(--muted)}
+svg{width:100%;height:auto;touch-action:none;user-select:none;background:var(--panel);border:1px solid var(--border);border-radius:10px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px}
+button,select{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--ink);cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font:13px ui-monospace,monospace}td{padding:3px 4px;border-bottom:1px solid var(--border)}
+.p circle{stroke:#fff;stroke-width:2;cursor:grab}.p text{fill:#fff;font:700 11px system-ui;text-anchor:middle;pointer-events:none}
+.d circle{fill:var(--them)}.b circle{fill:var(--blk)}.h circle{fill:var(--us)}
+.reach{fill:var(--them);fill-opacity:.08;stroke:var(--them);stroke-opacity:.35;stroke-dasharray:4 4}
+textarea{width:100%;height:110px;font:12px ui-monospace,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--border);border-radius:8px}
+</style></head><body><main>
+<div>
+<h1>Defense board</h1>
+<p>Drag anyone anywhere: their players (red, z1–z6 by rotation spot) and your hitter (blue). Tap a player to swap them between front row (dark) and back row. Write a note, save the situation, and export the whole log when you're done.</p>
+<svg id="b" viewBox="0 0 446 600"></svg>
+</div>
+<div class="panel">
+<div class="row"><select id="preset"><option value="perimeter">Perimeter (bunch)</option><option value="sixup">6 up (spread)</option></select><button id="load">Load</button></div>
+<div class="row"><label><input type="checkbox" id="reach" checked> Show reach</label></div>
+<table id="t"></table>
+<p style="margin-top:10px">Meters: x across from your left sideline (0–9), y from the net (0) to their baseline (9). z1 is their right back, so it starts on your left.</p>
+<label for="note" style="display:block;font-weight:600;margin:10px 0 4px">Note for this situation</label>
+<textarea id="note" placeholder="e.g. GT vs left-side high ball, spread block, 6 up"></textarea>
+<div class="row" style="margin-top:8px"><button id="save">Save to log</button><button id="export">Export log</button><button id="clear">Clear log</button></div>
+<p id="msg"></p>
+<ol id="log" style="padding-left:20px;margin:0;font-size:13px"></ol>
+<textarea id="out" readonly hidden></textarea>
+</div>
+</main>
+<script>
+const S=34,OX=70,OY=60; // court 9x9 at y 0..9 from the net (bottom), plus 3 m of our side
+const X=x=>OX+x*S, Y=y=>OY+(9-y)*S;
+const PRESETS={
+ perimeter:[["z1","d",0.9,7.2],["z6","d",4.5,7.9],["z5","d",8.1,7.2],["z2","b",1.5,0.5],["z3","b",4.5,0.5],["z4","b",7.5,0.5],["You","h",0.8,-1.2]],
+ sixup:[["z1","d",1.0,7.3],["z6","d",4.5,4.0],["z5","d",8.0,7.3],["z2","b",1.5,0.5],["z3","b",3.0,0.5],["z4","b",7.5,0.5],["You","h",0.8,-1.2]],
+};
+let P=[];
+const svg=document.getElementById('b');
+function draw(){
+ const reach=document.getElementById('reach').checked;
+ let h=`<rect x="${X(0)}" y="${Y(9)}" width="${9*S}" height="${9*S}" fill="var(--court)" stroke="var(--line)" stroke-width="2"/>
+ <line x1="${X(0)}" y1="${Y(3)}" x2="${X(9)}" y2="${Y(3)}" stroke="var(--line)" stroke-width="2"/>
+ <rect x="${X(0)}" y="${Y(0)}" width="${9*S}" height="${3*S}" fill="var(--court)" opacity=".45"/>
+ <line x1="${X(-0.4)}" y1="${Y(0)}" x2="${X(9.4)}" y2="${Y(0)}" stroke="var(--ink)" stroke-width="4"/>
+ <text x="${X(4.5)}" y="${Y(9)-6}" text-anchor="middle" fill="var(--muted)" font-size="12">their baseline</text>
+ <text x="${X(4.5)}" y="${Y(-3)+14}" text-anchor="middle" fill="var(--muted)" font-size="12">your side</text>`;
+ if(reach)for(const p of P)if(p[1]==="d")h+=`<ellipse class="reach" cx="${X(p[2])}" cy="${Y(p[3]-0.65*0.75)}" rx="${2*S}" ry="${2*0.925*S}"/>`;
+ const hit=P.find(p=>p[1]==="h");
+ if(hit)h+=`<line x1="${X(hit[2])}" y1="${Y(hit[3])}" x2="${X(hit[2])}" y2="${Y(0)}" stroke="var(--us)" stroke-dasharray="3 4"/>`;
+ P.forEach((p,i)=>h+=`<g class="p ${p[1]}" data-i="${i}" transform="translate(${X(p[2])},${Y(p[3])})"><circle r="15"/><text y="4">${p[0]}</text></g>`);
+ svg.innerHTML=h;
+ document.getElementById('t').innerHTML=P.map(p=>`<tr><td>${p[0]}</td><td>${p[1]==="d"?"back row":p[1]==="b"?"front row":"hitter"}</td><td>x ${p[2].toFixed(1)}</td><td>y ${p[3].toFixed(1)}</td></tr>`).join("");
+ 
+}
+function load(k){P=PRESETS[k].map(p=>[...p]);draw();}
+let drag=null;
+function pt(e){const m=svg.getScreenCTM().inverse();const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(m);return{x:(q.x-OX)/S,y:9-(q.y-OY)/S};}
+svg.addEventListener('pointerdown',e=>{const g=e.target.closest('.p');if(!g)return;drag=+g.dataset.i;svg.setPointerCapture(e.pointerId);});
+svg.addEventListener('pointermove',e=>{if(drag===null)return;const q=pt(e);const p=P[drag];p[2]=Math.round(q.x*10)/10;p[3]=Math.round(q.y*10)/10;draw();});
+const end=()=>{drag=null;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+document.getElementById('load').onclick=()=>load(document.getElementById('preset').value);
+document.getElementById('reach').onchange=draw;
+// Running log: kept in this browser so a refresh doesn't lose it, and exported as one file at the end.
+let LOG=[];try{LOG=JSON.parse(localStorage.getItem('dlog')||'[]');}catch{}
+const keep=()=>{try{localStorage.setItem('dlog',JSON.stringify(LOG));}catch{}};
+const snap=()=>P.map(p=>({name:p[0],role:p[1]==="d"?"back row":p[1]==="b"?"front row":"hitter",x:+p[2].toFixed(1),y:+p[3].toFixed(1)}));
+function showLog(){document.getElementById('log').innerHTML=LOG.map((e,i)=>`<li>${e.note.replace(/</g,"&lt;")||"(no note)"} <button data-del="${i}" style="padding:0 6px">×</button></li>`).join("");}
+document.getElementById('log').onclick=e=>{const i=e.target.dataset.del;if(i!==undefined){LOG.splice(+i,1);keep();showLog();}};
+document.getElementById('save').onclick=()=>{const n=document.getElementById('note');LOG.push({note:n.value.trim(),players:snap()});keep();showLog();n.value="";document.getElementById('msg').textContent=`Saved situation ${LOG.length}.`;};
+document.getElementById('clear').onclick=()=>{if(confirm("Clear the whole log?")){LOG=[];keep();showLog();}};
+document.getElementById('export').onclick=async()=>{
+ const text=JSON.stringify({about:"x: meters across from the hitter's left sideline (0-9). y: meters from the net (0) to their baseline (9); negative is your side.",situations:LOG},null,1);
+ const o=document.getElementById('out');o.hidden=false;o.value=text;
+ try{await navigator.clipboard.writeText(text);document.getElementById('msg').textContent="Copied the whole log. Paste it in the thread.";}catch{o.select();document.getElementById('msg').textContent="Select the text below and copy it into the thread.";}
+};
+// Tap without dragging flips front row / back row.
+let moved=false;svg.addEventListener('pointermove',()=>{if(drag!==null)moved=true;},true);
+svg.addEventListener('pointerdown',()=>{moved=false;},true);
+svg.addEventListener('click',e=>{const g=e.target.closest('.p');if(!g||moved)return;const p=P[+g.dataset.i];if(p[1]!=="h"){p[1]=p[1]==="d"?"b":"d";draw();}});
+showLog();
+load('perimeter');
+</script></body></html>
