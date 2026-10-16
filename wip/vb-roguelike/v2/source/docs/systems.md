@@ -117,3 +117,9 @@ Proposal page with drawings: https://claude.ai/artifact/5gNvfkzjyszkKUdLrWUxh2 (
   - Smart bot win rate: Easy 93%, Normal 81%, Hard 36%, Boss 26%.
   - Random bot win rate: 42%, 16%, 1% and 0%.
   - Errors run 4-11%.
+
+## Dig reach ovals (2026-10-16)
+- Each defender has an oval reach (2.1 m along the net, 1.6 m front to back, scaled by spot: libero 1.2, back-row OH 1.05, right back 0.9, front row 0.8-0.85).
+- Confidence = exp(-0.69 n^2), n = distance in oval radii: 100% at their feet, 50% at the dashed ring, fading smoothly past it. Tile coverage is the average over 16 points in the tile; a second defender adds 35% of theirs.
+- Dig quality follows the digger's confidence q: perfect = 50% x q, shank = 8% + 45% x (1 - q), rest ok.
+- Drawn as a soft oval plus a dashed 50% ring under every defender on both floors.
