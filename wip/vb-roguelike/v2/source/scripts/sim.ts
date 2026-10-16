@@ -13,14 +13,14 @@ function summary(list: MatchStats[]) {
     score: `${(sum((m) => m.us) / list.length).toFixed(1)}-${(sum((m) => m.them) / list.length).toFixed(1)}`,
     rallies: (sum((m) => m.rallies) / list.length).toFixed(1),
     killRate: pct(sum((m) => m.kills) / Math.max(1, sum((m) => m.swings))),
+    errorRate: pct(sum((m) => m.errors) / Math.max(1, sum((m) => m.swings))),
+    repeatKill: pct(sum((m) => m.repeatKills) / Math.max(1, sum((m) => m.repeats))),
     tilesBroken: `${(sum((m) => m.theirBroken) / list.length).toFixed(1)} theirs / ${(sum((m) => m.ourBroken) / list.length).toFixed(1)} yours`,
-    winsByBreaks: pct(wins.filter((m) => m.theirBroken >= 4).length / Math.max(1, wins.length)),
-    greenestIsBest: pct(sum((m) => m.topPickBest) / Math.max(1, sum((m) => m.topPickTotal))),
   };
 }
 for (const level of LEVELS) {
   const smart = Array.from({ length: n }, (_, i) => playMatch(level, SMART, 1000 + i));
   const rand = Array.from({ length: n }, (_, i) => playMatch(level, RANDOM, 5000 + i));
-  console.log(level.padEnd(7), "smart", JSON.stringify(summary(smart)));
+  console.log(level.padEnd(7), "smart ", JSON.stringify(summary(smart)));
   console.log("".padEnd(7), "random", JSON.stringify(summary(rand)));
 }

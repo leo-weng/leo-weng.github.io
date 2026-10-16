@@ -20,6 +20,7 @@
   --win: #1f8a4c; --lose: #c0362f;
   --great: #1f9a52; --good: #79b54a; --even: #d6b02a; --risky: #e57a2b; --bad: #c9382f;
   --hole: #241b14;
+  --shade: #141a24;     /* block shadow */
   --crack: #5a3d22;
   --us: #2d6fd1; --them: #c0362f;
   --font-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
@@ -31,14 +32,14 @@
     --bg: #10151c; --panel: #18202b; --ink: #e6ebf1; --muted: #98a4b3; --line: #2b3746;
     --maple: #6b5338; --maple-2: #5c462e; --paint: #8fb3e8; --ball: #f5b33a; --accent: #f26a35; --accent-ink: #1a0f08;
     --win: #4fcf86; --lose: #f2726a; --great: #3fcf7a; --good: #9ccd63; --even: #e6c449; --risky: #f39552; --bad: #f2726a;
-    --hole: #07090c; --crack: #23170c; --us: #6da3f0; --them: #f2726a; color-scheme: dark;
+    --hole: #07090c; --shade: #000000; --crack: #23170c; --us: #6da3f0; --them: #f2726a; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #10151c; --panel: #18202b; --ink: #e6ebf1; --muted: #98a4b3; --line: #2b3746;
   --maple: #6b5338; --maple-2: #5c462e; --paint: #8fb3e8; --ball: #f5b33a; --accent: #f26a35; --accent-ink: #1a0f08;
   --win: #4fcf86; --lose: #f2726a; --great: #3fcf7a; --good: #9ccd63; --even: #e6c449; --risky: #f39552; --bad: #f2726a;
-  --hole: #07090c; --crack: #23170c; --us: #6da3f0; --them: #f2726a; color-scheme: dark;
+  --hole: #07090c; --shade: #000000; --crack: #23170c; --us: #6da3f0; --them: #f2726a; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--font-body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 32px; }
@@ -77,8 +78,13 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .netview .floor { stroke: var(--maple-2); stroke-width: 6; }
 .netview .net-mesh { opacity: 0.9; } .netview .mesh-line { stroke: var(--paint); stroke-width: 1; opacity: 0.45; fill: none; }
 .netview .net-tape { fill: var(--paint); } .netview .antenna { stroke: var(--accent); stroke-width: 5; }
-.blk .b-body { fill: var(--them); } .blk .b-head { fill: var(--them); } .blk .b-arm { stroke: var(--them); stroke-width: 9; stroke-linecap: round; }
-.blk-home { opacity: 0.35; } .blk-late { opacity: 0.7; }
+.blk .b-body, .blk .b-head { fill: var(--them); } .blk .b-arm { stroke: var(--them); stroke-width: 9; stroke-linecap: round; }
+.blk-us .b-body, .blk-us .b-head { fill: var(--us); } .blk-us .b-arm { stroke: var(--us); }
+.blk-off, .blk-ready { opacity: 0.35; } .blk-late { opacity: 0.7; }
+.ntok.ntok-them circle { fill: var(--them); } .ntok.ntok-them.ntok-setter circle { opacity: 0.75; }
+.tell-arrow { stroke: var(--ink); stroke-width: 6; fill: none; stroke-linecap: round; } .tell-tip .tell-arrow { stroke-dasharray: 4 9; }
+.tell-head { fill: var(--ink); } .tell-word { fill: var(--ink); font: 700 22px var(--font-display); text-transform: uppercase; letter-spacing: 0.05em; }
+.tell-anim { opacity: 0; animation: fadein 0.3s 1.4s forwards; } @keyframes fadein { to { opacity: 1; } }
 .set-trail { fill: none; stroke: var(--ball); stroke-width: 3; stroke-dasharray: 6 8; opacity: 0.8; }
 .nball { fill: var(--ball); stroke: #7a4a00; stroke-width: 2; }
 .ntok circle { fill: var(--us); stroke: var(--panel); stroke-width: 3; } .ntok .ntok-label { fill: #fff; font: 700 24px var(--font-display); text-anchor: middle; }
@@ -103,14 +109,22 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .court .net-line { stroke: var(--paint); stroke-width: 6; stroke-linecap: round; }
 .tok circle { stroke: var(--panel); stroke-width: 2.5; } .tok text { font: 700 12px var(--font-display); text-anchor: middle; fill: #fff; pointer-events: none; }
 .tok-them circle { fill: var(--them); } .tok-us circle { fill: var(--us); }
-.tok-B circle { opacity: 0.75; }
-.tok:not([role="button"]), .cblk, .ball-g, .tint, .shadow, .sel, .mark, .cracks, .pips, .hole { pointer-events: none; }
+.tok:not([role="button"]), .cblk:not([role="button"]), .ball-g, .tint, .sel, .cracks, .pips, .hole, .fan, .subgrid { pointer-events: none; }
+.tok[role="button"], .cblk[role="button"], .sq-target { cursor: pointer; }
 .tok-hitter circle { stroke: var(--ball); stroke-width: 4; }
-.tok-passer { cursor: default; } .tok-passer[role="button"] { cursor: pointer; }
-.tok-them.tok-passer.skill-weak circle { stroke: var(--great); stroke-width: 4; }
-.tok-passer.is-sel circle { stroke: var(--ink); stroke-width: 5; }
-.tok-passer .tok-sub { fill: var(--ink); font: 11px var(--font-body); }
-.cblk { stroke: var(--panel); stroke-width: 1.5; } .cblk-them { fill: var(--them); } .cblk-us { fill: var(--us); } .cblk-home { opacity: 0.3; } .cblk-late { opacity: 0.65; }
+.tok.is-sel circle { stroke: var(--ink); stroke-width: 4; } .tok.is-moved circle { stroke: var(--ball); stroke-width: 4; }
+.tok-serve.is-seam circle { opacity: 0.85; } .tok-serve text { font-size: 11px; }
+.tok-serve.tone-great circle { stroke: var(--great); stroke-width: 5; } .tok-serve.tone-good circle { stroke: var(--good); stroke-width: 5; } .tok-serve.tone-even circle { stroke: var(--even); stroke-width: 5; }
+.tok-serve.tone-risky circle { stroke: var(--risky); stroke-width: 5; } .tok-serve.tone-bad circle { stroke: var(--bad); stroke-width: 5; }
+.tok-serve.is-sel circle { stroke: var(--ink); stroke-width: 6; }
+.tok .tok-sub { fill: var(--ink); font: 11px var(--font-body); }
+.subgrid { stroke: var(--paint); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.45; fill: none; }
+.fan-edge { fill: var(--shade); opacity: 0.2; } .fan-core { fill: var(--shade); opacity: 0.38; } .fan-edge.fan-late { opacity: 0.1; } .fan-core.fan-late { opacity: 0.2; }
+.sq-target { fill: color-mix(in srgb, var(--us) 18%, transparent); stroke: var(--us); stroke-width: 2.5; stroke-dasharray: 5 4; }
+.sq-target:hover { fill: color-mix(in srgb, var(--us) 35%, transparent); }
+.cblk rect { stroke: var(--panel); stroke-width: 1.5; } .cblk-them rect { fill: var(--them); } .cblk-us rect { fill: var(--us); } .cblk-late rect { opacity: 0.6; }
+.cblk text { fill: #fff; font: 700 10px var(--font-display); text-anchor: middle; pointer-events: none; }
+.cblk.is-sel rect { stroke: var(--ink); stroke-width: 3; } .cblk.is-moved rect { stroke: var(--ball); stroke-width: 3; }
 .ball-trail { fill: none; stroke: var(--ball); stroke-width: 3; stroke-dasharray: 5 6; }
 .ball { fill: var(--ball); stroke: #7a4a00; stroke-width: 2; }
 .burst { fill: none; stroke: var(--ball); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; animation: burst 0.6s 0.7s ease-out; }

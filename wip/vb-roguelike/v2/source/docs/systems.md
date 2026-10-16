@@ -101,3 +101,19 @@ So breaking tiles wants Hard swings, while picking points can use soft shots and
 1. Tile toughness: 2 hits per tile to start?
 2. Is pass grade automatic (from stats), or should the passer get a choice?
 3. Do the small upgrades come after every point, or only after points you win?
+
+## Draft 2 (2026-10-16, from Leo's playtest)
+
+Proposal page with drawings: https://claude.ai/artifact/5gNvfkzjyszkKUdLrWUxh2 (approved).
+
+- **Hitting:** the ball always goes to the tile you tap. The only misses are net or out (about 4-10% a swing). Wild swings return only as a status effect later (like Confused).
+- **Block shadow:** each blocker's hands throw a fan from the net, skinny to wide, angled away from the hitter. Touching hands merge. The core is solid (a hard swing can't be aimed there). The thin outer edge is weak: a ball there can be tooled (35%), stuffed (30%) or touched. A late blocker is weaker and only shadows the front half, so a gap shows as a lit seam.
+- **Defense:** each tile is 2×2 squares. Spots come from your formation. Back row: libero left back, the back-row OH middle back, S or OPP right back. Front-row players who don't block drop off. You get one move per ball: one player, one square (blockers slide one square along the net), with no stacking. Their hitter aims at your starting setup, so a good read beats them.
+- **Their attack is visible:** the net view shows their set arc and the hitter's approach (straight = line, wide = cross, slow = tip). The approach can fake: 15% Normal, 25% Hard, 35% Boss.
+- **Chase:** their defense remembers where you hit (heat that cools each swing). Second time: a digger shades over. Third: two pile in and read it. Holes they've watched get plugged at half the dig. Their middle can bite on your quick, leaving your next outside set with a late middle. Easy and Normal are a "Chaser"; Hard and Boss are a "Reader" with a longer memory.
+- **Serve:** five targets (three passers plus two seams), tinted by the chance of a bad pass. A front-row OH who passes is late to hit (one step worse set).
+- **Upgrades:** one pick at a timeout when either team reaches 8. Picks: Second move, Long step, Big hands, Film study, Heavy hands, Spike training, Clean contact, Patch the floor.
+- **Health check (200 matches per level):**
+  - Smart bot win rate: Easy 93%, Normal 81%, Hard 36%, Boss 26%.
+  - Random bot win rate: 42%, 16%, 1% and 0%.
+  - Errors run 4-11%.
