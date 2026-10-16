@@ -123,3 +123,4 @@ Proposal page with drawings: https://claude.ai/artifact/5gNvfkzjyszkKUdLrWUxh2 (
 - Confidence = exp(-0.69 n^2), n = distance in oval radii: 100% at their feet, 50% at the dashed ring, fading smoothly past it. Tile coverage is the average over 16 points in the tile; a second defender adds 35% of theirs.
 - Dig quality follows the digger's confidence q: perfect = 50% x q, shank = 8% + 45% x (1 - q), rest ok.
 - Drawn as a soft oval plus a dashed 50% ring under every defender on both floors.
+- 2026-10-16 update: ovals are rounder (1.9 m x 1.75 m). No hard swings inside the 10-foot line (Hard reaches rows 2-3 only). Slow balls grow every oval: Roll x1.4 (dig x1.1), Tip x2.2 (dig x1.3), and the court draws the bigger ovals when you pick that shot. New upgrade "Quick feet": your defenders' ovals x1.2.

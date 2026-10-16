@@ -39,6 +39,8 @@ export interface Mods {
   dmg: number;
   /** Their approach never fakes you out. */
   tells: boolean;
+  /** Your defenders' reach (oval size). */
+  reach: number;
 }
 
 export type Rng = () => number;
@@ -100,7 +102,7 @@ export function newGame(o: GameOpts): Game {
     us: makeTeam("us", "You", o.system, o.formation, YOUR_TILE_HITS),
     them: makeTeam("them", "Riverside", "Bunch", "Perimeter", d.tileHits),
     serving: rng() < 0.5 ? "us" : "them",
-    mods: { acc: 1, power: 1, spike: 1, dig: 1, moves: 1, step: 1, hands: 0, dmg: 0, tells: false },
+    mods: { acc: 1, power: 1, spike: 1, dig: 1, moves: 1, step: 1, hands: 0, dmg: 0, tells: false, reach: 1 },
     rng,
     rallies: 0,
     track: { hitter: "", hitterStreak: 0, heat: Array(9).fill(0), lastRole: "", lastTempo: "" },
@@ -397,8 +399,8 @@ export function tileShadow(b: BlockForm, tile: number): number {
 /** Where a square's center is, in meters: x along the net, y back from the net. */
 export const sqXY = (s: Sq): [number, number] => [(s.c + 0.5) * 1.5, (s.r + 0.5) * 1.5];
 /** How sure this defender is of playing a ball landing at (x, y): 1 at their feet, fading smoothly out of their oval. */
-export function reach(d: Defender, x: number, y: number): number {
-  const [dx, dy] = sqXY(d.sq), k = REACH_SIZE[d.zone];
+export function reach(d: Defender, x: number, y: number, scale = 1): number {
+  const [dx, dy] = sqXY(d.sq), k = REACH_SIZE[d.zone] * scale;
   const n2 = ((x - dx) / (COVER.side * k)) ** 2 + ((y - dy) / (COVER.depth * k)) ** 2;
   return Math.exp(-COVER.falloff * n2);
 }
@@ -409,19 +411,19 @@ const TILE_PTS: [number, number][][] = Array.from({ length: 9 }, (_, t) => {
   return out;
 });
 /** Coverage at one point: the best defender's confidence plus a share of the next best. */
-export function coverageAt(defs: Defender[], x: number, y: number): number {
-  const v = defs.map((d) => reach(d, x, y)).sort((a, b) => b - a);
+export function coverageAt(defs: Defender[], x: number, y: number, scale = 1): number {
+  const v = defs.map((d) => reach(d, x, y, scale)).sort((a, b) => b - a);
   return Math.min(1, (v[0] ?? 0) + COVER.second * (v[1] ?? 0));
 }
-export function coverage(defs: Defender[], tile: number): number {
+export function coverage(defs: Defender[], tile: number, scale = 1): number {
   const pts = TILE_PTS[tile];
-  return pts.reduce((s, [x, y]) => s + coverageAt(defs, x, y), 0) / pts.length;
+  return pts.reduce((s, [x, y]) => s + coverageAt(defs, x, y, scale), 0) / pts.length;
 }
 /** The defender who'd get to a ball on this tile, and how sure they are of it (0-1). */
-export function digger(defs: Defender[], tile: number): { d: Defender | undefined; q: number } {
+export function digger(defs: Defender[], tile: number, scale = 1): { d: Defender | undefined; q: number } {
   const pts = TILE_PTS[tile];
   let best: Defender | undefined, q = -1;
-  for (const d of defs) { const v = pts.reduce((s, [x, y]) => s + reach(d, x, y), 0) / pts.length; if (v > q) { q = v; best = d; } }
+  for (const d of defs) { const v = pts.reduce((s, [x, y]) => s + reach(d, x, y, scale), 0) / pts.length; if (v > q) { q = v; best = d; } }
   return { d: best, q: Math.max(0, q) };
 }
 /** The grade split of a dug ball for a digger this sure of it. */
@@ -493,6 +495,8 @@ export interface SwingCtx {
   spikeMult: number;
   blockMult: number;
   digMult: number;
+  /** The defense's reach multiplier (upgrades). */
+  reachMult: number;
   extraDmg: number;
 }
 /** Tiles a hard swing reaches comfortably. Out-of-range tiles are still hittable, with a bigger error risk. */
@@ -503,7 +507,7 @@ export function inRange(ctx: Pick<SwingCtx, "hitter" | "col" | "tempo">, tile: n
   if (ctx.tempo === "Fast") return r >= 1 && (c === 1 || c === 2 - ctx.col);
   return r >= 1;
 }
-export const canAim = (tile: number, shot: ShotKind) => shot === "Hard" || SHOTS[shot].rows.includes(rowOf(tile));
+export const canAim = (tile: number, shot: ShotKind) => SHOTS[shot].rows.includes(rowOf(tile));
 /** Can this shot go to this tile right now? A hard swing can't go through the block's solid shadow. */
 export function aimable(ctx: SwingCtx, tile: number, shot: ShotKind): boolean {
   if (!canAim(tile, shot)) return false;
@@ -525,8 +529,10 @@ function digChance(ctx: SwingCtx, tile: number, shot: ShotKind): number {
   const plug = isBroken(ctx.defender, tile) ? (ctx.read[tile] > 1 ? HOLE_PLUG : 0) : 1;
   if (!plug) return 0;
   const power = shot === "Hard" ? (1 - POWER_PER_POINT * (ctx.hitter.power - 5)) * ctx.spikeMult : 1;
-  return cap(DIALS.dig * ctx.digMult * coverage(ctx.defs, tile) * SHOTS[shot].digMult * power * ctx.read[tile] * plug, DIG_CAP);
+  return cap(DIALS.dig * ctx.digMult * coverage(ctx.defs, tile, reachScale(ctx, shot)) * SHOTS[shot].digMult * power * ctx.read[tile] * plug, DIG_CAP);
 }
+/** How big the defenders' ovals are against this shot. */
+export const reachScale = (ctx: Pick<SwingCtx, "reachMult">, shot: ShotKind) => SHOTS[shot].reach * ctx.reachMult;
 function toolChance(ctx: SwingCtx): number {
   const bl = blockersOf(ctx.block);
   const formed = bl.filter((b) => b.state === "formed").length;
@@ -611,7 +617,7 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
     return done({ outcome: "Kill", landed: aimed, hole: true, points: SCORING.hole, winner: aSide, text: "Right into the hole!" });
   }
   if (dr < dp) {
-    const { d: by, q } = digger(ctx.defs, aimed);
+    const { d: by, q } = digger(ctx.defs, aimed, reachScale(ctx, shot));
     const dg = digGrades(q);
     const gr = r();
     lab.push(`  ${by?.id ?? "?"} gets there (${pct(q)} sure): perfect ${pct(dg.perfect)}, shank ${pct(dg.shank)}`);
@@ -660,7 +666,7 @@ export function ourAttackCtx(g: Game, call: Call, block: BlockForm, def: TheirDe
   if (def.level === "shade") read[def.hot] = 1 + (CHASE[g.level].read - 1) / 2;
   return {
     attacker: g.us, defender: g.them, hitter: call.hitter, col: call.col, tempo: call.tempo, setQ, combo: grade === "#" && setQ === "Perfect", block, defs: def.defs, read,
-    accMult: d.yourAcc * g.mods.acc, powerMult: DIALS.power * d.yourPower * g.mods.power, spikeMult: g.mods.spike, blockMult: d.theirBlock, digMult: d.theirDig, extraDmg: g.mods.dmg,
+    accMult: d.yourAcc * g.mods.acc, powerMult: DIALS.power * d.yourPower * g.mods.power, spikeMult: g.mods.spike, blockMult: d.theirBlock, digMult: d.theirDig, reachMult: 1, extraDmg: g.mods.dmg,
   };
 }
 /** Note what we hit, so they can chase it. */
@@ -727,7 +733,7 @@ export function theirAttackCtx(g: Game, plan: Pick<TheirPlan, "call">, block: Bl
   if (g.late.them === plan.call.hitter.id) setQ = DOWN[setQ];
   return {
     attacker: g.them, defender: g.us, hitter: plan.call.hitter, col: plan.call.col, tempo: plan.call.tempo, setQ, combo: false, block, defs, read: Array(9).fill(1),
-    accMult: d.theirAcc, powerMult: DIALS.power, spikeMult: 1, blockMult: 1, digMult: g.mods.dig, extraDmg: 0,
+    accMult: d.theirAcc, powerMult: DIALS.power, spikeMult: 1, blockMult: 1, digMult: g.mods.dig, reachMult: g.mods.reach, extraDmg: 0,
   };
 }
 
@@ -755,6 +761,7 @@ export const UPGRADES: Upgrade[] = [
   { id: "film", name: "Film study", desc: "Their hitters can't fake their approach anymore.", dial: "Dig", apply: (g) => (g.mods.tells = true), ok: (g) => !g.mods.tells },
   { id: "heavy", name: "Heavy hands", desc: "Every kill does one more hit of damage.", dial: "Power", apply: (g) => (g.mods.dmg += 1) },
   { id: "spike", name: "Spike training", desc: "Your hard swings are much harder to dig.", dial: "Power", apply: (g) => (g.mods.spike *= 0.8) },
+  { id: "feet", name: "Quick feet", desc: "Your defenders cover more ground: every range grows.", dial: "Dig", apply: (g) => (g.mods.reach *= 1.2) },
   { id: "clean", name: "Clean contact", desc: "Your hitters almost never miss.", dial: "Accuracy", apply: (g) => (g.mods.acc *= 1.04) },
   {
     id: "patch", name: "Patch the floor", desc: "Fully fix your most cracked tile. Holes stay holes.", dial: "Tiles",

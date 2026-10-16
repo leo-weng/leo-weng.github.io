@@ -1,6 +1,6 @@
 // The game screen: one decision at a time, each with clear action buttons. Drives the engine step by step.
 import {
-  aimable, BlockForm, blockMoveOptions, BlockSystem, Call, callsFor, canAim, colOf, Defender, endRally, Formation, formTheirBlock, Game, Grade,
+  aimable, reachScale, BlockForm, blockMoveOptions, BlockSystem, Call, callsFor, canAim, colOf, Defender, endRally, Formation, formTheirBlock, Game, Grade,
   killValue, moveOptions, newGame, odds, ourAttackCtx, ourServe, passers, planTheirAttack, resolveSwing, rotationNumber, rowOf, SERVE_TARGETS,
   serveOdds, setQuality, Side, Sq, SwingCtx, SwingResult, takeTimeout, Team, theirAttackCtx, theirDefense, TheirDefense, theirServe, TheirPlan,
   tileIdx, trackAttack, Upgrade, upgradeChoices, zonePlayers,
@@ -301,7 +301,7 @@ function render() {
       roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a spot and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} The dark fan is their block's shadow.`);
       net = netSvg({ attacker: "us", front: block.front, set: { h: call.col, tempo: call.tempo }, animate: st.netAnim, hitters: [{ col: call.col, label: call.hitter.id, sub: "", selected: true, disabled: false }] });
       const tones = Array.from({ length: 9 }, (_, i) => (st.shot === "Tool" || !aimable(ctx, i, st.shot) ? null : toneOf(odds(ctx, i, st.shot).win)));
-      court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirTones: tones, theirSelected: st.tile, theirDefense: ctx.defs, theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
+      court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirTones: tones, theirSelected: st.tile, theirDefense: ctx.defs, theirReach: st.shot === "Tool" ? 1 : reachScale(ctx, st.shot), theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
       const notes: string[] = [];
       if (ctx.combo) notes.push(`<p class="note good">Combo: perfect pass and perfect set. A kill does double damage.</p>`);
       if (block.keyed) notes.push(`<p class="note warn">They're onto ${call.hitter.id}: an extra blocker keyed on them.</p>`);
@@ -311,7 +311,7 @@ function render() {
         info = `<p class="info"><b>${TONE_WORD[toneOf(o.win)]}</b> · aim off their hands. ${bl.length ? `${bl.length} blocker${bl.length > 1 ? "s" : ""} to use` : "There's no block to use"}. Scores 1, no tile damage.</p>`;
       } else if (st.tile !== undefined) {
         const o = odds(ctx, st.tile, st.shot);
-        if (o.inShadow || !canAim(st.tile, st.shot)) info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${o.inShadow ? "behind the block. Tip or roll over it, or pick an open tile." : `a ${st.shot.toLowerCase()} can't reach that row.`}</p>`;
+        if (o.inShadow || !canAim(st.tile, st.shot)) info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${o.inShadow ? "behind the block. Tip or roll over it, or pick an open tile." : (st.shot === "Hard" && rowOf(st.tile) === 0 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`)}</p>`;
         else {
           const v = killValue(ctx, st.tile, st.shot);
           const what = o.hole ? "hole, +1" : v === SCORING.break ? "breaks the tile, +3" : "cracks it, no points yet";
@@ -341,7 +341,7 @@ function render() {
         const from = (d.origin[id] as number | undefined) ?? f.x;
         blockXs = [...blockMoveOptions(d.block, { ...f, x: from }, g!.mods.step), ...(d.origin[id] !== undefined ? [from] : [])].filter((x) => Math.abs(x - f.x) > 0.01);
       }
-      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
+      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourReach: st.g!.mods.reach, ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
       info = `<p class="note intent">${esc(plan.intent)}</p>`;
       actions = Object.keys(d.origin).length ? `<div class="pills">${pill("reset", "", "Reset", "Put everyone back", false)}</div>` : "";
       go = `<button class="go" data-act="ready">${Object.keys(d.origin).length ? "Ready" : "Play it straight"}</button>`;
@@ -445,7 +445,7 @@ function act(a: string, v: string) {
   render();
 }
 function pickTile(i: number) {
-  if (st.screen === "hit" && st.shot !== "Tool") { if (!canAim(i, st.shot)) st.shot = "Hard"; st.tile = i; st.netAnim = false; render(); }
+  if (st.screen === "hit" && st.shot !== "Tool") { if (!canAim(i, st.shot)) st.shot = rowOf(i) === 0 ? "Tip" : "Hard"; st.tile = i; st.netAnim = false; render(); }
 }
 /** Defense: pick a player, then where they go. A moved player can be moved again (from where they started) or put back. */
 function pickDefender(id: string) {

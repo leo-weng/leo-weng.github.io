@@ -38,12 +38,15 @@ export const SCORING = { crack: 0, break: 3, hole: 1, tool: 1, ace: 1, error: 1,
 
 export type ShotKind = "Hard" | "Tip" | "Roll" | "Tool";
 export const SHOT_KINDS: ShotKind[] = ["Hard", "Tip", "Roll", "Tool"];
-/** Shots. accBonus adds to accuracy; digMult scales the digger's chance; rows the shot can reach (0 = by the net). */
-export const SHOTS: Record<ShotKind, { damage: number; accBonus: number; digMult: number; rows: number[]; overBlock: boolean; blurb: string }> = {
-  Hard: { damage: 2, accBonus: 0, digMult: 0.8, rows: [0, 1, 2], overBlock: false, blurb: "Breaks tiles. Can't go through the block's shadow." },
-  Tip: { damage: 1, accBonus: 0.04, digMult: 1.5, rows: [0, 1], overBlock: true, blurb: "Short, over the block. Easy to dig if someone's close." },
-  Roll: { damage: 1, accBonus: 0.03, digMult: 1.3, rows: [1, 2], overBlock: true, blurb: "Over the block to an open spot." },
-  Tool: { damage: 0, accBonus: 0, digMult: 0, rows: [], overBlock: false, blurb: "Off their hands for a point. No tile damage." },
+/**
+ * Shots. accBonus adds to accuracy; digMult scales the digger's chance; reach grows every defender's oval
+ * (a slow ball gives them time to get there); rows the shot can reach (0 = inside the 10-foot line).
+ */
+export const SHOTS: Record<ShotKind, { damage: number; accBonus: number; digMult: number; reach: number; rows: number[]; overBlock: boolean; blurb: string }> = {
+  Hard: { damage: 2, accBonus: 0, digMult: 0.8, reach: 1, rows: [1, 2], overBlock: false, blurb: "Breaks tiles. Deep only, and not through the block's shadow." },
+  Tip: { damage: 1, accBonus: 0.04, digMult: 1.3, reach: 2.2, rows: [0, 1], overBlock: true, blurb: "Short, over the block. Slow, so everyone can run it down." },
+  Roll: { damage: 1, accBonus: 0.03, digMult: 1.1, reach: 1.4, rows: [1, 2], overBlock: true, blurb: "Over the block. Off-speed, so diggers get a step." },
+  Tool: { damage: 0, accBonus: 0, digMult: 0, reach: 1, rows: [], overBlock: false, blurb: "Off their hands for a point. No tile damage." },
 };
 /** Tool: chance to score off the block = base + per blocker; with no block it is a long shot. */
 export const TOOL = { base: 0.45, perBlocker: 0.1, noBlock: 0.1, errorOnFail: 0.5 };
@@ -63,7 +66,7 @@ export const OUT_OF_RANGE = 0.9;
  * Confidence is 1 at their feet and fades smoothly: conf = exp(-falloff * n^2), n = distance in oval radii.
  * size scales the oval per spot (the libero covers most). A second defender adds a share of their confidence.
  */
-export const COVER = { side: 2.1, depth: 1.6, falloff: 0.69, second: 0.35 };
+export const COVER = { side: 1.9, depth: 1.75, falloff: 0.69, second: 0.35 };
 export const REACH_SIZE: Record<"LB" | "CB" | "RB" | "LF" | "CF" | "RF", number> = { LB: 1.2, CB: 1.05, RB: 0.9, LF: 0.85, CF: 0.8, RF: 0.85 };
 export const DIG_CAP = 0.92;
 

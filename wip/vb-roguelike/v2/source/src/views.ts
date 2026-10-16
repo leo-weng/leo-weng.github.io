@@ -99,6 +99,9 @@ export interface CourtOpts {
   ball?: { path: string; land?: [number, number]; kind: string };
   /** Tiles that just changed, flashed with a pop. */
   flashTheir?: number;
+  /** Size of each side's dig ovals (the shot and upgrades grow them). */
+  theirReach?: number;
+  ourReach?: number;
   flashOur?: number;
 }
 
@@ -112,10 +115,10 @@ function defTokens(defs: Defender[] | undefined, side: Side, pick?: DefendPick):
   }).join("");
 }
 /** Each defender's reach: a soft oval that fades out the way their dig confidence does. */
-function reachSvg(defs: Defender[] | undefined, side: Side): string {
+function reachSvg(defs: Defender[] | undefined, side: Side, scale = 1): string {
   if (!defs) return "";
   return defs.map((d) => {
-    const [x, y] = sqCenter(side, d.sq), k = REACH_SIZE[d.zone];
+    const [x, y] = sqCenter(side, d.sq), k = REACH_SIZE[d.zone] * scale;
     const rx = COVER.side * k * 300 / 9, ry = COVER.depth * k * 3 * TH / 9;
     return `<ellipse class="reach reach-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(2 * rx)}" ry="${f(2 * ry)}" fill="url(#reach-${side})"/>`
       + `<ellipse class="reach-ring reach-ring-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
@@ -197,10 +200,10 @@ export function courtSvg(o: CourtOpts): string {
     <defs><clipPath id="clip-them"><rect x="${CX0}" y="${theirY(2)}" width="300" height="${3 * TH}"/></clipPath><clipPath id="clip-us"><rect x="${CX0}" y="${ourY(0)}" width="300" height="${3 * TH}"/></clipPath>${reachGrad("us")}${reachGrad("them")}</defs>
     <text class="side-tag" x="${CX0}" y="${theirY(2) - 4}">THEIR FLOOR</text>
     ${floor("them")}${subGrid("them")}
-    <g clip-path="url(#clip-them)">${reachSvg(o.theirDefense, "them")}${fanSvg(o.theirBlock, "them")}</g>
+    <g clip-path="url(#clip-them)">${reachSvg(o.theirDefense, "them", o.theirReach)}${fanSvg(o.theirBlock, "them")}</g>
     <line class="net-line" x1="${CX0 - 10}" y1="${NET_Y}" x2="${CX0 + 310}" y2="${NET_Y}"/>
     ${floor("us")}${subGrid("us")}
-    <g clip-path="url(#clip-us)">${reachSvg(o.ourDefense, "us")}${fanSvg(o.ourBlock, "us")}</g>
+    <g clip-path="url(#clip-us)">${reachSvg(o.ourDefense, "us", o.ourReach)}${fanSvg(o.ourBlock, "us")}</g>
     <text class="side-tag" x="${CX0}" y="${ourY(3) + 14}">YOUR FLOOR</text>
     ${targets}
     ${defTokens(o.theirDefense, "them")}${defTokens(o.ourDefense, "us", o.defend)}
