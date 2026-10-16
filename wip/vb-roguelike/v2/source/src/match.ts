@@ -1,0 +1,111 @@
+// Plays whole matches with a bot policy, for the health check. Same engine calls the UI makes.
+import {
+  aimable, callsFor, Call, chase, Defender, endRally, formTheirBlock, Game, Grade, killValue, moveOptions, newGame, odds, other, ourAttackCtx,
+  ourServe, planTheirAttack, resolveSwing, Side, SwingCtx, takeTimeout, team, theirAttackCtx, theirDefense, theirServe, TheirPlan, distToTile,
+  trackAttack, upgradeChoices, SERVE_TARGETS, serveOdds, defenseSetup,
+} from "./engine";
+import { Level, SHOT_KINDS, ShotKind } from "./tables";
+
+export interface Policy {
+  call(g: Game, calls: Call[]): Call;
+  aim(g: Game, ctx: SwingCtx): { tile: number; shot: ShotKind };
+  /** Your defense move(s): returns the defenders after moving. */
+  defend(g: Game, plan: TheirPlan): Defender[];
+  serve(g: Game): number;
+}
+
+export function bestAim(ctx: SwingCtx): { tile: number; shot: ShotKind; value: number } {
+  let best = { tile: 7, shot: "Roll" as ShotKind, value: -1 };
+  for (const shot of SHOT_KINDS) {
+    for (let i = 0; i < 9; i++) {
+      if (shot === "Tool" && i > 0) break;
+      if (shot !== "Tool" && !aimable(ctx, i, shot)) continue;
+      const o = odds(ctx, i, shot);
+      const v = o.kill * killValue(ctx, i, shot) + o.tool - o.blockP * 0.3;
+      if (v > best.value) best = { tile: i, shot, value: v };
+    }
+  }
+  return best;
+}
+/** Read the approach: move the nearest defender a step toward where it says the ball is going. */
+function readMove(g: Game, plan: TheirPlan): Defender[] {
+  const defs = plan.defs.map((d) => ({ ...d, sq: { ...d.sq } }));
+  const h = plan.call.col;
+  const guess = plan.tell === "tip" ? (h === 1 ? 1 : h) : plan.tell === "line" ? 6 + h : 6 + (2 - h);
+  for (let m = 0; m < g.mods.moves; m++) {
+    const order = [...defs].sort((a, b) => distToTile(a.sq, guess) - distToTile(b.sq, guess)).filter((d) => distToTile(d.sq, guess) > 0);
+    const d = order[0];
+    if (!d) break;
+    const opts = moveOptions(defs, d, g.mods.step).sort((a, b) => distToTile(a, guess) - distToTile(b, guess));
+    if (opts.length) d.sq = opts[0];
+  }
+  return defs;
+}
+export const SMART: Policy = {
+  call: (g, calls) => {
+    const order = ["Combo", "Fast", "High"];
+    const sorted = [...calls].sort((a, b) => order.indexOf(a.tempo) - order.indexOf(b.tempo));
+    const fresh = sorted.filter((c) => !(g.track.hitter === c.hitter.id && g.track.hitterStreak >= 2));
+    const pool = fresh.length ? fresh : sorted;
+    return g.rng() < 0.7 ? pool[0] : pool[Math.floor(g.rng() * pool.length)];
+  },
+  aim: (_g, ctx) => bestAim(ctx),
+  defend: readMove,
+  serve: (g) => {
+    let best = 0, bv = -1;
+    for (let t = 0; t < SERVE_TARGETS; t++) { const o = serveOdds(g, "us", "Float", t); if (o.good - o.error > bv) { bv = o.good - o.error; best = t; } }
+    return best;
+  },
+};
+export const RANDOM: Policy = {
+  call: (g, calls) => calls[Math.floor(g.rng() * calls.length)],
+  aim: (g, ctx) => {
+    const shot = SHOT_KINDS[Math.floor(g.rng() * 4)];
+    const tiles = Array.from({ length: 9 }, (_, i) => i).filter((i) => shot === "Tool" || aimable(ctx, i, shot));
+    return tiles.length ? { tile: tiles[Math.floor(g.rng() * tiles.length)], shot } : { tile: 7, shot: "Roll" };
+  },
+  defend: (_g, plan) => plan.defs,
+  serve: (g) => Math.floor(g.rng() * SERVE_TARGETS),
+};
+
+export interface MatchStats { winner: Side; us: number; them: number; rallies: number; ourBroken: number; theirBroken: number; swings: number; kills: number; errors: number; repeats: number; repeatKills: number }
+export function playMatch(level: Level, policy: Policy, seed: number): MatchStats {
+  const g = newGame({ level, system: "Bunch", formation: "Perimeter", seed });
+  let swings = 0, kills = 0, errors = 0, repeats = 0, repeatKills = 0, lastTile = -1;
+  while (!g.winner && g.rallies < 400) {
+    const s = g.serving === "us" ? ourServe(g, "Float", policy.serve(g)) : theirServe(g);
+    let winner: Side | null = s.outcome === "ace" ? s.side : s.outcome === "error" ? other(s.side) : null;
+    let attacker: Side = other(s.side);
+    let grade: Grade = s.grade ?? "+";
+    let touches = 0;
+    while (!winner && touches++ < 30) {
+      let res;
+      if (attacker === "us") {
+        const calls = callsFor(g.us, grade).filter((c) => c.enabled);
+        const call = policy.call(g, calls);
+        const block = formTheirBlock(g, call);
+        const ctx = ourAttackCtx(g, call, block, theirDefense(g, call, block), grade);
+        const aim = policy.aim(g, ctx);
+        const rep = aim.tile === lastTile && aim.shot !== "Tool";
+        lastTile = aim.tile;
+        trackAttack(g, call, aim.tile, aim.shot);
+        res = resolveSwing(g, ctx, aim.tile, aim.shot);
+        swings++;
+        if (rep) repeats++;
+        if (res.outcome === "Kill" || res.outcome === "Tool") { kills++; if (rep) repeatKills++; }
+        if (res.outcome === "Error") errors++;
+      } else {
+        const plan = planTheirAttack(g, grade);
+        const defs = policy.defend(g, plan);
+        res = resolveSwing(g, theirAttackCtx(g, plan, plan.block, defs, grade), plan.target, plan.shot);
+      }
+      winner = res.winner;
+      if (!winner) { grade = res.nextGrade ?? "+"; attacker = other(attacker); }
+    }
+    endRally(g, winner ?? "them");
+    if (takeTimeout(g)) { const ch = upgradeChoices(g); if (ch.length) ch[Math.floor(g.rng() * ch.length)].apply(g); }
+  }
+  const broken = (s: Side) => team(g, s).tiles.filter((h) => h <= 0).length;
+  return { winner: g.winner ?? "them", us: g.us.score, them: g.them.score, rallies: g.rallies, ourBroken: broken("us"), theirBroken: broken("them"), swings, kills, errors, repeats, repeatKills };
+}
+export { chase, defenseSetup };
