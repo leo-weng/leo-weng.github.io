@@ -1,7 +1,7 @@
 // Rules engine. Pure state + functions; no DOM. The UI and the bot sim both drive it step by step.
 // Every swing goes through resolveSwing, which only reads the five dials (see tables.ts).
 import {
-  ACC_CAP, AI, BLOCK_HOME, BLOCK_TARGETS, CAP, CHASE, COMBO, HOLE_PLUG, CONTROL_PER_POINT, COVER, CRACK_VALUE, DIALS, DIFFICULTY, DIG_CAP, DIG_GRADES, FAN,
+  ACC_CAP, AI, BLOCK_HOME, BLOCK_TARGETS, CAP, CHASE, COMBO, HOLE_PLUG, CONTROL_PER_POINT, COVER, CRACK_VALUE, DIALS, DIFFICULTY, DIG_CAP, DIG_GRADES, FAN, REACH_SIZE,
   JUMP_PER_POINT, KEYED_STREAK, LATE_SHARE, Level, OUT_OF_RANGE, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES, SET_MULT,
   SetQuality, SHOTS, ServeType, ShotKind, TELL_FAKE, TIMEOUT_AT, TOOL, YOUR_TILE_HITS,
 } from "./tables";
@@ -394,13 +394,40 @@ export function tileShadow(b: BlockForm, tile: number): number {
 }
 
 // ---------- Defense: coverage and the chase ----------
-export function coverage(defs: Defender[], tile: number): number {
-  const v = defs.map((d) => { const k = distToTile(d.sq, tile); return k === 0 ? COVER.on : k === 1 ? COVER.near : k === 2 ? COVER.far : 0; }).sort((a, b) => b - a);
-  return (v[0] ?? 0) + COVER.second * (v[1] ?? 0);
+/** Where a square's center is, in meters: x along the net, y back from the net. */
+export const sqXY = (s: Sq): [number, number] => [(s.c + 0.5) * 1.5, (s.r + 0.5) * 1.5];
+/** How sure this defender is of playing a ball landing at (x, y): 1 at their feet, fading smoothly out of their oval. */
+export function reach(d: Defender, x: number, y: number): number {
+  const [dx, dy] = sqXY(d.sq), k = REACH_SIZE[d.zone];
+  const n2 = ((x - dx) / (COVER.side * k)) ** 2 + ((y - dy) / (COVER.depth * k)) ** 2;
+  return Math.exp(-COVER.falloff * n2);
 }
-/** The defender who'd get to a ball on this tile. */
-export function digger(defs: Defender[], tile: number): Defender | undefined {
-  return [...defs].sort((a, b) => distToTile(a.sq, tile) - distToTile(b.sq, tile))[0];
+/** Points sampled across a tile (4x4), so coverage is the average over where in the tile the ball could land. */
+const TILE_PTS: [number, number][][] = Array.from({ length: 9 }, (_, t) => {
+  const out: [number, number][] = [];
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) out.push([colOf(t) * 3 + (j + 0.5) * 0.75, rowOf(t) * 3 + (i + 0.5) * 0.75]);
+  return out;
+});
+/** Coverage at one point: the best defender's confidence plus a share of the next best. */
+export function coverageAt(defs: Defender[], x: number, y: number): number {
+  const v = defs.map((d) => reach(d, x, y)).sort((a, b) => b - a);
+  return Math.min(1, (v[0] ?? 0) + COVER.second * (v[1] ?? 0));
+}
+export function coverage(defs: Defender[], tile: number): number {
+  const pts = TILE_PTS[tile];
+  return pts.reduce((s, [x, y]) => s + coverageAt(defs, x, y), 0) / pts.length;
+}
+/** The defender who'd get to a ball on this tile, and how sure they are of it (0-1). */
+export function digger(defs: Defender[], tile: number): { d: Defender | undefined; q: number } {
+  const pts = TILE_PTS[tile];
+  let best: Defender | undefined, q = -1;
+  for (const d of defs) { const v = pts.reduce((s, [x, y]) => s + reach(d, x, y), 0) / pts.length; if (v > q) { q = v; best = d; } }
+  return { d: best, q: Math.max(0, q) };
+}
+/** The grade split of a dug ball for a digger this sure of it. */
+export function digGrades(q: number) {
+  const perfect = DIG_GRADES.perfect * q, shank = DIG_GRADES.shankMin + DIG_GRADES.shankSpan * (1 - q);
+  return { perfect, shank, ok: Math.max(0, 1 - perfect - shank) };
 }
 const occupied = (defs: Defender[], s: Sq, except?: Defender) => defs.some((d) => d !== except && d.sq.r === s.r && d.sq.c === s.c);
 /** Squares a defender could move to with one move. */
@@ -584,16 +611,18 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
     return done({ outcome: "Kill", landed: aimed, hole: true, points: SCORING.hole, winner: aSide, text: "Right into the hole!" });
   }
   if (dr < dp) {
-    const by = digger(ctx.defs, aimed);
+    const { d: by, q } = digger(ctx.defs, aimed);
+    const dg = digGrades(q);
     const gr = r();
-    if (gr < DIG_GRADES.shank && !hole) {
+    lab.push(`  ${by?.id ?? "?"} gets there (${pct(q)} sure): perfect ${pct(dg.perfect)}, shank ${pct(dg.shank)}`);
+    if (gr < dg.shank && !hole) {
       // A shank cracks the tile (never breaks it) and the ball comes back free.
       const t = ctx.defender.tiles;
       const cracked = t[aimed] > 1;
       if (cracked) t[aimed] -= 1;
       return done({ outcome: "Shank", landed: aimed, digBy: by, damage: cracked ? 1 : 0, winner: null, nextGrade: "#", text: cracked ? "Shanked! The tile cracks and it's a free ball back." : "Shanked! Free ball back." });
     }
-    return done({ outcome: "Dug", landed: aimed, digBy: by, winner: null, nextGrade: gr < DIG_GRADES.shank + DIG_GRADES.perfect ? "+" : "!", text: "Dug!" });
+    return done({ outcome: "Dug", landed: aimed, digBy: by, winner: null, nextGrade: gr < dg.shank + dg.perfect ? "+" : "!", text: gr < dg.shank + dg.perfect ? "Great dig!" : "Dug!" });
   }
   // 5. Kill: damage the tile; points only if it breaks.
   const dmg = killDamage(ctx, shot);

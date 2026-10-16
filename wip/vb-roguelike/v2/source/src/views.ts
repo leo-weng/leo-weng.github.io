@@ -1,5 +1,6 @@
 // SVG views: the top-down court (both floors) and the net view (front-on, with the block forming).
 // Pure string builders; no rules live here.
+import { COVER, REACH_SIZE } from "./tables";
 import { BlockForm, colOf, Defender, fromNet, HITTER_X, Odds, rowOf, shadowShapes, Side, Sq, Team, Tell, Tempo } from "./engine";
 
 const f = (n: number) => n.toFixed(1);
@@ -110,6 +111,21 @@ function defTokens(defs: Defender[] | undefined, side: Side, pick?: DefendPick):
     return `<g class="tok tok-${side}${sel ? " is-sel" : ""}${moved ? " is-moved" : ""}"${tap} transform="translate(${f(x)},${f(y)})"><circle r="14"/><text y="4.5">${d.id}</text></g>`;
   }).join("");
 }
+/** Each defender's reach: a soft oval that fades out the way their dig confidence does. */
+function reachSvg(defs: Defender[] | undefined, side: Side): string {
+  if (!defs) return "";
+  return defs.map((d) => {
+    const [x, y] = sqCenter(side, d.sq), k = REACH_SIZE[d.zone];
+    const rx = COVER.side * k * 300 / 9, ry = COVER.depth * k * 3 * TH / 9;
+    return `<ellipse class="reach reach-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(2 * rx)}" ry="${f(2 * ry)}" fill="url(#reach-${side})"/>`
+      + `<ellipse class="reach-ring reach-ring-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
+  }).join("");
+}
+/** Gradient stops that follow exp(-falloff * n^2) out to two oval radii. */
+function reachGrad(side: Side): string {
+  const stops = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1].map((t) => `<stop offset="${t}" stop-color="var(--${side})" stop-opacity="${(Math.exp(-COVER.falloff * (2 * t) ** 2) * (t < 1 ? 1 : 0)).toFixed(3)}"/>`).join("");
+  return `<radialGradient id="reach-${side}">${stops}</radialGradient>`;
+}
 function fanSvg(b: BlockForm | undefined, side: Side): string {
   if (!b) return "";
   return shadowShapes(b).map((s) => {
@@ -178,13 +194,13 @@ export function courtSvg(o: CourtOpts): string {
     ? `<g class="ball-g ball-${o.ball.kind}"><path class="ball-trail" d="${o.ball.path}"/><circle class="ball" r="8"><animateMotion dur="0.75s" fill="freeze" path="${o.ball.path}"/></circle>${o.ball.land ? `<circle class="burst" cx="${f(o.ball.land[0])}" cy="${f(o.ball.land[1])}" r="6"/>` : ""}</g>`
     : "";
   return `<svg class="court" viewBox="${vb}" role="img" aria-label="Court from above: their floor on top, the net, your floor below">
-    <defs><clipPath id="clip-them"><rect x="${CX0}" y="${theirY(2)}" width="300" height="${3 * TH}"/></clipPath><clipPath id="clip-us"><rect x="${CX0}" y="${ourY(0)}" width="300" height="${3 * TH}"/></clipPath></defs>
+    <defs><clipPath id="clip-them"><rect x="${CX0}" y="${theirY(2)}" width="300" height="${3 * TH}"/></clipPath><clipPath id="clip-us"><rect x="${CX0}" y="${ourY(0)}" width="300" height="${3 * TH}"/></clipPath>${reachGrad("us")}${reachGrad("them")}</defs>
     <text class="side-tag" x="${CX0}" y="${theirY(2) - 4}">THEIR FLOOR</text>
     ${floor("them")}${subGrid("them")}
-    <g clip-path="url(#clip-them)">${fanSvg(o.theirBlock, "them")}</g>
+    <g clip-path="url(#clip-them)">${reachSvg(o.theirDefense, "them")}${fanSvg(o.theirBlock, "them")}</g>
     <line class="net-line" x1="${CX0 - 10}" y1="${NET_Y}" x2="${CX0 + 310}" y2="${NET_Y}"/>
     ${floor("us")}${subGrid("us")}
-    <g clip-path="url(#clip-us)">${fanSvg(o.ourBlock, "us")}</g>
+    <g clip-path="url(#clip-us)">${reachSvg(o.ourDefense, "us")}${fanSvg(o.ourBlock, "us")}</g>
     <text class="side-tag" x="${CX0}" y="${ourY(3) + 14}">YOUR FLOOR</text>
     ${targets}
     ${defTokens(o.theirDefense, "them")}${defTokens(o.ourDefense, "us", o.defend)}

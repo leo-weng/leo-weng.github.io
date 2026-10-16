@@ -58,8 +58,13 @@ export const COMBO = { accBonus: 0.05, damageMult: 2 };
 /** Out-of-range tiles are still hittable, at this accuracy multiplier. */
 export const OUT_OF_RANGE = 0.9;
 
-/** Dig coverage by how many squares (1.5 m each) a digger stands from the tile. A second digger adds a share of theirs. */
-export const COVER = { on: 1, near: 0.55, far: 0.2, second: 0.35 };
+/**
+ * Each defender's reach: an oval around them (meters), wider along the net than front to back.
+ * Confidence is 1 at their feet and fades smoothly: conf = exp(-falloff * n^2), n = distance in oval radii.
+ * size scales the oval per spot (the libero covers most). A second defender adds a share of their confidence.
+ */
+export const COVER = { side: 2.1, depth: 1.6, falloff: 0.69, second: 0.35 };
+export const REACH_SIZE: Record<"LB" | "CB" | "RB" | "LF" | "CF" | "RF", number> = { LB: 1.2, CB: 1.05, RB: 0.9, LF: 0.85, CF: 0.8, RF: 0.85 };
 export const DIG_CAP = 0.92;
 
 /**
@@ -98,8 +103,12 @@ export const CONTROL_PER_POINT = 0.04;
 /** Each point of hitter Jump over 5 weakens the block's edges by this much. */
 export const JUMP_PER_POINT = 0.06;
 
-/** Digs: grades of a ball that's kept alive. A shank cracks the tile for 1 and gives the other side a free ball. */
-export const DIG_GRADES = { perfect: 0.3, ok: 0.45, shank: 0.25 };
+/**
+ * Digs: grades of a ball that's kept alive, by how confident the digger is there (q, 0-1).
+ * perfect = perfect * q, shank = shankMin + shankSpan * (1 - q), the rest is ok.
+ * A shank cracks the tile for 1 and gives the other side a free ball.
+ */
+export const DIG_GRADES = { perfect: 0.5, shankMin: 0.08, shankSpan: 0.45 };
 
 export type ServeType = "Safe" | "Float" | "Jump";
 export const SERVE_TYPES: ServeType[] = ["Safe", "Float", "Jump"];

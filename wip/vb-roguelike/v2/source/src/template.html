@@ -109,7 +109,7 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .court .net-line { stroke: var(--paint); stroke-width: 6; stroke-linecap: round; }
 .tok circle { stroke: var(--panel); stroke-width: 2.5; } .tok text { font: 700 12px var(--font-display); text-anchor: middle; fill: #fff; pointer-events: none; }
 .tok-them circle { fill: var(--them); } .tok-us circle { fill: var(--us); }
-.tok:not([role="button"]), .cblk:not([role="button"]), .ball-g, .tint, .sel, .cracks, .pips, .hole, .fan, .subgrid { pointer-events: none; }
+.tok:not([role="button"]), .cblk:not([role="button"]), .ball-g, .tint, .sel, .cracks, .pips, .hole, .fan, .reach, .subgrid { pointer-events: none; }
 .tok[role="button"], .cblk[role="button"], .sq-target { cursor: pointer; }
 .tok-hitter circle { stroke: var(--ball); stroke-width: 4; }
 .tok.is-sel circle { stroke: var(--ink); stroke-width: 4; } .tok.is-moved circle { stroke: var(--ball); stroke-width: 4; }
@@ -119,6 +119,8 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .tok-serve.is-sel circle { stroke: var(--ink); stroke-width: 6; }
 .tok .tok-sub { fill: var(--ink); font: 11px var(--font-body); }
 .subgrid { stroke: var(--paint); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.45; fill: none; }
+.reach { opacity: 0.5; pointer-events: none; } .reach-them { opacity: 0.32; }
+.reach-ring { fill: none; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55; pointer-events: none; } .reach-ring-us { stroke: var(--us); } .reach-ring-them { stroke: var(--them); }
 .fan-edge { fill: var(--shade); opacity: 0.2; } .fan-core { fill: var(--shade); opacity: 0.38; } .fan-edge.fan-late { opacity: 0.1; } .fan-core.fan-late { opacity: 0.2; }
 .sq-target { fill: color-mix(in srgb, var(--us) 18%, transparent); stroke: var(--us); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .sq-target:hover { fill: color-mix(in srgb, var(--us) 35%, transparent); }
