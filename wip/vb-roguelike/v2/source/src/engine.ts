@@ -426,6 +426,12 @@ export function digger(defs: Defender[], tile: number, scale = 1): { d: Defender
   for (const d of defs) { const v = pts.reduce((s, [x, y]) => s + reach(d, x, y, scale), 0) / pts.length; if (v > q) { q = v; best = d; } }
   return { d: best, q: Math.max(0, q) };
 }
+/** The defender closest (by their range) to one spot, and how sure they are of it. */
+export function diggerAt(defs: Defender[], x: number, y: number, scale = 1): { d: Defender | undefined; q: number } {
+  let best: Defender | undefined, q = 0;
+  for (const d of defs) { const v = reach(d, x, y, scale); if (v > q) { q = v; best = d; } }
+  return { d: best, q };
+}
 /** The grade split of a dug ball for a digger this sure of it. */
 export function digGrades(q: number) {
   const perfect = DIG_GRADES.perfect * q, shank = DIG_GRADES.shankMin + DIG_GRADES.shankSpan * (1 - q);
@@ -511,7 +517,7 @@ export const canAim = (tile: number, shot: ShotKind) => SHOTS[shot].rows.include
 /** Can this shot go to this tile right now? A hard swing can't go through the block's solid shadow. */
 export function aimable(ctx: SwingCtx, tile: number, shot: ShotKind): boolean {
   if (!canAim(tile, shot)) return false;
-  return shot !== "Hard" || tileShadow(ctx.block, tile) < FAN.shadowCut;
+  return true;
 }
 
 export interface Odds { acc: number; blockP: number; digP: number; kill: number; tool: number; win: number; inRange: boolean; shadow: number; inShadow: boolean; hole: boolean }
@@ -524,12 +530,26 @@ function blockChance(ctx: SwingCtx, tile: number, shot: ShotKind): number {
   if (shot !== "Hard") return 0;
   return cap(tileShadow(ctx.block, tile) * ctx.blockMult * (1 - JUMP_PER_POINT * (ctx.hitter.jump - 5)));
 }
-function digChance(ctx: SwingCtx, tile: number, shot: ShotKind): number {
+/** Dig chance for a given coverage (0-1) on this tile: the defenders' skill, the shot, the hitter's power and their read. */
+function digFrom(ctx: SwingCtx, tile: number, shot: ShotKind, cover: number): number {
   // A hole can't be dug, unless they've seen you go there again and plugged it with bodies.
   const plug = isBroken(ctx.defender, tile) ? (ctx.read[tile] > 1 ? HOLE_PLUG : 0) : 1;
   if (!plug) return 0;
   const power = shot === "Hard" ? (1 - POWER_PER_POINT * (ctx.hitter.power - 5)) * ctx.spikeMult : 1;
-  return cap(DIALS.dig * ctx.digMult * coverage(ctx.defs, tile, reachScale(ctx, shot)) * SHOTS[shot].digMult * power * ctx.read[tile] * plug, DIG_CAP);
+  return cap(DIALS.dig * ctx.digMult * cover * SHOTS[shot].digMult * power * ctx.read[tile] * plug, DIG_CAP);
+}
+/** Expected dig chance over the whole tile (what the colors show). */
+function digChance(ctx: SwingCtx, tile: number, shot: ShotKind): number {
+  return digFrom(ctx, tile, shot, coverage(ctx.defs, tile, reachScale(ctx, shot)));
+}
+/** Where in the tile a ball lands (meters), picked at random across it. */
+function landPoint(r: Rng, tile: number): [number, number] {
+  return [colOf(tile) * 3 + 0.2 + r() * 2.6, rowOf(tile) * 3 + 0.2 + r() * 2.6];
+}
+/** What the hands do with a ball they catch: the soft edge tools it off, the solid middle stuffs it. */
+export function blockSplit(strength: number) {
+  const solid = Math.max(0, Math.min(1, (strength - DIALS.block) / (1 - DIALS.block)));
+  return { tool: FAN.toolShare * (1 - solid) + FAN.coreTool * solid, stuff: FAN.stuffShare * (1 - solid) + FAN.coreStuff * solid };
 }
 /** How big the defenders' ovals are against this shot. */
 export const reachScale = (ctx: Pick<SwingCtx, "reachMult">, shot: ShotKind) => SHOTS[shot].reach * ctx.reachMult;
@@ -547,8 +567,8 @@ export function odds(ctx: SwingCtx, tile: number, shot: ShotKind): Odds {
   const inShadow = shadow >= FAN.shadowCut;
   const blockP = blockChance(ctx, tile, shot);
   const digP = digChance(ctx, tile, shot);
-  const kill = inShadow ? 0 : acc * (1 - blockP) * (1 - digP);
-  const tool = inShadow ? 0 : acc * blockP * FAN.toolShare;
+  const kill = acc * (1 - blockP) * (1 - digP);
+  const tool = acc * blockP * blockSplit(shadow).tool;
   return { acc, blockP, digP, kill, tool, win: kill + tool, inRange: inRange(ctx, tile, shot), shadow, inShadow, hole };
 }
 
@@ -559,6 +579,8 @@ export interface SwingResult {
   shot: ShotKind;
   aimed: number;
   landed: number | null;
+  /** Where the ball came down (meters on the defending side), when it reached the floor or a digger. */
+  landAt?: [number, number];
   /** Who dug it. */
   digBy?: Defender;
   damage: number;
@@ -576,7 +598,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKind): SwingResult {
   const r = g.rng;
   const aSide = ctx.attacker.side, dSide = ctx.defender.side;
-  const base = { attackerSide: aSide, shot, aimed, landed: null as number | null, damage: 0, points: 0, broke: false, hole: false };
+  const base = { attackerSide: aSide, shot, aimed, landed: null as number | null, landAt: undefined as [number, number] | undefined, damage: 0, points: 0, broke: false, hole: false };
   const who = aSide === "us" ? `Your ${ctx.hitter.id}` : `Their ${ctx.hitter.id}`;
   const lab: string[] = [`${who}: ${ctx.tempo} set (${ctx.setQ})${ctx.combo ? ", combo" : ""}, ${shot} at row ${rowOf(aimed) + 1} col ${colOf(aimed) + 1}`];
   const done = (res: Omit<SwingResult, keyof typeof base> & Partial<typeof base>): SwingResult => { g.lab.push(...lab); g.lab = g.lab.slice(-40); return { ...base, ...res }; };
@@ -602,22 +624,25 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
     const br = r();
     lab.push(`  block edge ${pct(bp)}, rolled ${pct(br)}`);
     if (br < bp) {
-      const k = r();
-      if (k < FAN.toolShare) { award(g, aSide, SCORING.tool); return done({ outcome: "Tool", points: SCORING.tool, winner: aSide, text: "Off the edge of their hands and out!" }); }
-      if (k < FAN.toolShare + FAN.stuffShare) { award(g, dSide, SCORING.stuff); return done({ outcome: "Stuff", winner: dSide, text: "Stuffed by the block!" }); }
+      const k = r(), sp = blockSplit(tileShadow(ctx.block, aimed));
+      if (k < sp.tool) { award(g, aSide, SCORING.tool); return done({ outcome: "Tool", points: SCORING.tool, winner: aSide, text: "Off the edge of their hands and out!" }); }
+      if (k < sp.tool + sp.stuff) { award(g, dSide, SCORING.stuff); return done({ outcome: "Stuff", winner: dSide, text: "Stuffed by the block!" }); }
       return done({ outcome: "Touch", winner: null, nextGrade: "+", text: "Block touch. They keep it alive." });
     }
   }
   // 3. Dig. Holes usually can't be dug.
   const hole = isBroken(ctx.defender, aimed);
-  const dp = digChance(ctx, aimed, shot), dr = r();
-  lab.push(`  ${hole ? "hole, " : ""}dig ${pct(dp)}${ctx.read[aimed] > 1 ? " (they read it)" : ""}, rolled ${pct(dr)}`);
+  // The ball lands at a real spot in the tile; whoever's range covers that spot gets a chance at it.
+  const at = landPoint(r, aimed), scale = reachScale(ctx, shot);
+  const dp = digFrom(ctx, aimed, shot, coverageAt(ctx.defs, at[0], at[1], scale)), dr = r();
+  base.landAt = at;
+  lab.push(`  lands at ${at[0].toFixed(1)} m, ${at[1].toFixed(1)} m deep; ${hole ? "hole, " : ""}dig ${pct(dp)}${ctx.read[aimed] > 1 ? " (they read it)" : ""}, rolled ${pct(dr)}`);
   if (hole && dr >= dp) {
     award(g, aSide, SCORING.hole);
     return done({ outcome: "Kill", landed: aimed, hole: true, points: SCORING.hole, winner: aSide, text: "Right into the hole!" });
   }
   if (dr < dp) {
-    const { d: by, q } = digger(ctx.defs, aimed, reachScale(ctx, shot));
+    const { d: by, q } = diggerAt(ctx.defs, at[0], at[1], scale);
     const dg = digGrades(q);
     const gr = r();
     lab.push(`  ${by?.id ?? "?"} gets there (${pct(q)} sure): perfect ${pct(dg.perfect)}, shank ${pct(dg.shank)}`);

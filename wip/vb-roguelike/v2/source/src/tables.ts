@@ -10,7 +10,7 @@ export const DIALS = {
   /** How strong the thin edge of a block's shadow is (the core is solid). */
   block: 0.5,
   /** Chance a digger keeps alive a ball hit to their tile. */
-  dig: 0.65,
+  dig: 0.95,
   /** Choices on screen (sets and shots). Informational for now. */
   options: 3,
 };
@@ -43,7 +43,7 @@ export const SHOT_KINDS: ShotKind[] = ["Hard", "Tip", "Roll", "Tool"];
  * (a slow ball gives them time to get there); rows the shot can reach (0 = inside the 10-foot line).
  */
 export const SHOTS: Record<ShotKind, { damage: number; accBonus: number; digMult: number; reach: number; rows: number[]; overBlock: boolean; blurb: string }> = {
-  Hard: { damage: 2, accBonus: 0, digMult: 0.8, reach: 1, rows: [1, 2], overBlock: false, blurb: "Breaks tiles. Deep only, and not through the block's shadow." },
+  Hard: { damage: 2, accBonus: 0, digMult: 0.9, reach: 1, rows: [1, 2], overBlock: false, blurb: "Breaks tiles. Deep only. Into the block's shadow it mostly gets stuffed." },
   Tip: { damage: 1, accBonus: 0.04, digMult: 1.3, reach: 2.2, rows: [0, 1], overBlock: true, blurb: "Short, over the block. Slow, so everyone can run it down." },
   Roll: { damage: 1, accBonus: 0.03, digMult: 1.1, reach: 1.4, rows: [1, 2], overBlock: true, blurb: "Over the block. Off-speed, so diggers get a step." },
   Tool: { damage: 0, accBonus: 0, digMult: 0, reach: 1, rows: [], overBlock: false, blurb: "Off their hands for a point. No tile damage." },
@@ -74,9 +74,10 @@ export const DIG_CAP = 0.92;
  * The block's shadow. It starts at the blockers' hands at the net and fans out, angled away from the hitter.
  * depth: how far behind the net the hitter's "eye" sits (smaller = wider fan). hand: half the width of one blocker's hands (m).
  * edge: width of the weak edge on the outside of the hands (m). A late blocker is weaker and only shadows the front half.
- * shadowCut: a tile this covered can't be hit hard. toolShare / stuffShare: what happens when the hands catch a ball.
+ * shadowCut: a tile this covered counts as behind the block (still hittable, mostly blocked).
+ * toolShare / stuffShare: what the soft edge does with a ball it catches; coreTool / coreStuff: the solid middle.
  */
-export const FAN = { depth: 7, hand: 0.8, edge: 0.35, lateCore: 0.6, lateEdge: 0.3, lateDepth: 4.5, shadowCut: 0.75, toolShare: 0.35, stuffShare: 0.3 };
+export const FAN = { depth: 7, hand: 0.8, edge: 0.35, lateCore: 0.6, lateEdge: 0.3, lateDepth: 4.5, shadowCut: 0.75, toolShare: 0.35, stuffShare: 0.3, coreTool: 0.08, coreStuff: 0.6 };
 /** Where blockers stand, in meters from the left antenna (screen left). Bunch starts tight in the middle. */
 export const BLOCK_HOME = { Bunch: [3.4, 4.5, 5.6], Spread: [1.4, 4.5, 7.6] };
 /** Where a block forms against an outside hitter: steps from the hitter toward the middle. A middle hitter: straight, then each side. */

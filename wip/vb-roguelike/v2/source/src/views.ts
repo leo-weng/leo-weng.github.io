@@ -15,7 +15,7 @@ export function toneOf(win: number): Tone {
 export function reasons(o: Odds): string[] {
   const out: string[] = [];
   if (o.hole) return ["It's a hole: nobody can dig it"];
-  if (o.inShadow) return ["Behind the block: a hard swing can't get there"];
+  if (o.inShadow) return ["Right into the block: most likely stuffed"];
   if (!o.inRange) out.push("a reach off this set, so more risk of an error");
   if (o.blockP >= 0.25) out.push("the edge of the block is on it");
   else if (o.blockP > 0) out.push("it grazes the block's edge");
@@ -38,6 +38,8 @@ export function tileCenter(side: Side, i: number): [number, number] {
 export function sqCenter(side: Side, s: Sq): [number, number] {
   return [CX0 + (s.c + 0.5) * SW, side === "them" ? NET_Y - 6 - (s.r + 0.5) * SH : NET_Y + 6 + (s.r + 0.5) * SH];
 }
+/** A spot on one floor (meters) in court pixels. */
+export function courtPoint(side: Side, x: number, y: number): [number, number] { return [mx(x), my(side, y)]; }
 /** Meters to court pixels: x along the net, y as depth from the net on one side. */
 const mx = (m: number) => CX0 + (m / 9) * 300;
 const my = (side: Side, m: number) => (side === "them" ? NET_Y - 6 - (m / 9) * 3 * TH : NET_Y + 6 + (m / 9) * 3 * TH);

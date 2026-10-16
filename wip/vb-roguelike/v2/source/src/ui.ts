@@ -6,7 +6,7 @@ import {
   tileIdx, trackAttack, Upgrade, upgradeChoices, zonePlayers,
 } from "./engine";
 import { BLOCK_HOME, CHASE, DIALS, DIFFICULTY, Level, LEVELS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT } from "./tables";
-import { ballBlocked, ballFromNet, ballOut, ballServe, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, reasons, ServeMark, tileCenter, toneOf, TONE_WORD } from "./views";
+import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, reasons, ServeMark, tileCenter, toneOf, TONE_WORD } from "./views";
 
 type Screen = "start" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
 interface ResultView {
@@ -186,7 +186,7 @@ function swingView(res: SwingResult, attacker: Side, h: number, next: () => void
   const court: CourtOpts = { ...base(), focus: "both" };
   if (mine) { court.ourHitterCol = h; court.ourHitterLabel = st.call!.hitter.id; court.theirBlock = st.block; court.theirDefense = st.def!.defs; }
   else { court.theirHitterCol = h; court.theirHitterLabel = st.defend!.plan.call.hitter.id; }
-  const land = res.landed !== null ? tileCenter(defSide, res.landed) : undefined;
+  const land = res.landed === null ? undefined : res.landAt ? courtPoint(defSide, res.landAt[0], res.landAt[1]) : tileCenter(defSide, res.landed);
   if (res.outcome === "Stuff" || res.outcome === "Touch") { const b = ballBlocked(attacker, h); court.ball = { ...b, kind: "blocked" }; }
   else if (res.outcome === "Error" || res.outcome === "Tool") court.ball = { path: ballOut(attacker, h), kind: res.outcome === "Tool" ? "tool" : "out" };
   else if (land) court.ball = { path: ballFromNet(attacker, h, land), land, kind: res.outcome === "Kill" ? "kill" : "dug" };
@@ -311,7 +311,7 @@ function render() {
         info = `<p class="info"><b>${TONE_WORD[toneOf(o.win)]}</b> · aim off their hands. ${bl.length ? `${bl.length} blocker${bl.length > 1 ? "s" : ""} to use` : "There's no block to use"}. Scores 1, no tile damage.</p>`;
       } else if (st.tile !== undefined) {
         const o = odds(ctx, st.tile, st.shot);
-        if (o.inShadow || !canAim(st.tile, st.shot)) info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${o.inShadow ? "behind the block. Tip or roll over it, or pick an open tile." : (st.shot === "Hard" && rowOf(st.tile) === 0 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`)}</p>`;
+        if (!canAim(st.tile, st.shot)) info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${(st.shot === "Hard" && rowOf(st.tile) === 0 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`)}</p>`;
         else {
           const v = killValue(ctx, st.tile, st.shot);
           const what = o.hole ? "hole, +1" : v === SCORING.break ? "breaks the tile, +3" : "cracks it, no points yet";
