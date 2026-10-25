@@ -1,7 +1,7 @@
 // Plays whole matches with a bot policy, for the health check. Same engine calls the UI makes.
 import {
-  aimable, callsFor, Call, chase, Defender, endRally, formTheirBlock, Game, Grade, killValue, moveOptions, newGame, odds, other, ourAttackCtx,
-  ourServe, planTheirAttack, resolveSwing, Side, SwingCtx, takeTimeout, team, theirAttackCtx, theirDefense, theirServe, TheirPlan, distToTile,
+  callsFor, Call, chase, Defender, endRally, formTheirBlock, Game, Grade, newGame, other, ourAttackCtx, N, readSquare, verdictValue,
+  ourServe, planTheirAttack, resolveSwing, Side, SwingCtx, takeTimeout, team, theirAttackCtx, theirDefense, theirServe, TheirPlan, readResponse,
   trackAttack, upgradeChoices, SERVE_TARGETS, serveOdds, defenseSetup,
 } from "./engine";
 import { Level, SHOT_KINDS, ShotKind } from "./tables";
@@ -14,32 +14,21 @@ export interface Policy {
   serve(g: Game): number;
 }
 
-export function bestAim(ctx: SwingCtx): { tile: number; shot: ShotKind; value: number } {
-  let best = { tile: 7, shot: "Roll" as ShotKind, value: -1 };
-  for (const shot of SHOT_KINDS) {
-    for (let i = 0; i < 9; i++) {
-      if (shot === "Tool" && i > 0) break;
-      if (shot !== "Tool" && !aimable(ctx, i, shot)) continue;
-      const o = odds(ctx, i, shot);
-      const v = o.kill * killValue(ctx, i, shot) + o.tool - o.blockP * 0.3;
+export function bestAim(g: Game, ctx: SwingCtx): { tile: number; shot: ShotKind; value: number } {
+  let best = { tile: 21, shot: "Roll" as ShotKind, value: -2 };
+  for (const shot of ["Hard", "Tip", "Roll"] as ShotKind[]) {
+    for (let i = 0; i < N * N; i++) {
+      const v = verdictValue(ctx, i, shot);
       if (v > best.value) best = { tile: i, shot, value: v };
     }
   }
+  // Save the tool for when nothing scores.
+  if (best.value < 1 && g.mods.tool && g.toolCd === 0 && ctx.block.front.some((f) => f.state !== "off")) return { tile: 0, shot: "Tool", value: 1 };
   return best;
 }
-/** Read the approach: move the nearest defender a step toward where it says the ball is going. */
+/** Read the approach: move the nearest defender toward where it says the ball is going. */
 function readMove(g: Game, plan: TheirPlan): Defender[] {
-  const defs = plan.defs.map((d) => ({ ...d, sq: { ...d.sq } }));
-  const h = plan.call.col;
-  const guess = plan.tell === "tip" ? (h === 1 ? 1 : h) : plan.tell === "line" ? 6 + h : 6 + (2 - h);
-  for (let m = 0; m < g.mods.moves; m++) {
-    const order = [...defs].sort((a, b) => distToTile(a.sq, guess) - distToTile(b.sq, guess)).filter((d) => distToTile(d.sq, guess) > 0);
-    const d = order[0];
-    if (!d) break;
-    const opts = moveOptions(defs, d, g.mods.step).sort((a, b) => distToTile(a, guess) - distToTile(b, guess));
-    if (opts.length) d.sq = opts[0];
-  }
-  return defs;
+  return readResponse(g.us, plan.defs, plan.call.col, plan.tell, g.mods.moves, g.mods.step);
 }
 export const SMART: Policy = {
   call: (g, calls) => {
@@ -49,7 +38,7 @@ export const SMART: Policy = {
     const pool = fresh.length ? fresh : sorted;
     return g.rng() < 0.7 ? pool[0] : pool[Math.floor(g.rng() * pool.length)];
   },
-  aim: (_g, ctx) => bestAim(ctx),
+  aim: (g, ctx) => bestAim(g, ctx),
   defend: readMove,
   serve: (g) => {
     let best = 0, bv = -1;
@@ -60,9 +49,9 @@ export const SMART: Policy = {
 export const RANDOM: Policy = {
   call: (g, calls) => calls[Math.floor(g.rng() * calls.length)],
   aim: (g, ctx) => {
-    const shot = SHOT_KINDS[Math.floor(g.rng() * 4)];
-    const tiles = Array.from({ length: 9 }, (_, i) => i).filter((i) => shot === "Tool" || aimable(ctx, i, shot));
-    return tiles.length ? { tile: tiles[Math.floor(g.rng() * tiles.length)], shot } : { tile: 7, shot: "Roll" };
+    const shot = SHOT_KINDS[Math.floor(g.rng() * 3)];
+    const tiles = Array.from({ length: N * N }, (_, i) => i).filter((i) => readSquare(ctx, i, shot).kind !== "closed");
+    return tiles.length ? { tile: tiles[Math.floor(g.rng() * tiles.length)], shot } : { tile: 21, shot: "Roll" };
   },
   defend: (_g, plan) => plan.defs,
   serve: (g) => Math.floor(g.rng() * SERVE_TARGETS),

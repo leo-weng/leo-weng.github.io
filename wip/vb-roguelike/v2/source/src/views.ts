@@ -1,7 +1,7 @@
 // SVG views: the top-down court (both floors) and the net view (front-on, with the block forming).
 // Pure string builders; no rules live here.
-import { COVER, REACH_SIZE } from "./tables";
-import { BlockForm, colOf, Defender, fromNet, HITTER_X, Odds, rowOf, shadowShapes, Side, Sq, Team, Tell, Tempo } from "./engine";
+import { COVER } from "./tables";
+import { BlockForm, colOf, Defender, fromNet, HITTER_X, N, Read, rowOf, shadowShapes, Side, Sq, Team, Tell, Tempo } from "./engine";
 
 const f = (n: number) => n.toFixed(1);
 
@@ -11,18 +11,19 @@ export const TONE_WORD: Record<Tone, string> = { great: "Wide open", good: "Good
 export function toneOf(win: number): Tone {
   return win >= 0.6 ? "great" : win >= 0.45 ? "good" : win >= 0.3 ? "even" : win >= 0.15 ? "risky" : "bad";
 }
-/** Plain words for why a tile is what it is. */
-export function reasons(o: Odds): string[] {
-  const out: string[] = [];
-  if (o.hole) return ["It's a hole: nobody can dig it"];
-  if (o.inShadow) return ["Right into the block: most likely stuffed"];
-  if (!o.inRange) out.push("a reach off this set, so more risk of an error");
-  if (o.blockP >= 0.25) out.push("the edge of the block is on it");
-  else if (o.blockP > 0) out.push("it grazes the block's edge");
-  if (o.digP >= 0.45) out.push("a digger is right there");
-  else if (o.digP >= 0.2) out.push("a digger is close");
-  else out.push("nobody's near it");
-  return out;
+/** Plain words for what a square will do, before you swing. */
+export function verdictWords(v: Read, damageNote: string): { word: string; tone: Tone; why: string } {
+  const who = v.by ? (v.by.id === "L" ? "the libero" : v.by.id) : "";
+  switch (v.kind) {
+    case "kill": return { word: "Open", tone: "great", why: `nobody's circle reaches it · ${damageNote}` };
+    case "hole": return { word: "Open hole", tone: "great", why: "a hole nobody's circle reaches · +1" };
+    case "tool": return { word: "Off the hands", tone: "good", why: "it clips the edge of their block and goes out · +1" };
+    case "scramble": return { word: "Scramble", tone: "risky", why: `the edge of ${who}'s circle: dug, but badly${v.hole ? " (they dive into the hole)" : ""}` };
+    case "clean": return { word: "Dug", tone: "bad", why: `right at ${who}: a clean dig` };
+    case "touch": return { word: "Block touch", tone: "risky", why: "a good part of their hands: they keep it alive" };
+    case "stuff": return { word: "Stuffed", tone: "bad", why: "the solid middle of their block" };
+    default: return { word: "Can't reach", tone: "bad", why: "this set or shot can't get there" };
+  }
 }
 export { HITTER_X };
 
@@ -31,10 +32,16 @@ const CX0 = 30, TW = 100, TH = 86, NET_Y = 286, SW = TW / 2, SH = TH / 2;
 const tileX = (c: number) => CX0 + c * TW;
 const theirY = (r: number) => NET_Y - 6 - (r + 1) * TH;
 const ourY = (r: number) => NET_Y + 6 + r * TH;
-export function tileCenter(side: Side, i: number): [number, number] {
-  const r = rowOf(i), c = colOf(i);
-  return [tileX(c) + TW / 2, (side === "them" ? theirY(r) : ourY(r)) + TH / 2];
+/** The middle of one third-by-third zone (row 0-2, lane 0-2): where passers and serve targets sit. */
+export function zoneCenter(side: Side, row: number, lane: number): [number, number] {
+  return [tileX(lane) + TW / 2, (side === "them" ? theirY(row) : ourY(row)) + TH / 2];
 }
+/** Top-left corner of a small square (index row*6+col). */
+function sqXYpx(side: Side, i: number): [number, number] {
+  const r = rowOf(i), c = colOf(i);
+  return [CX0 + c * SW, side === "them" ? NET_Y - 6 - (r + 1) * SH : NET_Y + 6 + r * SH];
+}
+export function squareCenter(side: Side, i: number): [number, number] { const [x, y] = sqXYpx(side, i); return [x + SW / 2, y + SH / 2]; }
 export function sqCenter(side: Side, s: Sq): [number, number] {
   return [CX0 + (s.c + 0.5) * SW, side === "them" ? NET_Y - 6 - (s.r + 0.5) * SH : NET_Y + 6 + (s.r + 0.5) * SH];
 }
@@ -44,26 +51,20 @@ export function courtPoint(side: Side, x: number, y: number): [number, number] {
 const mx = (m: number) => CX0 + (m / 9) * 300;
 const my = (side: Side, m: number) => (side === "them" ? NET_Y - 6 - (m / 9) * 3 * TH : NET_Y + 6 + (m / 9) * 3 * TH);
 
-const CRACKS = [
-  "M18 12 L38 34 L33 50 L52 70",
-  "M80 10 L64 30 L70 44 L56 62",
-  "M12 70 L34 58 L48 62 L70 48 L88 52",
-  "M50 8 L46 28 L58 40 L50 76",
-];
-function tileSvg(side: Side, t: Team, i: number, extra: string, cls: string, idAttr: string): string {
-  const r = rowOf(i), c = colOf(i);
-  const x = tileX(c), y = side === "them" ? theirY(r) : ourY(r);
+const CRACKS = ["M8 6 L18 17 L15 25 L25 35", "M40 5 L32 15 L35 22 L28 31", "M6 35 L17 29 L24 31 L35 24 L44 26"];
+function squareSvg(side: Side, t: Team, i: number, extra: string, cls: string, idAttr: string): string {
+  const [x, y] = sqXYpx(side, i);
   const hp = t.tiles[i];
   const dmg = t.maxHp - hp;
-  let body = `<rect class="tile ${cls}" x="${x}" y="${y}" width="${TW}" height="${TH}"/>`;
+  let body = `<rect class="tile ${cls}" x="${x}" y="${y}" width="${SW}" height="${SH}"/>`;
   if (hp <= 0) {
-    body += `<path class="hole" d="M${x + 8} ${y + 14} L${x + 30} ${y + 6} L${x + 52} ${y + 16} L${x + 78} ${y + 5} L${x + 93} ${y + 24} L${x + 88} ${y + 52} L${x + 95} ${y + 78} L${x + 66} ${y + 82} L${x + 40} ${y + 76} L${x + 14} ${y + 82} L${x + 6} ${y + 56} L${x + 12} ${y + 34} Z"/>`;
+    body += `<path class="hole" d="M${x + 5} ${y + 8} L${x + 16} ${y + 4} L${x + 27} ${y + 9} L${x + 40} ${y + 3} L${x + 46} ${y + 13} L${x + 43} ${y + 26} L${x + 47} ${y + 38} L${x + 33} ${y + 40} L${x + 20} ${y + 37} L${x + 8} ${y + 40} L${x + 4} ${y + 27} L${x + 7} ${y + 17} Z"/>`;
   } else if (dmg > 0) {
-    const n = Math.min(CRACKS.length, Math.ceil((dmg / t.maxHp) * 4));
-    body += `<g class="cracks" transform="translate(${x + 5},${y + 4}) scale(0.9)">${CRACKS.slice(0, n).map((d) => `<path d="${d}"/>`).join("")}</g>`;
+    const n = Math.min(CRACKS.length, Math.ceil((dmg / t.maxHp) * CRACKS.length));
+    body += `<g class="cracks" transform="translate(${x},${y})">${CRACKS.slice(0, n).map((d) => `<path d="${d}"/>`).join("")}</g>`;
   }
-  // Hits left as small pips in the corner.
-  if (hp > 0) body += `<g class="pips">${Array.from({ length: t.maxHp }, (_, k) => `<circle cx="${x + TW - 10 - k * 9}" cy="${y + 10}" r="3" class="${k < hp ? "pip-on" : "pip-off"}"/>`).join("")}</g>`;
+  // The square's center: a ball here is dug if the center sits inside a circle.
+  if (hp > 0) body += `<circle class="ctr" cx="${x + SW / 2}" cy="${y + SH / 2}" r="1.8"/>`;
   return `<g class="tile-g"${idAttr}>${body}${extra}</g>`;
 }
 
@@ -81,12 +82,18 @@ export interface CourtOpts {
   them: Team;
   /** Which part to show: their floor and the net, ours and the net, or both. */
   focus: "both" | "their" | "our";
-  /** Tap targets on their floor (tiles). */
+  /** Tap targets on their floor (squares). */
   pick?: "their";
-  theirTones?: (Tone | null)[];
   theirSelected?: number;
+  /** What the selected square will do, shown as a mark on it. */
+  theirSelectedTone?: Tone;
   theirDefense?: Defender[];
   ourDefense?: Defender[];
+  /** Each defender's dig circle (meters), in the same order as the defense. */
+  theirCircles?: number[];
+  ourCircles?: number[];
+  /** Their defenders leaning toward your recent swings: where each one started. */
+  theirLean?: { from: Sq; to: Sq }[];
   /** Blocks: blockers at the net, plus their shadow on the floor behind. */
   theirBlock?: BlockForm;
   ourBlock?: BlockForm;
@@ -99,11 +106,8 @@ export interface CourtOpts {
   ourPassers?: { col: number; label: string }[];
   defend?: DefendPick;
   ball?: { path: string; land?: [number, number]; kind: string };
-  /** Tiles that just changed, flashed with a pop. */
+  /** Squares that just changed, flashed with a pop. */
   flashTheir?: number;
-  /** Size of each side's dig ovals (the shot and upgrades grow them). */
-  theirReach?: number;
-  ourReach?: number;
   flashOur?: number;
 }
 
@@ -116,20 +120,22 @@ function defTokens(defs: Defender[] | undefined, side: Side, pick?: DefendPick):
     return `<g class="tok tok-${side}${sel ? " is-sel" : ""}${moved ? " is-moved" : ""}"${tap} transform="translate(${f(x)},${f(y)})"><circle r="14"/><text y="4.5">${d.id}</text></g>`;
   }).join("");
 }
-/** Each defender's reach: a soft oval that fades out the way their dig confidence does. */
-function reachSvg(defs: Defender[] | undefined, side: Side, scale = 1): string {
-  if (!defs) return "";
-  return defs.map((d) => {
-    const [x, y] = sqCenter(side, d.sq), k = REACH_SIZE[d.zone] * scale;
-    const rx = COVER.side * k * 300 / 9, ry = COVER.depth * k * 3 * TH / 9;
-    return `<ellipse class="reach reach-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(2 * rx)}" ry="${f(2 * ry)}" fill="url(#reach-${side})"/>`
-      + `<ellipse class="reach-ring reach-ring-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
+/** Each defender's dig circle: inside it the ball is always dug, clean in the inner ring, a scramble in the outer. */
+function circlesSvg(defs: Defender[] | undefined, radii: number[] | undefined, side: Side): string {
+  if (!defs || !radii) return "";
+  return defs.map((d, k) => {
+    const [x, y] = sqCenter(side, d.sq), R = radii[k] ?? 0;
+    const rx = R * 300 / 9, ry = R * 3 * TH / 9;
+    return `<ellipse class="dig dig-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`
+      + `<ellipse class="dig-in dig-in-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx * COVER.inner)}" ry="${f(ry * COVER.inner)}"/>`;
   }).join("");
 }
-/** Gradient stops that follow exp(-falloff * n^2) out to two oval radii. */
-function reachGrad(side: Side): string {
-  const stops = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1].map((t) => `<stop offset="${t}" stop-color="var(--${side})" stop-opacity="${(Math.exp(-COVER.falloff * (2 * t) ** 2) * (t < 1 ? 1 : 0)).toFixed(3)}"/>`).join("");
-  return `<radialGradient id="reach-${side}">${stops}</radialGradient>`;
+function leanSvg(lean: CourtOpts["theirLean"]): string {
+  if (!lean) return "";
+  return lean.filter((l) => l.from.r !== l.to.r || l.from.c !== l.to.c).map((l) => {
+    const [x0, y0] = sqCenter("them", l.from), [x1, y1] = sqCenter("them", l.to);
+    return `<g class="lean"><circle class="lean-from" cx="${f(x0)}" cy="${f(y0)}" r="9"/><path class="lean-arrow" d="M${f(x0)} ${f(y0)} L${f(x1)} ${f(y1)}" marker-end="url(#lean-head)"/></g>`;
+  }).join("");
 }
 function fanSvg(b: BlockForm | undefined, side: Side): string {
   if (!b) return "";
@@ -163,14 +169,12 @@ function serveMarks(list: ServeMark[] | undefined, sel?: number): string {
 }
 function passerToks(list: CourtOpts["ourPassers"]): string {
   if (!list) return "";
-  return list.map((p) => { const [x, y] = tileCenter("us", 6 + p.col); return `<g class="tok tok-us" transform="translate(${f(x)},${f(y)})"><circle r="17"/><text y="5">${p.label}</text></g>`; }).join("");
+  return list.map((p) => { const [x, y] = zoneCenter("us", 2, p.col); return `<g class="tok tok-us" transform="translate(${f(x)},${f(y)})"><circle r="17"/><text y="5">${p.label}</text></g>`; }).join("");
 }
-function subGrid(side: Side): string {
-  const y0 = side === "them" ? theirY(2) : ourY(0);
-  let d = "";
-  for (let k = 1; k < 6; k += 2) d += `M${CX0 + k * SW} ${y0} V${y0 + 3 * TH} `;
-  for (let k = 1; k < 6; k += 2) d += `M${CX0} ${y0 + k * SH} H${CX0 + 300} `;
-  return `<path class="subgrid" d="${d}"/>`;
+/** The 10-foot (3 m) attack line on one floor. */
+function attackLine(side: Side): string {
+  const y = side === "them" ? NET_Y - 6 - 2 * SH : NET_Y + 6 + 2 * SH;
+  return `<line class="attack-line" x1="${CX0}" y1="${y}" x2="${CX0 + 300}" y2="${y}"/>`;
 }
 
 export function courtSvg(o: CourtOpts): string {
@@ -178,36 +182,38 @@ export function courtSvg(o: CourtOpts): string {
   const floor = (side: Side) => {
     const t = side === "them" ? o.them : o.us;
     const pick = side === "them" && o.pick === "their";
-    return Array.from({ length: 9 }, (_, i) => {
-      const tone = side === "them" ? o.theirTones?.[i] : null;
+    return Array.from({ length: N * N }, (_, i) => {
       const sel = side === "them" && o.theirSelected === i;
       const flash = (side === "them" ? o.flashTheir : o.flashOur) === i;
-      const [x, y] = [tileX(colOf(i)), side === "them" ? theirY(rowOf(i)) : ourY(rowOf(i))];
+      const [x, y] = sqXYpx(side, i);
       let extra = "";
-      if (tone) extra += `<rect class="tint t-${tone}" x="${x + 3}" y="${y + 3}" width="${TW - 6}" height="${TH - 6}" rx="4"/>`;
-      if (sel) extra += `<rect class="sel" x="${x + 3}" y="${y + 3}" width="${TW - 6}" height="${TH - 6}" rx="6"/>`;
-      if (flash) extra += `<rect class="flash" x="${x}" y="${y}" width="${TW}" height="${TH}"/>`;
+      if (flash) extra += `<rect class="flash" x="${x}" y="${y}" width="${SW}" height="${SH}"/>`;
       const id = pick ? ` data-tile="${i}" role="button" tabindex="0" aria-label="Row ${rowOf(i) + 1}, column ${colOf(i) + 1}"` : "";
-      return tileSvg(side, t, i, extra, pick ? "pickable" : "", id);
+      return squareSvg(side, t, i, extra, pick ? "pickable" : "", id);
     }).join("");
   };
   const targets = o.defend
     ? o.defend.squares.map((s) => { const [x, y] = sqCenter("us", s); return `<rect class="sq-target" data-sq="${s.r},${s.c}" role="button" tabindex="0" aria-label="Move here" x="${f(x - SW / 2 + 3)}" y="${f(y - SH / 2 + 3)}" width="${SW - 6}" height="${SH - 6}" rx="5"/>`; }).join("")
       + o.defend.blockXs.map((bx) => `<rect class="sq-target" data-bx="${bx}" role="button" tabindex="0" aria-label="Slide here" x="${f(mx(bx) - 21)}" y="${NET_Y + 3}" width="42" height="14" rx="5"/>`).join("")
     : "";
+  let selMark = "";
+  if (o.theirSelected !== undefined) {
+    const [x, y] = sqXYpx("them", o.theirSelected);
+    selMark = `<rect class="sel${o.theirSelectedTone ? ` sel-${o.theirSelectedTone}` : ""}" x="${x + 2}" y="${y + 2}" width="${SW - 4}" height="${SH - 4}" rx="5"/>`;
+  }
   const ball = o.ball
     ? `<g class="ball-g ball-${o.ball.kind}"><path class="ball-trail" d="${o.ball.path}"/><circle class="ball" r="8"><animateMotion dur="0.75s" fill="freeze" path="${o.ball.path}"/></circle>${o.ball.land ? `<circle class="burst" cx="${f(o.ball.land[0])}" cy="${f(o.ball.land[1])}" r="6"/>` : ""}</g>`
     : "";
   return `<svg class="court" viewBox="${vb}" role="img" aria-label="Court from above: their floor on top, the net, your floor below">
-    <defs><clipPath id="clip-them"><rect x="${CX0}" y="${theirY(2)}" width="300" height="${3 * TH}"/></clipPath><clipPath id="clip-us"><rect x="${CX0}" y="${ourY(0)}" width="300" height="${3 * TH}"/></clipPath>${reachGrad("us")}${reachGrad("them")}</defs>
+    <defs><clipPath id="clip-them"><rect x="${CX0}" y="${theirY(2)}" width="300" height="${3 * TH}"/></clipPath><clipPath id="clip-us"><rect x="${CX0}" y="${ourY(0)}" width="300" height="${3 * TH}"/></clipPath><marker id="lean-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path class="lean-head" d="M0 0 L10 5 L0 10 z"/></marker></defs>
     <text class="side-tag" x="${CX0}" y="${theirY(2) - 4}">THEIR FLOOR</text>
-    ${floor("them")}${subGrid("them")}
-    <g clip-path="url(#clip-them)">${reachSvg(o.theirDefense, "them", o.theirReach)}${fanSvg(o.theirBlock, "them")}</g>
+    ${floor("them")}${attackLine("them")}
+    <g clip-path="url(#clip-them)">${fanSvg(o.theirBlock, "them")}${circlesSvg(o.theirDefense, o.theirCircles, "them")}</g>
     <line class="net-line" x1="${CX0 - 10}" y1="${NET_Y}" x2="${CX0 + 310}" y2="${NET_Y}"/>
-    ${floor("us")}${subGrid("us")}
-    <g clip-path="url(#clip-us)">${reachSvg(o.ourDefense, "us", o.ourReach)}${fanSvg(o.ourBlock, "us")}</g>
+    ${floor("us")}${attackLine("us")}
+    <g clip-path="url(#clip-us)">${fanSvg(o.ourBlock, "us")}${circlesSvg(o.ourDefense, o.ourCircles, "us")}</g>
     <text class="side-tag" x="${CX0}" y="${ourY(3) + 14}">YOUR FLOOR</text>
-    ${targets}
+    ${selMark}${leanSvg(o.theirLean)}${targets}
     ${defTokens(o.theirDefense, "them")}${defTokens(o.ourDefense, "us", o.defend)}
     ${serveMarks(o.serveMarks, o.serveSelected)}${passerToks(o.ourPassers)}
     ${blockerBars(o.theirBlock, "them")}${blockerBars(o.ourBlock, "us", o.defend)}

@@ -1,12 +1,12 @@
 // The game screen: one decision at a time, each with clear action buttons. Drives the engine step by step.
 import {
-  aimable, reachScale, BlockForm, blockMoveOptions, BlockSystem, Call, callsFor, canAim, colOf, Defender, endRally, Formation, formTheirBlock, Game, Grade,
-  killValue, moveOptions, newGame, odds, ourAttackCtx, ourServe, passers, planTheirAttack, resolveSwing, rotationNumber, rowOf, SERVE_TARGETS,
+  BlockForm, blockMoveOptions, BlockSystem, blockersOf, Call, callsFor, canAim, colOf, Defender, digRadius, endRally, Formation, formTheirBlock, Game, Grade,
+  isBroken, killValue, laneOf, moveOptions, newGame, ourAttackCtx, ourServe, passers, planTheirAttack, readSquare, resolveSwing, rotationNumber, rowOf, SERVE_TARGETS,
   serveOdds, setQuality, Side, Sq, SwingCtx, SwingResult, takeTimeout, Team, theirAttackCtx, theirDefense, TheirDefense, theirServe, TheirPlan,
-  tileIdx, trackAttack, Upgrade, upgradeChoices, zonePlayers,
+  trackAttack, Upgrade, upgradeChoices, zonePlayers,
 } from "./engine";
-import { BLOCK_HOME, CHASE, DIALS, DIFFICULTY, Level, LEVELS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT } from "./tables";
-import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, reasons, ServeMark, tileCenter, toneOf, TONE_WORD } from "./views";
+import { BLOCK_HOME, CHASE, DIALS, DIFFICULTY, Level, LEVELS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
+import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, ServeMark, squareCenter, toneOf, TONE_WORD, verdictWords, zoneCenter } from "./views";
 
 type Screen = "start" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
 interface ResultView {
@@ -67,9 +67,25 @@ const THEIR_MENU: Record<Grade, string> = {
 };
 const ZONE_ROW = ["Short", "Mid", "Deep"];
 function zoneName(tile: number, h: number): string {
-  const c = colOf(tile);
+  const c = laneOf(tile);
   const lane = h === 1 ? (c === 1 ? "middle" : c === 0 ? "left" : "right") : c === h ? "line" : c === 1 ? "seam" : "cross";
-  return `${ZONE_ROW[rowOf(tile)]} ${lane}`;
+  return `${ZONE_ROW[Math.floor(rowOf(tile) / 2)]} ${lane}`;
+}
+/** Each defender's dig circle against this shot. */
+function circles(ctx: SwingCtx, defs: Defender[], shot: ShotKind): number[] {
+  return defs.map((d) => digRadius(ctx, d, shot === "Tool" ? "Hard" : shot));
+}
+/** What a kill on this square would do to their floor. */
+function damageNote(ctx: SwingCtx, tile: number, shot: ShotKind): string {
+  if (isBroken(ctx.defender, tile)) return "+1";
+  return killValue(ctx, tile, shot) === SCORING.break ? "breaks it, +3" : "cracks it, no points yet";
+}
+/** Why the Tool shot isn't available right now, or "" if it is. */
+function toolWhy(): string {
+  const g = st.g!;
+  if (g.toolCd > 0) return `Back in ${g.toolCd} rall${g.toolCd === 1 ? "y" : "ies"}`;
+  if (st.block && !blockersOf(st.block).length) return "No block to use";
+  return "";
 }
 const who = (id: string) => (id === "L" ? "libero" : id);
 const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]!));
@@ -86,7 +102,7 @@ function nextRally() {
   if (g.serving === "us") { st.screen = "serve"; st.target = undefined; render(); return; }
   const s = theirServe(g);
   const ps = passers(g.us)[s.passerIdx];
-  const to = tileCenter("us", tileIdx(2, ps.col));
+  const to = zoneCenter("us", 2, ps.col);
   const court: CourtOpts = { ...base(), focus: "both", ourPassers: ourPasserToks(), ball: { path: ballServe("them", to), kind: "serve", land: to } };
   const at = s.seam ? "down the seam" : `at your ${who(ps.p.id)}`;
   if (s.outcome === "ace") return showResult({ callout: "Ace", tone: "lose", sub: `Their ${s.type.toLowerCase()} serve ${at} drops.`, pts: `+${SCORING.ace} them`, court, nextLabel: "Next rally", next: () => afterRally("them") });
@@ -123,12 +139,12 @@ function confirmSet() {
 }
 function swing() {
   const g = st.g!, call = st.call!, ctx = st.ctx!;
-  if (st.shot !== "Tool" && (st.tile === undefined || !aimable(ctx, st.tile, st.shot))) return;
-  const aimed = st.tile ?? tileIdx(1, 1);
+  if (st.shot === "Tool" ? !!toolWhy() || !g.mods.tool : st.tile === undefined || readSquare(ctx, st.tile, st.shot).kind === "closed") return;
+  const aimed = st.shot === "Tool" ? 0 : st.tile!;
   trackAttack(g, call, aimed, st.shot);
   const res = resolveSwing(g, ctx, aimed, st.shot);
   st.chain.kill = res.outcome === "Kill" && ctx.combo;
-  showResult(swingView(res, "us", call.col, () => (res.winner ? afterRally(res.winner) : toDefend(res.nextGrade ?? "+"))));
+  showResult(swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : toDefend(res.nextGrade ?? "+"))));
 }
 function toDefend(grade: Grade) {
   const g = st.g!;
@@ -143,10 +159,10 @@ function ready() {
   const g = st.g!, d = st.defend!, plan = d.plan;
   const ctx = theirAttackCtx(g, plan, d.block, d.defs, st.grade!);
   const res = resolveSwing(g, ctx, plan.target, plan.shot);
-  const v = swingView(res, "them", plan.call.col, () => (res.winner ? afterRally(res.winner) : toSet(res.nextGrade ?? "+")));
+  const v = swingView(res, "them", plan.call.col, circles(ctx, d.defs, plan.shot), () => (res.winner ? afterRally(res.winner) : toSet(res.nextGrade ?? "+")));
   v.court.ourBlock = d.block;
   v.court.ourDefense = d.defs;
-  if (res.outcome === "Dug" || res.outcome === "Shank") v.sub = `${res.digBy ? `Your ${who(res.digBy.id)} digs it` : "You dig it"}${Object.keys(d.origin).includes(res.digBy?.id ?? "") ? ", right where you moved them" : ""}. ${res.outcome === "Shank" ? "It's a shank, so they get a free ball." : "Now you swing back."}`;
+  if (res.outcome === "Dug") v.sub = `${res.digBy ? `Your ${who(res.digBy.id)} digs it` : "You dig it"}${Object.keys(d.origin).includes(res.digBy?.id ?? "") ? ", right where you moved them" : ""}. ${res.nextGrade === "+" ? "A clean dig: now you swing back." : "A scramble: you'll only get a high ball back."}`;
   showResult(v);
 }
 function serveNow() {
@@ -154,7 +170,7 @@ function serveNow() {
   if (st.target === undefined) return;
   const s = ourServe(g, st.serveType, st.target);
   const ps = passers(g.them)[s.passerIdx];
-  const to = tileCenter("them", tileIdx(2, ps.col));
+  const to = zoneCenter("them", 2, ps.col);
   const court: CourtOpts = { ...base(), focus: "both", serveMarks: serveMarkList(), serveSelected: st.target, ball: { path: ballServe("us", to), kind: "serve", land: to } };
   const at = s.seam ? "down the seam" : `at their ${ps.p.id}`;
   if (s.outcome === "ace") return showResult({ callout: "Ace!", tone: "win", sub: `Your ${st.serveType.toLowerCase()} serve ${at} drops.`, pts: `+${SCORING.ace} you`, court, nextLabel: "Next rally", next: () => afterRally("us"), shake: true });
@@ -180,13 +196,13 @@ function showResult(r: ResultView) {
 }
 
 /** Turn a swing result into the result screen: callout, points, and the ball's flight. */
-function swingView(res: SwingResult, attacker: Side, h: number, next: () => void): ResultView {
+function swingView(res: SwingResult, attacker: Side, h: number, radii: number[], next: () => void): ResultView {
   const defSide: Side = attacker === "us" ? "them" : "us";
   const mine = attacker === "us";
   const court: CourtOpts = { ...base(), focus: "both" };
-  if (mine) { court.ourHitterCol = h; court.ourHitterLabel = st.call!.hitter.id; court.theirBlock = st.block; court.theirDefense = st.def!.defs; }
-  else { court.theirHitterCol = h; court.theirHitterLabel = st.defend!.plan.call.hitter.id; }
-  const land = res.landed === null ? undefined : res.landAt ? courtPoint(defSide, res.landAt[0], res.landAt[1]) : tileCenter(defSide, res.landed);
+  if (mine) { court.ourHitterCol = h; court.ourHitterLabel = st.call!.hitter.id; court.theirBlock = st.block; court.theirDefense = st.def!.defs; court.theirCircles = radii; }
+  else { court.theirHitterCol = h; court.theirHitterLabel = st.defend!.plan.call.hitter.id; court.ourCircles = radii; }
+  const land = res.landed === null ? undefined : res.landAt ? courtPoint(defSide, res.landAt[0], res.landAt[1]) : squareCenter(defSide, res.landed);
   if (res.outcome === "Stuff" || res.outcome === "Touch") { const b = ballBlocked(attacker, h); court.ball = { ...b, kind: "blocked" }; }
   else if (res.outcome === "Error" || res.outcome === "Tool") court.ball = { path: ballOut(attacker, h), kind: res.outcome === "Tool" ? "tool" : "out" };
   else if (land) court.ball = { path: ballFromNet(attacker, h, land), land, kind: res.outcome === "Kill" ? "kill" : "dug" };
@@ -196,15 +212,15 @@ function swingView(res: SwingResult, attacker: Side, h: number, next: () => void
   const nextLabel = res.winner ? "Next rally" : mine ? "Defend their attack" : "Set the ball";
   switch (res.outcome) {
     case "Kill":
-      if (res.hole) return { callout: mine ? "Into the hole!" : "Into your hole", tone: mine ? "win" : "lose", sub: "Holes can't be dug.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: mine };
-      if (res.broke) return { callout: mine ? "Tile broken!" : "They broke a tile", tone: mine ? "win" : "lose", sub: `${res.damage} damage${mine && st.chain.kill ? " (combo, double damage)" : ""}. That tile is a hole now.`, pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: true };
-      return { callout: mine ? "Kill! Tile cracked" : "They crack a tile", tone: mine ? "win" : "lose", sub: `${res.damage} damage. No points until it breaks.`, pts: "+0", court, nextLabel, next, shake: mine };
-    case "Tool": return { callout: mine ? "Tooled it!" : "They tooled you", tone: mine ? "win" : "lose", sub: "Off the hands and out. A point, but no tile damage.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next };
-    case "Stuff": return { callout: mine ? "Stuffed" : "Stuff block!", tone: mine ? "lose" : "win", sub: mine ? "Right off the edge of their block." : "Your block shut it down.", pts: mine ? them(SCORING.stuff) : us(SCORING.stuff), court, nextLabel, next, shake: !mine };
+      if (res.hole) return { callout: mine ? "Into the hole!" : "Into your hole", tone: mine ? "win" : "lose", sub: "Nobody can stand in a hole, and no circle reached it.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: mine };
+      if (res.broke) return { callout: mine ? "Square broken!" : "They broke a square", tone: mine ? "win" : "lose", sub: `${res.damage} damage${mine && st.chain.kill ? " (combo, double damage)" : ""}. That square is a hole now.`, pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: true };
+      return { callout: mine ? "Kill! Square cracked" : "They crack a square", tone: mine ? "win" : "lose", sub: `${res.damage} damage. No points until it breaks.`, pts: "+0", court, nextLabel, next, shake: mine };
+    case "Tool": return { callout: mine ? "Tooled it!" : "They tooled you", tone: mine ? "win" : "lose", sub: "Off the hands and out. A point, but no damage.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next };
+    case "Stuff": return { callout: mine ? "Stuffed" : "Stuff block!", tone: mine ? "lose" : "win", sub: mine ? "Straight into the solid middle of their block." : "Your block shut it down.", pts: mine ? them(SCORING.stuff) : us(SCORING.stuff), court, nextLabel, next, shake: !mine };
     case "Error": return { callout: mine ? "Hitting error" : "They miss", tone: mine ? "lose" : "win", sub: res.text, pts: mine ? them(SCORING.error) : us(SCORING.error), court, nextLabel, next };
     case "Touch": return { callout: "Block touch", tone: "plain", sub: `${mine ? "They" : "You"} keep it alive off the block.`, court, nextLabel, next };
     case "Shank": return { callout: mine ? "They shank it" : "Shanked", tone: mine ? "win" : "lose", sub: `${res.damage ? "The tile cracks, " : ""}${mine ? "you get" : "they get"} a free ball.`, court, nextLabel, next };
-    default: return { callout: mine ? "Dug" : "Great dig!", tone: mine ? "plain" : "win", sub: `${mine ? `Their ${res.digBy?.id ?? ""} digs it` : "You dig it"} (${res.nextGrade}). ${mine ? "Now they swing back." : "Now you swing back."}`, court, nextLabel, next };
+    default: return { callout: mine ? "Dug" : "Great dig!", tone: mine ? "plain" : "win", sub: `${mine ? `It's inside their ${res.digBy?.id ?? ""}'s circle` : "You dig it"}${res.nextGrade === "!" ? ", but it's a scramble" : ""}. ${mine ? "Now they swing back." : "Now you swing back."}`, court, nextLabel, next };
   }
 }
 
@@ -255,12 +271,12 @@ function render() {
   const g = st.g;
   switch (st.screen) {
     case "start": {
-      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 2 · one match</p></div>
+      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 3 · one match</p></div>
         <ul class="how"><li>You play whoever touches the ball: <b>server</b>, <b>setter</b>, <b>hitter</b>, and on defense the <b>puppet master</b> who gets one move per ball.</li>
-        <li>Your swing goes exactly where you tap. Their block throws a shadow you can't hit hard through.</li>
-        <li>Every kill cracks a tile on their floor. <b>A broken tile is 3 points</b> and becomes a hole. Holes, tools, aces and errors are 1. <b>First to ${SCORING.toWin}</b>.</li>
+        <li>Nothing is left to luck. Your swing lands on the exact square you tap. A ball inside a defender's circle is always dug. The solid middle of their block always stuffs a hard swing.</li>
+        <li>Every kill cracks a square on their floor. <b>A broken square is 3 points</b> and becomes a hole nobody can stand in. Holes, tools, aces and errors are 1. <b>First to ${SCORING.toWin}</b>.</li>
         <li>They chase what you do. Hit the same spot again and they'll be waiting.</li></ul>`;
-      actions = `<div class="group"><h3>Difficulty</h3><div class="pills">${LEVELS.map((l) => pill("level", l, l, `${CHASE[l].brain} · tiles take ${DIFFICULTY[l].tileHits} hit${DIFFICULTY[l].tileHits > 1 ? "s" : ""}`, st.level === l)).join("")}</div></div>
+      actions = `<div class="group"><h3>Difficulty</h3><div class="pills">${LEVELS.map((l) => pill("level", l, l, `${CHASE[l].brain} · squares take ${DIFFICULTY[l].tileHits} hits`, st.level === l)).join("")}</div></div>
         <div class="group"><h3>Your block</h3><div class="pills">${pill("system", "Bunch", "Bunch", "Strong in the middle, slow to the pins", st.system === "Bunch")}${pill("system", "Spread", "Spread", "Always someone on the pins, weaker middle", st.system === "Spread")}</div></div>
         <div class="group"><h3>Your defense</h3><div class="pills">${pill("formation", "Perimeter", "Perimeter", "Diggers deep, short is open", st.formation === "Perimeter")}${pill("formation", "Rotational", "Rotational", "Line digger up for tips", st.formation === "Rotational")}${pill("formation", "SixUp", "6-up", "Middle back plays up", st.formation === "SixUp")}</div></div>`;
       go = `<button class="go" data-act="start">Start match</button>`;
@@ -298,50 +314,49 @@ function render() {
     case "hit": {
       const call = st.call!, ctx = st.ctx!, block = st.block!;
       const bl = block.front.filter((f) => f.state !== "off");
-      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a spot and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} The dark fan is their block's shadow.`);
+      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a square and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} Find a square outside every circle and the dark shadow.`);
       net = netSvg({ attacker: "us", front: block.front, set: { h: call.col, tempo: call.tempo }, animate: st.netAnim, hitters: [{ col: call.col, label: call.hitter.id, sub: "", selected: true, disabled: false }] });
-      const tones = Array.from({ length: 9 }, (_, i) => (st.shot === "Tool" || !aimable(ctx, i, st.shot) ? null : toneOf(odds(ctx, i, st.shot).win)));
-      court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirTones: tones, theirSelected: st.tile, theirDefense: ctx.defs, theirReach: st.shot === "Tool" ? 1 : reachScale(ctx, st.shot), theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
+      const sv = st.shot !== "Tool" && st.tile !== undefined ? verdictWords(readSquare(ctx, st.tile, st.shot), damageNote(ctx, st.tile, st.shot)) : undefined;
+      const lean = st.def!.from.map((f) => ({ from: f.sq, to: ctx.defs.find((d) => d.id === f.id)!.sq }));
+      court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirSelected: st.shot === "Tool" ? undefined : st.tile, theirSelectedTone: sv?.tone, theirDefense: ctx.defs, theirCircles: circles(ctx, ctx.defs, st.shot), theirLean: lean, theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
       const notes: string[] = [];
       if (ctx.combo) notes.push(`<p class="note good">Combo: perfect pass and perfect set. A kill does double damage.</p>`);
       if (block.keyed) notes.push(`<p class="note warn">They're onto ${call.hitter.id}: an extra blocker keyed on them.</p>`);
       if (block.bait) notes.push(`<p class="note good">Their middle bit on your quick and is late.</p>`);
+      if (lean.some((l) => l.from.r !== l.to.r || l.from.c !== l.to.c)) notes.push(`<p class="note warn">They're leaning toward where you've been hitting (arrows).</p>`);
       if (st.shot === "Tool") {
-        const o = odds(ctx, 0, "Tool");
-        info = `<p class="info"><b>${TONE_WORD[toneOf(o.win)]}</b> · aim off their hands. ${bl.length ? `${bl.length} blocker${bl.length > 1 ? "s" : ""} to use` : "There's no block to use"}. Scores 1, no tile damage.</p>`;
-      } else if (st.tile !== undefined) {
-        const o = odds(ctx, st.tile, st.shot);
-        if (!canAim(st.tile, st.shot)) info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${(st.shot === "Hard" && rowOf(st.tile) === 0 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`)}</p>`;
-        else {
-          const v = killValue(ctx, st.tile, st.shot);
-          const what = o.hole ? "hole, +1" : v === SCORING.break ? "breaks the tile, +3" : "cracks it, no points yet";
-          info = `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · <span class="tw t-${toneOf(o.win)}">${TONE_WORD[toneOf(o.win)]}</span> · ${reasons(o).join(", ")} · ${what}</p>`;
-        }
-      } else info = `<p class="info muted">Tap a tile on their floor.</p>`;
+        info = `<p class="info"><b>Tool</b> · off their hands and out: +1, no damage. Then it's gone for ${TOOL.cooldown} rallies.</p>`;
+      } else if (st.tile !== undefined && sv) {
+        info = !canAim(st.tile, st.shot)
+          ? `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${st.shot === "Hard" && rowOf(st.tile) <= 1 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`}</p>`
+          : `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · <span class="tw t-${sv.tone}">${sv.word}</span> · ${sv.why}</p>`;
+      } else info = `<p class="info muted">Tap a square on their floor.</p>`;
       info = notes.join("") + info;
-      actions = `<div class="pills">${SHOT_KINDS.map((k) => pill("shot", k, k, SHOTS[k].blurb, st.shot === k)).join("")}</div>`;
-      const ok = st.shot === "Tool" || (st.tile !== undefined && aimable(ctx, st.tile, st.shot));
-      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a tile first" : "Pick an open tile"}</button>`;
+      const shots = SHOT_KINDS.filter((k) => k !== "Tool" || g!.mods.tool);
+      actions = `<div class="pills">${shots.map((k) => pill("shot", k, k, SHOTS[k].blurb, st.shot === k, k === "Tool" && !!toolWhy(), toolWhy())).join("")}</div>`;
+      const ok = st.shot === "Tool" ? !toolWhy() : st.tile !== undefined && readSquare(ctx, st.tile, st.shot).kind !== "closed";
+      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a square first" : "This set can't reach that square"}</button>`;
       break;
     }
     case "defend": {
       const d = st.defend!, plan = d.plan;
       const left = movesLeft();
       const sel = d.selected;
-      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Tap one of your players, then a square next to them. ${left === 1 ? "You have one move." : `You have ${left} moves.`}` : "Move made. Tap that player again to change it, or go.");
+      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Their approach tells you the shot. Anything inside a circle gets dug. Tap one of your players, then a square next to them. ${left === 1 ? "You have one move." : `You have ${left} moves.`}` : "Move made. Tap that player again to change it, or go.");
       net = netSvg({ attacker: "them", front: d.block.front, set: { h: plan.call.col, tempo: plan.call.tempo }, animate: st.netAnim, hitters: [{ col: plan.call.col, label: plan.call.hitter.id, sub: "", selected: true, disabled: false }], tell: plan.tell });
       let squares: Sq[] = [], blockXs: number[] = [];
       if (sel && !sel.startsWith("blk:")) {
         const p = d.defs.find((x) => x.id === sel)!;
         const from = (d.origin[sel] as Sq | undefined) ?? p.sq;
-        squares = [...moveOptions(d.defs, { ...p, sq: from }, g!.mods.step), ...(d.origin[sel] ? [from] : [])].filter((s) => !(s.r === p.sq.r && s.c === p.sq.c));
+        squares = [...moveOptions(g!.us, d.defs, { ...p, sq: from }, g!.mods.step), ...(d.origin[sel] ? [from] : [])].filter((s) => !(s.r === p.sq.r && s.c === p.sq.c));
       } else if (sel) {
         const id = sel.slice(4);
         const f = d.block.front.find((x) => x.id === id)!;
         const from = (d.origin[id] as number | undefined) ?? f.x;
         blockXs = [...blockMoveOptions(d.block, { ...f, x: from }, g!.mods.step), ...(d.origin[id] !== undefined ? [from] : [])].filter((x) => Math.abs(x - f.x) > 0.01);
       }
-      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourReach: st.g!.mods.reach, ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
+      const dctx = theirAttackCtx(g!, plan, d.block, d.defs, st.grade!);
+      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourCircles: circles(dctx, d.defs, plan.tell === "tip" ? "Tip" : "Hard"), ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
       info = `<p class="note intent">${esc(plan.intent)}</p>`;
       actions = Object.keys(d.origin).length ? `<div class="pills">${pill("reset", "", "Reset", "Put everyone back", false)}</div>` : "";
       go = `<button class="go" data-act="ready">${Object.keys(d.origin).length ? "Ready" : "Play it straight"}</button>`;
@@ -364,7 +379,7 @@ function render() {
       const won = g!.winner === "us";
       const broke = (t: Team) => t.tiles.filter((h) => h <= 0).length;
       roleHtml = `<div class="result r-${won ? "win" : "lose"}"><p class="callout">${won ? "You win!" : `${esc(g!.them.name)} wins`}</p><p class="pts">${g!.us.score}–${g!.them.score}</p>
-        <p class="sub">You broke ${broke(g!.them)} of their tiles; they broke ${broke(g!.us)} of yours, in ${g!.rallies} rallies.</p></div>`;
+        <p class="sub">You broke ${broke(g!.them)} of their squares; they broke ${broke(g!.us)} of yours, in ${g!.rallies} rallies.</p></div>`;
       court = courtSvg({ ...base(), focus: "both" });
       go = `<button class="go" data-act="again">Play again</button>`;
       break;
@@ -385,24 +400,23 @@ function renderLab() {
   const el = document.getElementById("lab")!;
   const d = g ? DIFFICULTY[g.level] : DIFFICULTY[st.level];
   let sel = "";
-  if (st.screen === "hit" && st.ctx && (st.tile !== undefined || st.shot === "Tool")) {
-    const o = odds(st.ctx, st.tile ?? 0, st.shot);
-    sel = `<h4>Selected: ${st.shot}${st.tile !== undefined && st.shot !== "Tool" ? ` at row ${rowOf(st.tile) + 1} col ${colOf(st.tile) + 1}` : ""}</h4>
-      <p class="mono">clean ${pct(o.acc)} · shadow ${pct(o.shadow)} · block edge ${pct(o.blockP)} · dig ${pct(o.digP)} · kill ${pct(o.kill)} · tool ${pct(o.tool)}</p>`;
+  if (st.screen === "hit" && st.ctx && st.tile !== undefined && st.shot !== "Tool") {
+    const v = readSquare(st.ctx, st.tile, st.shot);
+    sel = `<h4>Selected: ${st.shot} at row ${rowOf(st.tile) + 1} col ${colOf(st.tile) + 1}</h4>
+      <p class="mono">${v.kind}${v.by ? ` (${v.by.id})` : ""} · block covers ${pct(v.shade)} of the square</p>`;
   }
   if (st.screen === "defend" && st.defend) {
     const p = st.defend.plan;
     sel = `<h4>Their plan</h4><p class="mono">${p.call.hitter.id} ${p.call.tempo} · ${p.shot} at row ${rowOf(p.target) + 1} col ${colOf(p.target) + 1} · approach shows "${p.tell}"</p>`;
   }
-  const heat = g ? g.track.heat.map((h) => h.toFixed(1)).join(" ") : "";
+  const heat = g ? g.track.heat.map((h, i) => (h >= 0.05 ? `r${rowOf(i) + 1}c${colOf(i) + 1}:${h.toFixed(1)}` : "")).filter(Boolean).join(" ") || "cold" : "";
   el.innerHTML = `<div class="lab-head"><h3>Lab</h3><button class="pill-small" data-act="lab">Close</button></div>
     <p class="muted small">The numbers behind the game. Players never see this.</p>
     <h4>Dials (base × difficulty × your upgrades)</h4>
-    <p class="mono">Clean swing ${pct(DIALS.accuracy)} × ${d.yourAcc} × ${(g?.mods.acc ?? 1).toFixed(2)}<br>
-    Power ${DIALS.power} × ${d.yourPower} × ${(g?.mods.power ?? 1).toFixed(2)} · Spike vs their dig × ${(g?.mods.spike ?? 1).toFixed(2)} · Extra damage +${g?.mods.dmg ?? 0}<br>
-    Block edge ${pct(DIALS.block)} × their ${d.theirBlock} · Your hands +${(g?.mods.hands ?? 0).toFixed(1)} m<br>
-    Their dig ${pct(DIALS.dig)} × ${d.theirDig} · Your dig × ${(g?.mods.dig ?? 1).toFixed(2)} · Moves ${g?.mods.moves ?? 1}, step ${g?.mods.step ?? 1}</p>
-    ${g ? `<h4>Their chase (${CHASE[g.level].brain})</h4><p class="mono">heat by tile (row 1 first): ${heat}</p>` : ""}
+    <p class="mono">Power ${DIALS.power} × ${d.yourPower} × ${(g?.mods.power ?? 1).toFixed(2)} · Their circles vs your hard swings × ${(g?.mods.spike ?? 1).toFixed(2)} · Extra damage +${g?.mods.dmg ?? 0}<br>
+    Their block × ${d.theirBlock} · Your hands +${(g?.mods.hands ?? 0).toFixed(1)} m<br>
+    Dig circle ${DIALS.dig} m × their ${d.theirDig} · Yours × ${(g?.mods.reach ?? 1).toFixed(2)} · Moves ${g?.mods.moves ?? 1}, step ${g?.mods.step ?? 1}</p>
+    ${g ? `<h4>Their chase (${CHASE[g.level].brain})</h4><p class="mono">heat by square (row 1 first): ${heat}</p>` : ""}
     ${sel}
     <h4>Last swings</h4><pre class="mono log">${esc((g?.lab ?? []).slice(-18).join("\n")) || "Nothing yet."}</pre>`;
 }
@@ -445,7 +459,7 @@ function act(a: string, v: string) {
   render();
 }
 function pickTile(i: number) {
-  if (st.screen === "hit" && st.shot !== "Tool") { if (!canAim(i, st.shot)) st.shot = rowOf(i) === 0 ? "Tip" : "Hard"; st.tile = i; st.netAnim = false; render(); }
+  if (st.screen === "hit" && st.shot !== "Tool") { if (!canAim(i, st.shot)) st.shot = rowOf(i) <= 1 ? "Tip" : "Hard"; st.tile = i; st.netAnim = false; render(); }
 }
 /** Defense: pick a player, then where they go. A moved player can be moved again (from where they started) or put back. */
 function pickDefender(id: string) {

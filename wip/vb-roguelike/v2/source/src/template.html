@@ -94,11 +94,11 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .side-tag { fill: var(--muted); font: 700 13px var(--font-display); letter-spacing: 0.12em; }
 .netview .side-tag { font-size: 22px; }
 
-.court .tile { fill: var(--maple); stroke: var(--paint); stroke-width: 2.5; }
+.court .tile { fill: var(--maple); stroke: var(--paint); stroke-width: 1; stroke-opacity: 0.55; }
 .court .tile.pickable { cursor: pointer; }
 .court .tile-g[role="button"]:hover .tile { fill: var(--maple-2); }
 .court .tint { opacity: 0.55; } .t-great { fill: var(--great); } .t-good { fill: var(--good); } .t-even { fill: var(--even); } .t-risky { fill: var(--risky); } .t-bad { fill: var(--bad); }
-.court .sel { fill: none; stroke: var(--ink); stroke-width: 4; }
+.court .sel { fill: none; stroke: var(--ink); stroke-width: 3.5; } .court .sel-great { stroke: var(--great); } .court .sel-good { stroke: var(--good); } .court .sel-risky { stroke: var(--risky); } .court .sel-bad { stroke: var(--bad); }
 .court .mark { fill: none; stroke: var(--us); stroke-width: 4; stroke-dasharray: 8 5; }
 .court .shadow { opacity: 0.55; } .hatch-line { stroke: var(--paint); stroke-width: 3; }
 .court .hole { fill: var(--hole); }
@@ -109,7 +109,7 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .court .net-line { stroke: var(--paint); stroke-width: 6; stroke-linecap: round; }
 .tok circle { stroke: var(--panel); stroke-width: 2.5; } .tok text { font: 700 12px var(--font-display); text-anchor: middle; fill: #fff; pointer-events: none; }
 .tok-them circle { fill: var(--them); } .tok-us circle { fill: var(--us); }
-.tok:not([role="button"]), .cblk:not([role="button"]), .ball-g, .tint, .sel, .cracks, .pips, .hole, .fan, .reach, .subgrid { pointer-events: none; }
+.tok:not([role="button"]), .cblk:not([role="button"]), .ball-g, .tint, .sel, .cracks, .pips, .hole, .fan, .dig, .dig-in, .lean, .attack-line { pointer-events: none; }
 .tok[role="button"], .cblk[role="button"], .sq-target { cursor: pointer; }
 .tok-hitter circle { stroke: var(--ball); stroke-width: 4; }
 .tok.is-sel circle { stroke: var(--ink); stroke-width: 4; } .tok.is-moved circle { stroke: var(--ball); stroke-width: 4; }
@@ -119,8 +119,10 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .tok-serve.is-sel circle { stroke: var(--ink); stroke-width: 6; }
 .tok .tok-sub { fill: var(--ink); font: 11px var(--font-body); }
 .subgrid { stroke: var(--paint); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.45; fill: none; }
-.reach { opacity: 0.5; pointer-events: none; } .reach-them { opacity: 0.32; }
-.reach-ring { fill: none; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55; pointer-events: none; } .reach-ring-us { stroke: var(--us); } .reach-ring-them { stroke: var(--them); }
+.dig { stroke-width: 2; fill-opacity: 0.16; stroke-opacity: 0.85; } .dig-in { stroke: none; fill-opacity: 0.22; }
+.dig-us, .dig-in-us { fill: var(--us); stroke: var(--us); } .dig-them, .dig-in-them { fill: var(--them); stroke: var(--them); }
+.attack-line { stroke: var(--paint); stroke-width: 3; } .court .ctr { fill: var(--paint); opacity: 0.6; pointer-events: none; }
+.lean-from { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: 0.6; } .lean-arrow { stroke: var(--ink); stroke-width: 2.5; fill: none; opacity: 0.75; } .lean-head { fill: var(--ink); }
 .fan-edge { fill: var(--shade); opacity: 0.2; } .fan-core { fill: var(--shade); opacity: 0.38; } .fan-edge.fan-late { opacity: 0.1; } .fan-core.fan-late { opacity: 0.2; }
 .sq-target { fill: color-mix(in srgb, var(--us) 18%, transparent); stroke: var(--us); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .sq-target:hover { fill: color-mix(in srgb, var(--us) 35%, transparent); }

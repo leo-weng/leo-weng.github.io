@@ -125,3 +125,12 @@ Proposal page with drawings: https://claude.ai/artifact/5gNvfkzjyszkKUdLrWUxh2 (
 - Drawn as a soft oval plus a dashed 50% ring under every defender on both floors.
 - 2026-10-16 update: ovals are rounder (1.9 m x 1.75 m). No hard swings inside the 10-foot line (Hard reaches rows 2-3 only). Slow balls grow every oval: Roll x1.4 (dig x1.1), Tip x2.2 (dig x1.3), and the court draws the bigger ovals when you pick that shot. New upgrade "Quick feet": your defenders' ovals x1.2.
 - 2026-10-16 landing spots: every ball lands at a random spot inside the aimed tile, and the dig roll uses coverage at that exact spot (the court draws it there). A defender standing on the spot now digs a hard swing most of the time (Dig dial 0.95, Hard dig x0.9). All six deep tiles take a hard swing; the block's solid middle just stuffs most of them (catch there: 8% tool, 60% stuff), while the soft edge still tools 35%.
+
+## Round 6, part 1: firm hitting and digging (2026-10-25)
+- Floors are 6x6 squares of 1.5 m. You aim at a square; the ball lands at its center. No swing errors at the base level.
+- Dig circles: radius 2.2 m (x spot size: L 1.2, CB 1.05, RB 1, front row 0.8-0.85; x shot: Hard 1, Roll 1.3, Tip 1.8; x difficulty 0.85/1/1.15/1.25; power shrinks it 3% per point over 5). A square whose center is inside a circle is dug: inner half = clean dig (+ back), outer = scramble (! back).
+- Block, by how much of the square the shadow covers: 65%+ stuff, 15-65% touch (kept alive), 4-15% tool (point off the hands), less = open.
+- Holes: single squares; nobody stands in one. A ball into a hole is a point unless a circle reaches it, and then it's only a scramble.
+- Squares take 2/3/4/4 hits by level (yours 3). Hard swing 2 damage, tip/roll 1, combo x2. Scoring unchanged.
+- Tool shot is an upgrade; after use it's gone for 3 rallies. Tells are always honest. Film study and Clean contact removed.
+- Their chase watches squares; Normal and up "read" (check their spot still works after your obvious move).
