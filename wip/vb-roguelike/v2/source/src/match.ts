@@ -89,7 +89,7 @@ export function playMatch(monster: Monster, policy: Policy, seed: number, board?
         res = resolveSwing(g, theirAttackCtx(g, plan, plan.block, defs, grade), plan.target, plan.shot);
       }
       winner = res.winner;
-      if (!winner) { grade = res.nextGrade ?? "+"; attacker = other(attacker); }
+      if (!winner) { grade = res.nextGrade ?? "+"; if (!res.again) attacker = other(attacker); }
     }
     endRally(g, winner ?? "them");
     if (takeTimeout(g)) { const ch = upgradeChoices(g); if (ch.length) ch[Math.floor(g.rng() * ch.length)].apply(g); }

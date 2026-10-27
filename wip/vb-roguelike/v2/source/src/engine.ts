@@ -553,14 +553,14 @@ export function blockShade(ctx: SwingCtx, tile: number): number {
 }
 /** What happens to a ball hit to a square, decided before you swing. */
 export type Verdict = "kill" | "hole" | "clean" | "scramble" | "stuff" | "touch" | "tool" | "closed";
-export interface Read { kind: Verdict; by?: Defender; shade: number; hole: boolean; win: boolean }
+export interface Read { kind: Verdict; by?: Defender; shade: number; hole: boolean; win: boolean; /** A touch that goes back to the hitter's side. */ back?: boolean }
 export function readSquare(ctx: SwingCtx, tile: number, shot: ShotKind): Read {
   const hole = isBroken(ctx.defender, tile);
   if (!aimable(ctx, tile, shot)) return { kind: "closed", shade: 0, hole, win: false };
   // 1. The block, for hard swings: the solid middle stuffs it, a good part of the hands keeps it alive, a clip goes out off them.
   const shade = shot === "Hard" ? blockShade(ctx, tile) : 0;
   if (shade >= FIRM.stuff) return { kind: "stuff", shade, hole, win: false };
-  if (shade >= FIRM.touch) return { kind: "touch", shade, hole, win: false };
+  if (shade >= FIRM.touch) return { kind: "touch", shade, hole, win: false, back: shade >= FIRM.back };
   if (shade >= FIRM.tool) return { kind: "tool", shade, hole, win: true };
   // 2. Inside a defender's circle it's dug: near them a clean dig, at the edge a scramble.
   // Nobody stands in a hole, so a ball into one is at best a diving scramble, and a point if no circle reaches it.
@@ -581,7 +581,7 @@ export function verdictValue(ctx: SwingCtx, tile: number, shot: ShotKind, v: Rea
     case "hole": return SCORING.hole;
     case "tool": return SCORING.tool;
     case "scramble": return AI.scramble;
-    case "touch": return 0.05;
+    case "touch": return v.back ? 0.1 : 0;
     case "clean": return 0;
     case "stuff": return -0.5;
     default: return -1;
@@ -605,8 +605,10 @@ export interface SwingResult {
   hole: boolean;
   /** Winner of the rally, or null if it goes on. */
   winner: Side | null;
-  /** The pass the other side gets if the rally continues. */
+  /** The pass the next attacker gets if the rally continues. */
   nextGrade?: Grade;
+  /** The same side attacks again (a block touch knocked it back to them). */
+  again?: boolean;
   text: string;
 }
 /** One swing, start to finish. Nothing is rolled: it plays out exactly as the court showed. Applies damage and points. */
@@ -630,7 +632,9 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
   switch (v.kind) {
     case "closed":
     case "stuff": award(g, dSide, SCORING.stuff); return done({ outcome: "Stuff", winner: dSide, text: "Stuffed by the block!" });
-    case "touch": return done({ outcome: "Touch", winner: null, nextGrade: "+", text: "Block touch. They keep it alive." });
+    case "touch": return v.back
+      ? done({ outcome: "Touch", winner: null, nextGrade: "!", again: true, text: "Block touch. It comes back to the hitter's side." })
+      : done({ outcome: "Touch", winner: null, nextGrade: "+", text: "Soft block touch. It pops into their court." });
     case "tool": award(g, aSide, SCORING.tool); return done({ outcome: "Tool", points: SCORING.tool, winner: aSide, text: "Off the edge of their hands and out!" });
     case "hole": award(g, aSide, SCORING.hole); return done({ outcome: "Kill", landed: aimed, landAt: at, hole: true, points: SCORING.hole, winner: aSide, text: "Right into the hole!" });
     case "clean": return done({ outcome: "Dug", landed: aimed, landAt: at, digBy: v.by, winner: null, nextGrade: "+", text: "Great dig!" });

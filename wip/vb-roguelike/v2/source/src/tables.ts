@@ -60,9 +60,10 @@ export const COVER = { inner: 0.5 };
 export const REACH_SIZE: Record<"LB" | "CB" | "RB" | "LF" | "CF" | "RF", number> = { LB: 1.2, CB: 1.05, RB: 1, LF: 0.85, CF: 0.8, RF: 0.85 };
 /**
  * The block on a square, by how much of the square its shadow covers (0-1, after their block level and your hitter's jump):
- * at or over stuff it's stuffed, over touch it's a touch they keep, over tool it clips the hands and goes out (your point).
+ * at or over stuff it's stuffed, over touch it's a touch, over tool it clips the hands and goes out (your point).
+ * A touch at or over back is a firm one that knocks the ball back to the hitter's side; a lighter touch pops into the blockers' court.
  */
-export const FIRM = { stuff: 0.65, touch: 0.15, tool: 0.04 };
+export const FIRM = { stuff: 0.65, touch: 0.15, tool: 0.04, back: 0.4 };
 
 /**
  * The block's shadow. It starts at the blockers' hands at the net and fans out, angled away from the hitter.

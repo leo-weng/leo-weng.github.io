@@ -20,7 +20,9 @@ export function verdictWords(v: Read, damageNote: string): { word: string; tone:
     case "tool": return { word: "Off the hands", tone: "good", why: "it clips the edge of their block and goes out · +1" };
     case "scramble": return { word: "Scramble", tone: "risky", why: `the edge of ${who}'s circle: dug, but badly${v.hole ? " (they dive into the hole)" : ""}` };
     case "clean": return { word: "Dug", tone: "bad", why: `right at ${who}: a clean dig` };
-    case "touch": return { word: "Block touch", tone: "risky", why: "a good part of their hands: they keep it alive" };
+    case "touch": return v.back
+      ? { word: "Block touch", tone: "even", why: "it hits a good part of their hands and bounces back to your side: you cover it and swing again off a high ball" }
+      : { word: "Soft touch", tone: "bad", why: "it grazes their hands and drops into their court: an easy dig for them" };
     case "stuff": return { word: "Stuffed", tone: "bad", why: "the solid middle of their block" };
     default: return { word: "Can't reach", tone: "bad", why: "this set or shot can't get there" };
   }
@@ -232,9 +234,10 @@ export function ballFromNet(side: Side, h: number, to: [number, number]): string
   const x0 = mx(HITTER_X[h]), y0 = side === "us" ? NET_Y + 22 : NET_Y - 22;
   return `M${f(x0)} ${f(y0)} L${f(to[0])} ${f(to[1])}`;
 }
-export function ballBlocked(side: Side, h: number): { path: string; land: [number, number] } {
+/** A ball off the block: back onto the hitter's side (a stuff or a firm touch), or popping over into the blockers' court (a soft touch). */
+export function ballBlocked(side: Side, h: number, over = false): { path: string; land: [number, number] } {
   const x0 = mx(HITTER_X[h]);
-  const back = side === "us" ? NET_Y + 90 : NET_Y - 90;
+  const back = (side === "us") !== over ? NET_Y + 90 : NET_Y - 90;
   return { path: `M${f(x0)} ${f(side === "us" ? NET_Y + 22 : NET_Y - 22)} L${f(x0)} ${NET_Y} L${f(x0 + 20)} ${back}`, land: [x0 + 20, back] };
 }
 export function ballOut(side: Side, h: number): string {

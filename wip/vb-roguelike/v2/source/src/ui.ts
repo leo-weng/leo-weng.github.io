@@ -148,7 +148,7 @@ function swing() {
   trackAttack(g, call, aimed, st.shot);
   const res = resolveSwing(g, ctx, aimed, st.shot);
   st.chain.kill = res.outcome === "Kill" && ctx.combo;
-  showResult(swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : toDefend(res.nextGrade ?? "+"))));
+  showResult(swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toSet(res.nextGrade ?? "!") : toDefend(res.nextGrade ?? "+"))));
 }
 function toDefend(grade: Grade) {
   const g = st.g!;
@@ -163,7 +163,7 @@ function ready() {
   const g = st.g!, d = st.defend!, plan = d.plan;
   const ctx = theirAttackCtx(g, plan, d.block, d.defs, st.grade!);
   const res = resolveSwing(g, ctx, plan.target, plan.shot);
-  const v = swingView(res, "them", plan.call.col, circles(ctx, d.defs, plan.shot), () => (res.winner ? afterRally(res.winner) : toSet(res.nextGrade ?? "+")));
+  const v = swingView(res, "them", plan.call.col, circles(ctx, d.defs, plan.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toDefend(res.nextGrade ?? "!") : toSet(res.nextGrade ?? "+")));
   v.court.ourBlock = d.block;
   v.court.ourDefense = d.defs;
   if (res.outcome === "Dug") v.sub = `${res.digBy ? `Your ${who(res.digBy.id)} digs it` : "You dig it"}${Object.keys(d.origin).includes(res.digBy?.id ?? "") ? ", right where you moved them" : ""}. ${res.nextGrade === "+" ? "A clean dig: now you swing back." : "A scramble: you'll only get a high ball back."}`;
@@ -207,13 +207,13 @@ function swingView(res: SwingResult, attacker: Side, h: number, radii: number[],
   if (mine) { court.ourHitterCol = h; court.ourHitterLabel = st.call!.hitter.id; court.theirBlock = st.block; court.theirDefense = st.def!.defs; court.theirCircles = radii; }
   else { court.theirHitterCol = h; court.theirHitterLabel = st.defend!.plan.call.hitter.id; court.ourCircles = radii; }
   const land = res.landed === null ? undefined : res.landAt ? courtPoint(defSide, res.landAt[0], res.landAt[1]) : squareCenter(defSide, res.landed);
-  if (res.outcome === "Stuff" || res.outcome === "Touch") { const b = ballBlocked(attacker, h); court.ball = { ...b, kind: "blocked" }; }
+  if (res.outcome === "Stuff" || res.outcome === "Touch") { const b = ballBlocked(attacker, h, res.outcome === "Touch" && !res.again); court.ball = { ...b, kind: "blocked" }; }
   else if (res.outcome === "Error" || res.outcome === "Tool") court.ball = { path: ballOut(attacker, h), kind: res.outcome === "Tool" ? "tool" : "out" };
   else if (land) court.ball = { path: ballFromNet(attacker, h, land), land, kind: res.outcome === "Kill" ? "kill" : "dug" };
   if (res.landed !== null && (res.outcome === "Kill" || res.outcome === "Shank")) { if (mine) court.flashTheir = res.landed; else court.flashOur = res.landed; }
 
   const us = (n: number) => `+${n} you`, them = (n: number) => `+${n} them`;
-  const nextLabel = res.winner ? "Next rally" : mine ? "Defend their attack" : "Set the ball";
+  const nextLabel = res.winner ? "Next rally" : mine !== !!res.again ? "Defend their attack" : "Set the ball";
   switch (res.outcome) {
     case "Kill":
       if (res.hole) return { callout: mine ? "Into the hole!" : "Into your hole", tone: mine ? "win" : "lose", sub: "Nobody can stand in a hole, and no circle reached it.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: mine };
@@ -222,7 +222,9 @@ function swingView(res: SwingResult, attacker: Side, h: number, radii: number[],
     case "Tool": return { callout: mine ? "Tooled it!" : "They tooled you", tone: mine ? "win" : "lose", sub: "Off the hands and out. A point, but no damage.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next };
     case "Stuff": return { callout: mine ? "Stuffed" : "Stuff block!", tone: mine ? "lose" : "win", sub: mine ? "Straight into the solid middle of their block." : "Your block shut it down.", pts: mine ? them(SCORING.stuff) : us(SCORING.stuff), court, nextLabel, next, shake: !mine };
     case "Error": return { callout: mine ? "Hitting error" : "They miss", tone: mine ? "lose" : "win", sub: res.text, pts: mine ? them(SCORING.error) : us(SCORING.error), court, nextLabel, next };
-    case "Touch": return { callout: "Block touch", tone: "plain", sub: `${mine ? "They" : "You"} keep it alive off the block.`, court, nextLabel, next };
+    case "Touch": return res.again
+      ? { callout: "Block touch", tone: "plain", sub: mine ? "It comes back to your side. You cover it and swing again off a high ball." : "Your block knocks it back to their side. They cover and swing again.", court, nextLabel, next }
+      : { callout: "Soft touch", tone: mine ? "lose" : "win", sub: mine ? "It grazes their hands and drops into their court. They dig it easily." : "Your block slows it down. You dig it easily.", court, nextLabel, next };
     case "Shank": return { callout: mine ? "They shank it" : "Shanked", tone: mine ? "win" : "lose", sub: `${res.damage ? "The tile cracks, " : ""}${mine ? "you get" : "they get"} a free ball.`, court, nextLabel, next };
     default: return { callout: mine ? "Dug" : "Great dig!", tone: mine ? "plain" : "win", sub: `${mine ? `It's inside their ${res.digBy?.id ?? ""}'s circle` : "You dig it"}${res.nextGrade === "!" ? ", but it's a scramble" : ""}. ${mine ? "Now they swing back." : "Now you swing back."}`, court, nextLabel, next };
   }
