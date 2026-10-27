@@ -4,7 +4,7 @@ import {
   ourServe, planTheirAttack, resolveSwing, Side, SwingCtx, takeTimeout, team, theirAttackCtx, theirDefense, theirServe, TheirPlan, readResponse,
   trackAttack, upgradeChoices, SERVE_TARGETS, serveOdds, defenseSetup,
 } from "./engine";
-import { Level, SHOT_KINDS, ShotKind } from "./tables";
+import { Board, Monster, SHOT_KINDS, ShotKind } from "./tables";
 
 export interface Policy {
   call(g: Game, calls: Call[]): Call;
@@ -58,8 +58,8 @@ export const RANDOM: Policy = {
 };
 
 export interface MatchStats { winner: Side; us: number; them: number; rallies: number; ourBroken: number; theirBroken: number; swings: number; kills: number; errors: number; repeats: number; repeatKills: number }
-export function playMatch(level: Level, policy: Policy, seed: number): MatchStats {
-  const g = newGame({ level, system: "Bunch", formation: "Perimeter", seed });
+export function playMatch(monster: Monster, policy: Policy, seed: number, board?: Board): MatchStats {
+  const g = newGame({ monster, board, system: "Bunch", formation: "Perimeter", seed });
   let swings = 0, kills = 0, errors = 0, repeats = 0, repeatKills = 0, lastTile = -1;
   while (!g.winner && g.rallies < 400) {
     const s = g.serving === "us" ? ourServe(g, "Float", policy.serve(g)) : theirServe(g);
@@ -94,7 +94,7 @@ export function playMatch(level: Level, policy: Policy, seed: number): MatchStat
     endRally(g, winner ?? "them");
     if (takeTimeout(g)) { const ch = upgradeChoices(g); if (ch.length) ch[Math.floor(g.rng() * ch.length)].apply(g); }
   }
-  const broken = (s: Side) => team(g, s).tiles.filter((h) => h <= 0).length;
+  const broken = (s: Side) => team(g, s).tiles.filter((h) => h <= 0).length / 4;
   return { winner: g.winner ?? "them", us: g.us.score, them: g.them.score, rallies: g.rallies, ourBroken: broken("us"), theirBroken: broken("them"), swings, kills, errors, repeats, repeatKills };
 }
 export { chase, defenseSetup };

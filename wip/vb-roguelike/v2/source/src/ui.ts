@@ -3,12 +3,12 @@ import {
   BlockForm, blockMoveOptions, BlockSystem, blockersOf, Call, callsFor, canAim, colOf, Defender, digRadius, endRally, Formation, formTheirBlock, Game, Grade,
   isBroken, killValue, laneOf, moveOptions, newGame, ourAttackCtx, ourServe, passers, planTheirAttack, readSquare, resolveSwing, rotationNumber, rowOf, SERVE_TARGETS,
   serveOdds, setQuality, Side, Sq, SwingCtx, SwingResult, takeTimeout, Team, theirAttackCtx, theirDefense, TheirDefense, theirServe, TheirPlan,
-  trackAttack, Upgrade, upgradeChoices, zonePlayers,
+  trackAttack, Upgrade, upgradeChoices, zonePlayers, Mods, freshMods, boardRow, brokenCount,
 } from "./engine";
-import { BLOCK_HOME, CHASE, DIALS, DIFFICULTY, Level, LEVELS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
+import { Board, BOARD_OPTIONS, BOARD_ROWS, BOARD_WORD, BoardPick, BoardRow, MONSTERS, BLOCK_HOME, CHASE, DIALS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
 import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, ServeMark, squareCenter, toneOf, TONE_WORD, verdictWords, zoneCenter } from "./views";
 
-type Screen = "start" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
+type Screen = "start" | "scout" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
 interface ResultView {
   callout: string;
   tone: "win" | "lose" | "plain";
@@ -27,9 +27,12 @@ interface DefendState {
   origin: Record<string, Sq | number>;
   selected?: string;
 }
+interface Run { stage: number; mods: Mods; board: Board; wins: number }
 interface State {
   screen: Screen;
-  level: Level;
+  run: Run;
+  /** "run": the reward pick after a win. "timeout": the one pick inside a game. */
+  upgradeMode?: "run" | "timeout";
   system: BlockSystem;
   formation: Formation;
   g?: Game;
@@ -50,7 +53,8 @@ interface State {
   netAnim: boolean;
   lab: boolean;
 }
-const st: State = { screen: "start", level: "Normal", system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, netAnim: false, lab: false };
+const newRun = (): Run => ({ stage: 0, mods: freshMods(), board: { OH: "cross", MB: "bal", OPP: "bal" }, wins: 0 });
+const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, netAnim: false, lab: false };
 
 const GRADE_WORD: Record<Grade, string> = { "#": "Perfect", "+": "Good", "!": "OK", "-": "Poor" };
 const GRADE_OPEN: Record<Grade, string> = {
@@ -78,7 +82,7 @@ function circles(ctx: SwingCtx, defs: Defender[], shot: ShotKind): number[] {
 /** What a kill on this square would do to their floor. */
 function damageNote(ctx: SwingCtx, tile: number, shot: ShotKind): string {
   if (isBroken(ctx.defender, tile)) return "+1";
-  return killValue(ctx, tile, shot) === SCORING.break ? "breaks it, +3" : "cracks it, no points yet";
+  return killValue(ctx, tile, shot) === SCORING.break ? "breaks the tile, +3" : "cracks the tile, no points yet";
 }
 /** Why the Tool shot isn't available right now, or "" if it is. */
 function toolWhy(): string {
@@ -92,7 +96,7 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&
 
 // ---------- Flow ----------
 function startMatch() {
-  st.g = newGame({ level: st.level, system: st.system, formation: st.formation });
+  st.g = newGame({ monster: MONSTERS[st.run.stage], board: { ...st.run.board }, system: st.system, formation: st.formation, mods: st.run.mods });
   nextRally();
 }
 function nextRally() {
@@ -185,7 +189,7 @@ function afterRally(winner: Side) {
   const g = st.g!;
   endRally(g, winner);
   if (g.winner) { st.screen = "end"; render(); return; }
-  if (takeTimeout(g)) { st.upgrades = upgradeChoices(g); st.screen = "upgrade"; render(); return; }
+  if (takeTimeout(g)) { st.upgrades = upgradeChoices(g); st.upgradeMode = "timeout"; st.screen = "upgrade"; render(); return; }
   nextRally();
 }
 function showResult(r: ResultView) {
@@ -213,8 +217,8 @@ function swingView(res: SwingResult, attacker: Side, h: number, radii: number[],
   switch (res.outcome) {
     case "Kill":
       if (res.hole) return { callout: mine ? "Into the hole!" : "Into your hole", tone: mine ? "win" : "lose", sub: "Nobody can stand in a hole, and no circle reached it.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: mine };
-      if (res.broke) return { callout: mine ? "Square broken!" : "They broke a square", tone: mine ? "win" : "lose", sub: `${res.damage} damage${mine && st.chain.kill ? " (combo, double damage)" : ""}. That square is a hole now.`, pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: true };
-      return { callout: mine ? "Kill! Square cracked" : "They crack a square", tone: mine ? "win" : "lose", sub: `${res.damage} damage. No points until it breaks.`, pts: "+0", court, nextLabel, next, shake: mine };
+      if (res.broke) return { callout: mine ? "Tile broken!" : "They broke a tile", tone: mine ? "win" : "lose", sub: `${res.damage} damage${mine && st.chain.kill ? " (combo, double damage)" : ""}. That tile is a hole now.`, pts: mine ? us(res.points) : them(res.points), court, nextLabel, next, shake: true };
+      return { callout: mine ? "Kill! Tile cracked" : "They crack a tile", tone: mine ? "win" : "lose", sub: `${res.damage} damage. No points until it breaks.`, pts: "+0", court, nextLabel, next, shake: mine };
     case "Tool": return { callout: mine ? "Tooled it!" : "They tooled you", tone: mine ? "win" : "lose", sub: "Off the hands and out. A point, but no damage.", pts: mine ? us(res.points) : them(res.points), court, nextLabel, next };
     case "Stuff": return { callout: mine ? "Stuffed" : "Stuff block!", tone: mine ? "lose" : "win", sub: mine ? "Straight into the solid middle of their block." : "Your block shut it down.", pts: mine ? them(SCORING.stuff) : us(SCORING.stuff), court, nextLabel, next, shake: !mine };
     case "Error": return { callout: mine ? "Hitting error" : "They miss", tone: mine ? "lose" : "win", sub: res.text, pts: mine ? them(SCORING.error) : us(SCORING.error), court, nextLabel, next };
@@ -257,7 +261,7 @@ function scoreBar(): string {
     ? `<div class="chain" aria-label="Combo chain"><span class="chain-label">Combo</span>${(["pass", "set", "kill"] as const).map((k) => `<span class="cpip${st.chain[k] ? " lit" : ""}">${k}</span>`).join("")}</div>`
     : `<div class="chain chain-idle"><span class="chain-label">First to ${SCORING.toWin}${g.timeoutUsed ? "" : ` · timeout at ${TIMEOUT_AT}`}</span></div>`;
   return `<div class="score"><div class="team-score you"><span>You</span><b>${g.us.score}</b></div>
-    <div class="score-mid">${pips}<span class="serving">${g.serving === "us" ? "▲ your serve" : "their serve ▼"} · rotation ${rotationNumber(g.us)}</span></div>
+    <div class="score-mid">${pips}<span class="serving">${g.serving === "us" ? "▲ your serve" : "their serve ▼"} · ${esc(g.monster.tag)}</span></div>
     <div class="team-score them"><b>${g.them.score}</b><span>${esc(g.them.name)}</span></div></div>`;
 }
 function role(chip: string, title: string, sub: string, cls = ""): string {
@@ -271,15 +275,29 @@ function render() {
   const g = st.g;
   switch (st.screen) {
     case "start": {
-      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 3 · one match</p></div>
-        <ul class="how"><li>You play whoever touches the ball: <b>server</b>, <b>setter</b>, <b>hitter</b>, and on defense the <b>puppet master</b> who gets one move per ball.</li>
-        <li>Nothing is left to luck. Your swing lands on the exact square you tap. A ball inside a defender's circle is always dug. The solid middle of their block always stuffs a hard swing.</li>
-        <li>Every kill cracks a square on their floor. <b>A broken square is 3 points</b> and becomes a hole nobody can stand in. Holes, tools, aces and errors are 1. <b>First to ${SCORING.toWin}</b>.</li>
-        <li>They chase what you do. Hit the same spot again and they'll be waiting.</li></ul>`;
-      actions = `<div class="group"><h3>Difficulty</h3><div class="pills">${LEVELS.map((l) => pill("level", l, l, `${CHASE[l].brain} · squares take ${DIFFICULTY[l].tileHits} hits`, st.level === l)).join("")}</div></div>
-        <div class="group"><h3>Your block</h3><div class="pills">${pill("system", "Bunch", "Bunch", "Strong in the middle, slow to the pins", st.system === "Bunch")}${pill("system", "Spread", "Spread", "Always someone on the pins, weaker middle", st.system === "Spread")}</div></div>
-        <div class="group"><h3>Your defense</h3><div class="pills">${pill("formation", "Perimeter", "Perimeter", "Diggers deep, short is open", st.formation === "Perimeter")}${pill("formation", "Rotational", "Rotational", "Line digger up for tips", st.formation === "Rotational")}${pill("formation", "SixUp", "6-up", "Middle back plays up", st.formation === "SixUp")}</div></div>`;
-      go = `<button class="go" data-act="start">Start match</button>`;
+      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 4 · scout, then play</p></div>
+        <ul class="how"><li>Before each game you get a <b>scouting report</b> on the team you face, and you set your <b>board</b>: how your block and diggers line up against each of their hitters. It's locked for the game.</li>
+        <li>Their board is on the court too: you'll see where their block and diggers stand before every swing.</li>
+        <li>You play whoever touches the ball: <b>server</b>, <b>setter</b>, <b>hitter</b>, and on defense you get one move per ball. Your swing lands on the exact box you tap. A ball inside a digger's circle is always dug.</li>
+        <li>Their floor is <b>nine big tiles</b>, each split into four boxes. Kills crack a tile; <b>a broken tile is 3 points</b> and turns into a hole. <b>First to ${SCORING.toWin}</b>. Beat three teams to finish the run.</li></ul>`;
+      go = `<button class="go" data-act="to-scout">Start a run</button>`;
+      break;
+    }
+    case "scout": {
+      const m = MONSTERS[st.run.stage];
+      const runLine = MONSTERS.map((x, i) => `<span class="stop${i < st.run.stage ? " done" : i === st.run.stage ? " now" : ""}">${esc(x.name)}</span>`).join("");
+      const bar = (label: string, v: number) => `<span class="sbar"><span>${label}</span><b>${"●".repeat(v)}${"○".repeat(5 - v)}</b></span>`;
+      const lvl = (x: number) => Math.max(1, Math.min(5, Math.round(3 + (x - 1) * 5)));
+      roleHtml = `<div class="run-line">${runLine}</div>
+        <div class="scout"><p class="role-chip">Scouting report · ${esc(m.tag)}</p><h2>${esc(m.name)}</h2>
+        <p class="trait"><b>${esc(m.trait)}.</b> ${esc(m.traitText)}</p>
+        <div class="sbars">${bar("Block", lvl(m.block))}${bar("Defense", lvl(m.dig))}${bar("Floor", m.tileHits + 1)}</div>
+        <ul class="scout-list"><li><b>OH</b> ${esc(m.scout.OH1)}</li><li><b>MB</b> ${esc(m.scout.MB2)}</li><li><b>OPP</b> ${esc(m.scout.OPP)}</li></ul>
+        <p class="weak"><b>Weak spot:</b> ${esc(m.weak)}</p>
+        <p class="their-board">Their board: your OH, they ${BOARD_WORD[m.board.OH]} · your MB, they ${BOARD_WORD[m.board.MB]} · your OPP, they ${BOARD_WORD[m.board.OPP]}${m.chase === "none" ? "" : " · they lean toward where you've been hitting"}.</p></div>`;
+      actions = BOARD_ROWS.map((r) => `<div class="group"><h3>Your board vs their ${r}</h3><div class="pills">${BOARD_OPTIONS[r].map((o) => pill("board", `${r}:${o.v}`, o.label, o.sub, st.run.board[r] === o.v)).join("")}</div></div>`).join("")
+        + `<div class="group"><h3>Your block</h3><div class="pills">${pill("system", "Bunch", "Bunch", "Strong in the middle, slow to the pins", st.system === "Bunch")}${pill("system", "Spread", "Spread", "Always someone on the pins, weaker middle", st.system === "Spread")}</div></div>`;
+      go = `<button class="go" data-act="start">Play ${esc(m.name)}</button>`;
       break;
     }
     case "serve": {
@@ -314,12 +332,14 @@ function render() {
     case "hit": {
       const call = st.call!, ctx = st.ctx!, block = st.block!;
       const bl = block.front.filter((f) => f.state !== "off");
-      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a square and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} Find a square outside every circle and the dark shadow.`);
+      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a box and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} Find a box outside every circle and the dark shadow.`);
       net = netSvg({ attacker: "us", front: block.front, set: { h: call.col, tempo: call.tempo }, animate: st.netAnim, hitters: [{ col: call.col, label: call.hitter.id, sub: "", selected: true, disabled: false }] });
       const sv = st.shot !== "Tool" && st.tile !== undefined ? verdictWords(readSquare(ctx, st.tile, st.shot), damageNote(ctx, st.tile, st.shot)) : undefined;
       const lean = st.def!.from.map((f) => ({ from: f.sq, to: ctx.defs.find((d) => d.id === f.id)!.sq }));
       court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirSelected: st.shot === "Tool" ? undefined : st.tile, theirSelectedTone: sv?.tone, theirDefense: ctx.defs, theirCircles: circles(ctx, ctx.defs, st.shot), theirLean: lean, theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
       const notes: string[] = [];
+      const pickV = g!.them.board[boardRow(call.hitter.role)];
+      notes.push(`<p class="note">Their board on your ${boardRow(call.hitter.role)}: they ${BOARD_WORD[pickV]}.</p>`);
       if (ctx.combo) notes.push(`<p class="note good">Combo: perfect pass and perfect set. A kill does double damage.</p>`);
       if (block.keyed) notes.push(`<p class="note warn">They're onto ${call.hitter.id}: an extra blocker keyed on them.</p>`);
       if (block.bait) notes.push(`<p class="note good">Their middle bit on your quick and is late.</p>`);
@@ -330,19 +350,19 @@ function render() {
         info = !canAim(st.tile, st.shot)
           ? `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · ${st.shot === "Hard" && rowOf(st.tile) <= 1 ? "inside the 10-foot line: tip it there, you can't swing hard that short." : `a ${st.shot.toLowerCase()} can't reach that row.`}</p>`
           : `<p class="info"><b>${zoneName(st.tile, call.col)}</b> · <span class="tw t-${sv.tone}">${sv.word}</span> · ${sv.why}</p>`;
-      } else info = `<p class="info muted">Tap a square on their floor.</p>`;
+      } else info = `<p class="info muted">Tap a box on their floor.</p>`;
       info = notes.join("") + info;
       const shots = SHOT_KINDS.filter((k) => k !== "Tool" || g!.mods.tool);
       actions = `<div class="pills">${shots.map((k) => pill("shot", k, k, SHOTS[k].blurb, st.shot === k, k === "Tool" && !!toolWhy(), toolWhy())).join("")}</div>`;
       const ok = st.shot === "Tool" ? !toolWhy() : st.tile !== undefined && readSquare(ctx, st.tile, st.shot).kind !== "closed";
-      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a square first" : "This set can't reach that square"}</button>`;
+      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a box first" : "This set can't reach that box"}</button>`;
       break;
     }
     case "defend": {
       const d = st.defend!, plan = d.plan;
       const left = movesLeft();
       const sel = d.selected;
-      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Their approach tells you the shot. Anything inside a circle gets dug. Tap one of your players, then a square next to them. ${left === 1 ? "You have one move." : `You have ${left} moves.`}` : "Move made. Tap that player again to change it, or go.");
+      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Their approach tells you the shot. Anything inside a circle gets dug. Tap one of your players, then a box next to them. ${left === 1 ? "You have one move." : `You have ${left} moves.`}` : "Move made. Tap that player again to change it, or go.");
       net = netSvg({ attacker: "them", front: d.block.front, set: { h: plan.call.col, tempo: plan.call.tempo }, animate: st.netAnim, hitters: [{ col: plan.call.col, label: plan.call.hitter.id, sub: "", selected: true, disabled: false }], tell: plan.tell });
       let squares: Sq[] = [], blockXs: number[] = [];
       if (sel && !sel.startsWith("blk:")) {
@@ -357,7 +377,7 @@ function render() {
       }
       const dctx = theirAttackCtx(g!, plan, d.block, d.defs, st.grade!);
       court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourCircles: circles(dctx, d.defs, plan.tell === "tip" ? "Tip" : "Hard"), ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
-      info = `<p class="note intent">${esc(plan.intent)}</p>`;
+      info = `<p class="note intent">${esc(plan.intent)}</p><p class="note">Your board on their ${boardRow(plan.call.hitter.role)}: you ${BOARD_WORD[g!.us.board[boardRow(plan.call.hitter.role)]]}.</p>`;
       actions = Object.keys(d.origin).length ? `<div class="pills">${pill("reset", "", "Reset", "Put everyone back", false)}</div>` : "";
       go = `<button class="go" data-act="ready">${Object.keys(d.origin).length ? "Ready" : "Play it straight"}</button>`;
       break;
@@ -370,18 +390,20 @@ function render() {
       break;
     }
     case "upgrade": {
-      roleHtml = role("Timeout", "Pick one upgrade", `Someone reached ${TIMEOUT_AT}. This is your one pick this match.`);
+      roleHtml = st.upgradeMode === "run"
+        ? role("Reward", `You beat ${esc(g!.monster.name)}. Pick one`, "It stays with you for the rest of the run.")
+        : role("Timeout", "Pick one upgrade", `Someone reached ${TIMEOUT_AT}. This is your one pick this game.`);
       actions = `<div class="cards">${st.upgrades!.map((u) => `<button class="card" data-act="upgrade" data-v="${u.id}"><span class="card-dial">${u.dial}</span><span class="card-name">${esc(u.name)}</span><span class="card-desc">${esc(u.desc)}</span></button>`).join("")}</div>`;
       court = courtSvg({ ...base(), focus: "both" });
       break;
     }
     case "end": {
       const won = g!.winner === "us";
-      const broke = (t: Team) => t.tiles.filter((h) => h <= 0).length;
-      roleHtml = `<div class="result r-${won ? "win" : "lose"}"><p class="callout">${won ? "You win!" : `${esc(g!.them.name)} wins`}</p><p class="pts">${g!.us.score}–${g!.them.score}</p>
-        <p class="sub">You broke ${broke(g!.them)} of their squares; they broke ${broke(g!.us)} of yours, in ${g!.rallies} rallies.</p></div>`;
+      const last = st.run.stage >= MONSTERS.length - 1;
+      roleHtml = `<div class="result r-${won ? "win" : "lose"}"><p class="callout">${won ? (last ? "Run complete!" : "You win!") : `${esc(g!.them.name)} wins`}</p><p class="pts">${g!.us.score}–${g!.them.score}</p>
+        <p class="sub">You broke ${brokenCount(g!.them)} of their tiles; they broke ${brokenCount(g!.us)} of yours, in ${g!.rallies} rallies.${won ? "" : " The run is over."}</p></div>`;
       court = courtSvg({ ...base(), focus: "both" });
-      go = `<button class="go" data-act="again">Play again</button>`;
+      go = won && !last ? `<button class="go" data-act="reward">Pick your reward</button>` : `<button class="go" data-act="again">New run</button>`;
       break;
     }
   }
@@ -398,7 +420,7 @@ function render() {
 function renderLab() {
   const g = st.g;
   const el = document.getElementById("lab")!;
-  const d = g ? DIFFICULTY[g.level] : DIFFICULTY[st.level];
+  const m = g ? g.monster : MONSTERS[st.run.stage];
   let sel = "";
   if (st.screen === "hit" && st.ctx && st.tile !== undefined && st.shot !== "Tool") {
     const v = readSquare(st.ctx, st.tile, st.shot);
@@ -412,11 +434,11 @@ function renderLab() {
   const heat = g ? g.track.heat.map((h, i) => (h >= 0.05 ? `r${rowOf(i) + 1}c${colOf(i) + 1}:${h.toFixed(1)}` : "")).filter(Boolean).join(" ") || "cold" : "";
   el.innerHTML = `<div class="lab-head"><h3>Lab</h3><button class="pill-small" data-act="lab">Close</button></div>
     <p class="muted small">The numbers behind the game. Players never see this.</p>
-    <h4>Dials (base × difficulty × your upgrades)</h4>
-    <p class="mono">Power ${DIALS.power} × ${d.yourPower} × ${(g?.mods.power ?? 1).toFixed(2)} · Their circles vs your hard swings × ${(g?.mods.spike ?? 1).toFixed(2)} · Extra damage +${g?.mods.dmg ?? 0}<br>
-    Their block × ${d.theirBlock} · Your hands +${(g?.mods.hands ?? 0).toFixed(1)} m<br>
-    Dig circle ${DIALS.dig} m × their ${d.theirDig} · Yours × ${(g?.mods.reach ?? 1).toFixed(2)} · Moves ${g?.mods.moves ?? 1}, step ${g?.mods.step ?? 1}</p>
-    ${g ? `<h4>Their chase (${CHASE[g.level].brain})</h4><p class="mono">heat by square (row 1 first): ${heat}</p>` : ""}
+    <h4>Dials (base × team × your upgrades)</h4>
+    <p class="mono">Power ${DIALS.power} × ${(g?.mods.power ?? 1).toFixed(2)} · Their circles vs your hard swings × ${(g?.mods.spike ?? 1).toFixed(2)} · Extra damage +${g?.mods.dmg ?? 0}<br>
+    Their block × ${m.block} · Your hands +${(g?.mods.hands ?? 0).toFixed(1)} m<br>
+    Dig circle ${DIALS.dig} m × their ${m.dig} · Yours × ${(g?.mods.reach ?? 1).toFixed(2)} · Moves ${g?.mods.moves ?? 1}, step ${g?.mods.step ?? 1}</p>
+    ${g && m.chase !== "none" ? `<h4>Their chase (${CHASE[g.level].brain})</h4><p class="mono">heat by square (row 1 first): ${heat}</p>` : ""}
     ${sel}
     <h4>Last swings</h4><pre class="mono log">${esc((g?.lab ?? []).slice(-18).join("\n")) || "Nothing yet."}</pre>`;
 }
@@ -425,7 +447,15 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 // ---------- Events ----------
 function act(a: string, v: string) {
   switch (a) {
-    case "level": st.level = v as Level; break;
+    case "to-scout": st.run = newRun(); st.screen = "scout"; break;
+    case "board": { const [r, p] = v.split(":"); st.run.board[r as BoardRow] = p as BoardPick; break; }
+    case "reward": {
+      const g = st.g!;
+      st.upgrades = upgradeChoices(g, ["patch"]);
+      st.upgradeMode = "run";
+      st.screen = "upgrade";
+      break;
+    }
     case "system": st.system = v as BlockSystem; break;
     case "formation": st.formation = v as Formation; break;
     case "start": return startMatch();
@@ -445,8 +475,17 @@ function act(a: string, v: string) {
     }
     case "ready": return ready();
     case "next": return st.result!.next();
-    case "upgrade": st.upgrades!.find((u) => u.id === v)!.apply(st.g!); return nextRally();
-    case "again": st.screen = "start"; st.g = undefined; break;
+    case "upgrade": {
+      st.upgrades!.find((u) => u.id === v)!.apply(st.g!);
+      if (st.upgradeMode === "timeout") return nextRally();
+      st.run.stage++;
+      st.run.wins++;
+      st.g = undefined;
+      st.screen = "scout";
+      window.scrollTo(0, 0);
+      break;
+    }
+    case "again": st.screen = "start"; st.g = undefined; st.run = newRun(); break;
     case "lab": {
       st.lab = !st.lab;
       const el = document.getElementById("lab")!;

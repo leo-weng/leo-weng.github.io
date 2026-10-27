@@ -3,7 +3,7 @@
 // square you pick decide it, and the court shows all of it before you swing (see tables.ts).
 import {
   AI, BLOCK_HOME, BLOCK_TARGETS, CHASE, COMBO, COVER, CRACK_VALUE, DIALS, DIFFICULTY, FAN, FIRM, REACH_SIZE,
-  JUMP_PER_POINT, KEYED_STREAK, LATE_SHARE, Level, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES,
+  JUMP_PER_POINT, KEYED_STREAK, Board, BOARD_SHIFT, BoardRow, Monster, MONSTERS, LATE_SHARE, Level, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES,
   SetQuality, SHOTS, ServeType, ShotKind, TIMEOUT_AT, TOOL, YOUR_TILE_HITS,
 } from "./tables";
 
@@ -25,7 +25,9 @@ export interface Team {
   libero: Player;
   system: BlockSystem;
   formation: Formation;
-  /** Hits left per square, index row*6+col. Row 0 is by the net. 0 = broken (a hole). */
+  /** How this team defends each of the other team's hitters, locked for the game. */
+  board: Board;
+  /** Hits left per square, index row*6+col. Row 0 is by the net. 0 = broken (a hole). The four squares of a big tile share their hits. */
   tiles: number[];
   maxHp: number;
   score: number;
@@ -67,6 +69,7 @@ export interface Track {
 }
 export interface Game {
   level: Level;
+  monster: Monster;
   us: Team;
   them: Team;
   serving: Side;
@@ -86,26 +89,33 @@ export interface Game {
 
 // ---------- Teams ----------
 const P = (id: string, role: Role, power: number, control: number, jump: number, passer: PasserSkill, trait: string): Player => ({ id, role, power, control, jump, passer, trait });
-function makeTeam(side: Side, name: string, system: BlockSystem, formation: Formation, hp: number): Team {
+function makeTeam(side: Side, name: string, system: BlockSystem, formation: Formation, hp: number, board: Board): Team {
   // Leo's 5-1: S in 1, OH1 in 2, MB2 in 3, OPP in 4, OH2 in 5, MB1 in 6.
   const lineup = side === "us"
     ? [P("S", "S", 4, 7, 5, "average", "Setter"), P("OH1", "OH", 7, 6, 6, "average", "Big arm"), P("MB2", "MB", 5, 6, 6, "weak", "Quick off two feet"),
       P("OPP", "OPP", 8, 5, 7, "weak", "Power hitter"), P("OH2", "OH", 5, 7, 5, "strong", "Steady passer"), P("MB1", "MB", 6, 5, 7, "weak", "Best blocker")]
     : [P("S", "S", 4, 6, 5, "average", "Setter"), P("OH1", "OH", 6, 6, 6, "average", "Loves the cross"), P("MB2", "MB", 5, 5, 6, "weak", "Quick"),
       P("OPP", "OPP", 7, 5, 6, "weak", "Loves the line"), P("OH2", "OH", 5, 6, 5, "strong", "Steady passer"), P("MB1", "MB", 6, 5, 7, "weak", "Big blocker")];
-  return { name, side, lineup, libero: P("L", "L", 3, 7, 3, "strong", "Libero"), system, formation, tiles: Array(N * N).fill(hp), maxHp: hp, score: 0 };
+  return { name, side, lineup, libero: P("L", "L", 3, 7, 3, "strong", "Libero"), system, formation, board, tiles: Array(N * N).fill(hp), maxHp: hp, score: 0 };
 }
 
-export interface GameOpts { level: Level; system: BlockSystem; formation: Formation; seed?: number }
+export interface GameOpts { monster?: Monster; board?: Board; system: BlockSystem; formation: Formation; seed?: number; mods?: Mods; level?: Level }
+export const freshMods = (): Mods => ({ power: 1, spike: 1, dig: 1, moves: 1, step: 1, hands: 0, dmg: 0, reach: 1, tool: false });
 export function newGame(o: GameOpts): Game {
-  const d = DIFFICULTY[o.level];
+  const m = o.monster ?? MONSTERS[0];
   const rng = makeRng(o.seed ?? Math.floor(Math.random() * 2 ** 31));
+  const them = makeTeam("them", m.name, m.system, "Perimeter", m.tileHits, { ...m.board });
+  for (const p of [...them.lineup, them.libero]) {
+    p.power += m.power[p.id] ?? 0;
+    if (m.passers[p.id]) p.passer = m.passers[p.id];
+  }
   return {
-    level: o.level,
-    us: makeTeam("us", "You", o.system, o.formation, YOUR_TILE_HITS),
-    them: makeTeam("them", "Riverside", "Bunch", "Perimeter", d.tileHits),
+    level: m.chase === "none" ? "Normal" : m.chase,
+    monster: m,
+    us: makeTeam("us", "You", o.system, o.formation, YOUR_TILE_HITS, { ...(o.board ?? { OH: "bal", MB: "bal", OPP: "bal" }) }),
+    them,
     serving: rng() < 0.5 ? "us" : "them",
-    mods: { power: 1, spike: 1, dig: 1, moves: 1, step: 1, hands: 0, dmg: 0, reach: 1, tool: false },
+    mods: o.mods ?? freshMods(),
     rng,
     rallies: 0,
     track: { hitter: "", hitterStreak: 0, heat: Array(N * N).fill(0), lastRole: "", lastTempo: "" },
@@ -129,7 +139,7 @@ export const laneOf = (i: number) => Math.floor(colOf(i) / 2);
 /** The 3x3 zone (2x2 squares) a square is in. Their chase watches zones. */
 export const zoneOf = (i: number) => Math.floor(rowOf(i) / 2) * 3 + laneOf(i);
 export const isBroken = (t: Team, i: number) => t.tiles[i] <= 0;
-export const brokenCount = (t: Team) => t.tiles.filter((h) => h <= 0).length;
+export const brokenCount = (t: Team) => t.tiles.filter((h) => h <= 0).length / 4;
 /** Where a hitter in each screen column attacks along the net (meters from the screen-left antenna). */
 export const HITTER_X = [1.2, 4.5, 7.8];
 
@@ -206,7 +216,7 @@ function ownSpot(table: { right: Spots; middle: Spots }, zone: Zone, hOwn: numbe
   return s && { r: s.r, c: 5 - s.c };
 }
 /** Everyone not blocking, in their starting spots for this hitter. Screen columns. Nobody stands in a hole: they take the nearest open square. */
-export function defenseSetup(t: Team, h: number, block: BlockForm): Defender[] {
+export function defenseSetup(t: Team, h: number, block: BlockForm, pick: string = "bal"): Defender[] {
   const hOwn = t.side === "us" ? h : 2 - h;
   const zp = zonePlayers(t);
   const toScreen = (s: Sq): Sq => (t.side === "us" ? s : { r: s.r, c: 5 - s.c });
@@ -220,7 +230,11 @@ export function defenseSetup(t: Team, h: number, block: BlockForm): Defender[] {
     }
     out.push({ id, zone, sq });
   };
-  for (const z of ["LB", "CB", "RB"] as Zone[]) place(zp[z].id, z, toScreen(ownSpot(BACK[t.formation], z, hOwn)!));
+  // The board: when the block takes the line, the diggers slide toward the cross, and the other way round. Screen columns.
+  const lineDir = h === 0 ? -1 : h === 2 ? 1 : 0;
+  const slide = pick === "line" ? -lineDir : pick === "cross" ? lineDir : 0;
+  const shifted = (s: Sq): Sq => ({ r: s.r, c: Math.max(0, Math.min(N - 1, s.c + slide * BOARD_SHIFT.diggers)) });
+  for (const z of ["LB", "CB", "RB"] as Zone[]) place(zp[z].id, z, shifted(toScreen(ownSpot(BACK[t.formation], z, hOwn)!)));
   for (const f of block.front) if (f.state === "off") place(f.id, f.zone, toScreen(ownSpot(OFF, f.zone, hOwn)!));
   return out;
 }
@@ -333,24 +347,37 @@ export interface BlockForm {
 }
 export const blockersOf = (b: BlockForm) => b.front.filter((f) => f.state !== "off");
 /** How many block, and whether each gets there in time. */
-function blockCount(g: Game, system: BlockSystem, role: Role, tempo: Tempo): boolean[] {
+function blockCount(g: Game, system: BlockSystem, role: Role, tempo: Tempo, board?: Board): boolean[] {
   const r = g.rng;
+  // The middle row of the board: commit puts two on the quick and leaves the pins a blocker short; release does the opposite.
+  if (board?.MB === "commit") {
+    if (role === "MB") return [true, r() < 0.5];
+    if (tempo !== "Combo") return tempo === "Fast" ? [] : [true, false];
+  }
+  if (board?.MB === "release") {
+    if (role === "MB") return [false];
+    if (tempo !== "Combo") return tempo === "Fast" ? [false] : [true, true, r() < 0.4];
+  }
   if (tempo === "Combo") return system === "Bunch" && r() < 0.5 ? [true, false] : [true];
   if (role === "MB") return system === "Bunch" ? (r() < 0.4 ? [true, false] : [true]) : [false];
   if (tempo === "Fast") return system === "Bunch" ? (r() < 0.7 ? [false] : []) : [true];
   return system === "Bunch" ? (r() < 0.6 ? [true, true, false] : [true, true]) : [true, true];
 }
-export function blockTargets(h: number): number[] {
+/** Board row for a hitter: the opposite hits from the right side, the setter's spot counts as the right side too. */
+export const boardRow = (role: Role): BoardRow => (role === "MB" ? "MB" : role === "OH" ? "OH" : "OPP");
+export function blockTargets(h: number, pick: string = "bal"): number[] {
   const hx = HITTER_X[h];
   if (h === 1) return BLOCK_TARGETS.middle.map((d) => hx + d);
   const toward = h === 0 ? 1 : -1;
-  return BLOCK_TARGETS.outside.map((d) => hx + toward * d);
+  // Block line: the hands slide toward the sideline. Block cross: toward the middle.
+  const shift = pick === "line" ? -BOARD_SHIFT.block : pick === "cross" ? BOARD_SHIFT.block : 0;
+  return BLOCK_TARGETS.outside.map((d) => hx + toward * (d + shift));
 }
-function formBlock(t: Team, flags: boolean[], h: number, hand: number, keyed: boolean, bait: boolean): BlockForm {
+function formBlock(t: Team, flags: boolean[], h: number, hand: number, keyed: boolean, bait: boolean, pick: string = "bal"): BlockForm {
   const homes = BLOCK_HOME[t.system];
   const zp = zonePlayers(t);
   const front: FrontPlayer[] = screenFront(t.side).map((z, i) => ({ id: zp[z].id, zone: z, home: homes[i], x: homes[i], state: "off" as const }));
-  const targets = blockTargets(h);
+  const targets = blockTargets(h, pick);
   const list = [...flags].sort((a, b) => Number(b) - Number(a));
   if (keyed && list.length < 3) list.push(true);
   const free = [0, 1, 2];
@@ -372,7 +399,7 @@ function formBlock(t: Team, flags: boolean[], h: number, hand: number, keyed: bo
 export function formTheirBlock(g: Game, call: Call): BlockForm {
   const keyed = g.track.hitter === call.hitter.id && g.track.hitterStreak >= KEYED_STREAK;
   const bait = g.track.lastRole === "MB" && g.track.lastTempo === "Fast" && call.hitter.role !== "MB" && g.rng() < CHASE[g.level].bait;
-  return formBlock(g.them, blockCount(g, g.them.system, call.hitter.role, call.tempo), call.col, FAN.hand, keyed, bait);
+  return formBlock(g.them, blockCount(g, g.them.system, call.hitter.role, call.tempo, g.them.board), call.col, FAN.hand * g.monster.block, keyed, bait, g.them.board[boardRow(call.hitter.role)]);
 }
 
 // ---------- The block's shadow ----------
@@ -611,13 +638,14 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
   }
   // A kill: damage the square; points only if it breaks.
   const dmg = killDamage(ctx, shot);
+  // The hit lands on a big tile: all four of its squares share the damage.
   const t = ctx.defender.tiles;
-  t[aimed] = Math.max(0, t[aimed] - dmg);
+  for (const q of zoneSquares(zoneOf(aimed))) t[sqIdx(q)] = Math.max(0, t[sqIdx(q)] - dmg);
   const broke = t[aimed] === 0;
   const pts = broke ? SCORING.break : SCORING.crack;
   award(g, aSide, pts);
-  lab.push(`  kill: ${dmg} damage${ctx.combo ? " (combo x2)" : ""}, ${broke ? "square broken" : "square cracked"}`);
-  return done({ outcome: "Kill", landed: aimed, landAt: at, damage: dmg, points: pts, broke, winner: aSide, text: broke ? "KILL! Square broken!" : "Kill! Square cracked." });
+  lab.push(`  kill: ${dmg} damage${ctx.combo ? " (combo x2)" : ""}, ${broke ? "tile broken" : "tile cracked"}`);
+  return done({ outcome: "Kill", landed: aimed, landAt: at, damage: dmg, points: pts, broke, winner: aSide, text: broke ? "KILL! Tile broken!" : "Kill! Tile cracked." });
 }
 function killDamage(ctx: SwingCtx, shot: ShotKind) {
   return Math.max(1, Math.round(SHOTS[shot].damage * ctx.powerMult * (ctx.combo ? COMBO.damageMult : 1)) + ctx.extraDmg);
@@ -634,16 +662,18 @@ export function award(g: Game, s: Side, pts: number) { team(g, s).score += pts; 
 export interface TheirDefense { defs: Defender[]; hot: number; level: "none" | "shade" | "camp"; /** Where they started, before leaning toward your last swings. */ from: Defender[] }
 /** Their defense against our call: their spots for this hitter, shifted toward where we've been hitting. */
 export function theirDefense(g: Game, call: Call, block: BlockForm): TheirDefense {
-  const from = defenseSetup(g.them, call.col, block);
+  const from = defenseSetup(g.them, call.col, block, g.them.board[boardRow(call.hitter.role)]);
+  // A team that holds its board doesn't lean toward your swings.
+  if (g.monster.chase === "none") return { defs: from.map((d) => ({ ...d, sq: { ...d.sq } })), hot: 0, level: "none", from };
   return { ...chase(g, from), from };
 }
 export function ourAttackCtx(g: Game, call: Call, block: BlockForm, def: TheirDefense, grade: Grade): SwingCtx {
-  const d = DIFFICULTY[g.level];
+  const m = g.monster;
   let setQ = setQuality(grade, call.tempo);
   if (g.late.us === call.hitter.id) setQ = DOWN[setQ];
   return {
     attacker: g.us, defender: g.them, hitter: call.hitter, col: call.col, tempo: call.tempo, setQ, combo: grade === "#" && setQ === "Perfect", block, defs: def.defs,
-    powerMult: DIALS.power * d.yourPower * g.mods.power, spikeMult: g.mods.spike, blockMult: d.theirBlock, digMult: d.theirDig, extraDmg: g.mods.dmg,
+    powerMult: DIALS.power * g.mods.power, spikeMult: g.mods.spike, blockMult: m.block, digMult: m.dig, extraDmg: g.mods.dmg,
   };
 }
 /** Note what we hit, so they can chase it. */
@@ -677,16 +707,16 @@ export function planTheirAttack(g: Game, grade: Grade): TheirPlan {
   const calls = callsFor(g.them, grade).filter((c) => c.enabled && c.tempo !== "Combo");
   const fast = calls.filter((c) => c.tempo === "Fast");
   const high = calls.filter((c) => c.tempo === "High");
-  const pool = fast.length && (grade === "#" || grade === "+") && r() < AI.fastChance ? fast : high.length ? high : calls;
+  const pool = fast.length && (grade === "#" || grade === "+") && r() < g.monster.fastChance ? fast : high.length ? high : calls;
   const call = pool[Math.floor(r() * pool.length)];
   const habit = call.hitter.role === "OPP" ? "line" : call.hitter.role === "OH" ? "cross" : "middle";
   const habitCol = habit === "line" ? call.col : habit === "cross" ? 2 - call.col : 1;
-  const block = formBlock(g.us, blockCount(g, g.us.system, call.hitter.role, call.tempo), call.col, FAN.hand + g.mods.hands, false, false);
-  const defs = defenseSetup(g.us, call.col, block);
+  const block = formBlock(g.us, blockCount(g, g.us.system, call.hitter.role, call.tempo, g.us.board), call.col, FAN.hand + g.mods.hands, false, false, g.us.board[boardRow(call.hitter.role)]);
+  const defs = defenseSetup(g.us, call.col, block, g.us.board[boardRow(call.hitter.role)]);
   // They read your defense as it starts (not your move) and pick a good spot, leaning on their habit.
   const ctx = theirAttackCtx(g, { call }, block, defs, grade);
   // A reader also checks the spot still works after your obvious answer to their approach.
-  const reader = CHASE[g.level].brain === "Reader";
+  const reader = g.monster.chase !== "none" && CHASE[g.level].brain === "Reader";
   const opts: { tile: number; shot: ShotKind; w: number }[] = [];
   for (const shot of ["Hard", "Tip", "Roll"] as ShotKind[]) {
     for (let i = 0; i < N * N; i++) {
@@ -696,7 +726,7 @@ export function planTheirAttack(g: Game, grade: Grade): TheirPlan {
         const after = readResponse(g.us, defs, call.col, tellFor(call.col, shot, i), g.mods.moves, g.mods.step);
         if (!readSquare({ ...ctx, defs: after }, i, shot).win) val *= 0.1;
       }
-      const v = val * AI.shots[shot as "Hard"] * (laneOf(i) === habitCol ? AI.habitBoost : 1);
+      const v = val * AI.shots[shot as "Hard"] * (laneOf(i) === habitCol ? g.monster.habitBoost : 1);
       opts.push({ tile: i, shot, w: v * v });
     }
   }
@@ -724,7 +754,8 @@ export function endRally(g: Game, winner: Side) {
   g.rallies++;
   g.late = {};
   if (g.toolCd > 0) g.toolCd--;
-  if (winner !== g.serving) { rotate(team(g, winner)); g.serving = winner; }
+  // Rotations are parked: every team keeps the same six in the same spots.
+  if (winner !== g.serving) g.serving = winner;
   if (g.us.score >= SCORING.toWin || g.them.score >= SCORING.toWin) g.winner = g.us.score >= g.them.score ? "us" : "them";
 }
 /** A timeout (with an upgrade pick) the first time either team reaches TIMEOUT_AT. */
@@ -745,17 +776,17 @@ export const UPGRADES: Upgrade[] = [
   { id: "feet", name: "Quick feet", desc: "Your defenders cover more ground: every circle grows.", dial: "Dig", apply: (g) => (g.mods.reach *= 1.15) },
   { id: "tool", name: "Tool shot", desc: `Unlock the Tool shot: off their hands for a point, no damage. Then it needs ${TOOL.cooldown} rallies to come back.`, dial: "Options", apply: (g) => (g.mods.tool = true), ok: (g) => !g.mods.tool },
   {
-    id: "patch", name: "Patch the floor", desc: "Fully fix your most cracked square. Holes stay holes.", dial: "Tiles",
+    id: "patch", name: "Patch the floor", desc: "Fully fix your most cracked tile. Holes stay holes.", dial: "Tiles",
     ok: (g) => g.us.tiles.some((h) => h > 0 && h < g.us.maxHp),
     apply: (g) => {
       let best = -1;
       g.us.tiles.forEach((h, i) => { if (h > 0 && h < g.us.maxHp && (best < 0 || h < g.us.tiles[best])) best = i; });
-      if (best >= 0) g.us.tiles[best] = g.us.maxHp;
+      if (best >= 0) for (const q of zoneSquares(zoneOf(best))) g.us.tiles[sqIdx(q)] = g.us.maxHp;
     },
   },
 ];
-export function upgradeChoices(g: Game): Upgrade[] {
-  const pool = UPGRADES.filter((u) => !u.ok || u.ok(g));
+export function upgradeChoices(g: Game, exclude: string[] = []): Upgrade[] {
+  const pool = UPGRADES.filter((u) => !exclude.includes(u.id) && (!u.ok || u.ok(g)));
   const out: Upgrade[] = [];
   while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(g.rng() * pool.length), 1)[0]);
   return out;

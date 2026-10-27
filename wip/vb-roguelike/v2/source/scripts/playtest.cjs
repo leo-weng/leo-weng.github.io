@@ -9,10 +9,15 @@ const { chromium } = require(process.env.PW || "playwright");
   p.on("pageerror", (e) => errors.push(e.message));
   await p.goto("file://" + process.cwd() + "/dist/standalone.html");
   await p.screenshot({ path: `${out}/0-start.png`, fullPage: true });
+  await p.click('[data-act="to-scout"]');
+  await p.click('[data-act="board"][data-v="OH:cross"]');
+  await p.screenshot({ path: `${out}/0-scout.png`, fullPage: true });
   await p.click('[data-act="start"]');
   const seen = new Set();
-  for (let step = 0; step < 600; step++) {
+  for (let step = 0; step < 2500; step++) {
     if (await p.$('[data-act="again"]')) break;
+    if (await p.$('[data-act="reward"]')) { await p.screenshot({ path: `${out}/8-won.png`, fullPage: true }); await p.click('[data-act="reward"]'); continue; }
+    if (await p.$('[data-act="board"]')) { seen.add("scout2"); await p.screenshot({ path: `${out}/8-scout2.png`, fullPage: true }); await p.click('[data-act="start"]'); continue; }
     const role = (await p.textContent("#role")) || "";
     const key = role.includes("Server") ? "serve" : role.includes("Setter") ? "set" : role.includes("Hitter") ? "hit" : role.includes("Puppet") ? "defend" : (await p.$('[data-act="upgrade"]')) ? "upgrade" : "result";
     if (key === "defend" && !seen.has("defend-move") && seen.has("defend")) {

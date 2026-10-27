@@ -121,6 +121,22 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 .subgrid { stroke: var(--paint); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.45; fill: none; }
 .dig { stroke-width: 2; fill-opacity: 0.16; stroke-opacity: 0.85; } .dig-in { stroke: none; fill-opacity: 0.22; }
 .dig-us, .dig-in-us { fill: var(--us); stroke: var(--us); } .dig-them, .dig-in-them { fill: var(--them); stroke: var(--them); }
+.court .big-tile { fill: none; stroke: var(--paint); stroke-width: 2.5; pointer-events: none; }
+.court .tile { stroke-opacity: 0.3; }
+.run-line { display: flex; gap: 6px; flex-wrap: wrap; }
+.run-line .stop { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.run-line .stop.now { border-color: var(--ink); color: var(--ink); font-weight: 700; }
+.run-line .stop.done { text-decoration: line-through; }
+.scout { display: flex; flex-direction: column; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-top: 10px; }
+.scout h2 { margin: 0; }
+.scout .role-chip { align-self: flex-start; }
+.scout p { margin: 0; }
+.scout .trait { border-left: 4px solid var(--them); padding-left: 10px; }
+.scout .sbars { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.scout .sbar { display: flex; gap: 6px; align-items: center; }
+.scout .sbar b { color: var(--them); letter-spacing: 2px; font-weight: 400; }
+.scout-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+.scout .weak, .scout .their-board { font-size: 14px; color: var(--muted); }
 .attack-line { stroke: var(--paint); stroke-width: 3; } .court .ctr { fill: var(--paint); opacity: 0.6; pointer-events: none; }
 .lean-from { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: 0.6; } .lean-arrow { stroke: var(--ink); stroke-width: 2.5; fill: none; opacity: 0.75; } .lean-head { fill: var(--ink); }
 .fan-edge { fill: var(--shade); opacity: 0.2; } .fan-core { fill: var(--shade); opacity: 0.38; } .fan-edge.fan-late { opacity: 0.1; } .fan-core.fan-late { opacity: 0.2; }

@@ -39,7 +39,7 @@ export const SHOT_KINDS: ShotKind[] = ["Hard", "Tip", "Roll", "Tool"];
  * rows: the rows of small squares the shot can reach (6 rows of 1.5 m; 0-1 are inside the 10-foot line).
  */
 export const SHOTS: Record<ShotKind, { damage: number; reach: number; rows: number[]; overBlock: boolean; blurb: string }> = {
-  Hard: { damage: 2, reach: 1, rows: [2, 3, 4, 5], overBlock: false, blurb: "Breaks squares. Deep only. Into the block's shadow it gets stuffed." },
+  Hard: { damage: 2, reach: 1, rows: [2, 3, 4, 5], overBlock: false, blurb: "Cracks tiles. Deep only. Into the block's shadow it gets stuffed." },
   Tip: { damage: 1, reach: 1.8, rows: [0, 1, 2, 3], overBlock: true, blurb: "Short, over the block. Slow, so their circles get big." },
   Roll: { damage: 1, reach: 1.3, rows: [2, 3, 4, 5], overBlock: true, blurb: "Over the block. Off-speed, so their circles grow a bit." },
   Tool: { damage: 0, reach: 1, rows: [], overBlock: false, blurb: "Off their hands for a point. No damage." },
@@ -112,3 +112,67 @@ export const AI = { habitBoost: 2, fastChance: 0.4, shots: { Hard: 1, Tip: 0.6, 
 export const CRACK_VALUE = 0.8;
 /** Keyed-in: after you set the same hitter this many times in a row, an extra blocker waits for them. */
 export const KEYED_STREAK = 2;
+
+// ---------- Scouting: boards and monsters (draft 4) ----------
+/** One row of a board: how a team defends one of the other team's hitters. Pins: block the line, balanced, or block the cross. Middle: commit, balanced, release. */
+export type BoardPick = "line" | "bal" | "cross" | "commit" | "release";
+export type BoardRow = "OH" | "MB" | "OPP";
+export type Board = Record<BoardRow, BoardPick>;
+export const BOARD_ROWS: BoardRow[] = ["OH", "MB", "OPP"];
+export const BOARD_OPTIONS: Record<BoardRow, { v: BoardPick; label: string; sub: string }[]> = {
+  OH: [{ v: "line", label: "Block line", sub: "Diggers cover cross" }, { v: "bal", label: "Balanced", sub: "A bit of both" }, { v: "cross", label: "Block cross", sub: "Diggers cover line" }],
+  MB: [{ v: "commit", label: "Commit", sub: "Two on the quick, pins thinner" }, { v: "bal", label: "Balanced", sub: "Read and go" }, { v: "release", label: "Release", sub: "Help the pins, quick is open" }],
+  OPP: [{ v: "line", label: "Block line", sub: "Diggers cover cross" }, { v: "bal", label: "Balanced", sub: "A bit of both" }, { v: "cross", label: "Block cross", sub: "Diggers cover line" }],
+};
+export const BOARD_WORD: Record<BoardPick, string> = { line: "block line", cross: "block cross", bal: "play balanced", commit: "commit on the quick", release: "release the middle" };
+/** How far a board moves the block along the net toward the side it takes (m), and how many squares the diggers shift the other way. */
+export const BOARD_SHIFT = { block: 0.8, diggers: 1 };
+
+export interface Monster {
+  id: string;
+  name: string;
+  tag: string;
+  trait: string;
+  traitText: string;
+  weak: string;
+  /** Multipliers on their block shadow and dig circles (1 = normal). */
+  block: number;
+  dig: number;
+  /** Hits a big tile of theirs takes before it breaks. */
+  tileHits: number;
+  /** Their defense leans toward your recent swings (a chase brain from CHASE), or holds its board ("none"). */
+  chase: "none" | Level;
+  system: "Bunch" | "Spread";
+  board: Board;
+  /** How much they favor each hitter's habit side, and how often they run fast sets off a good pass. */
+  habitBoost: number;
+  fastChance: number;
+  /** Power changes per player id, and passer skill changes. */
+  power: Record<string, number>;
+  passers: Record<string, "strong" | "average" | "weak">;
+  /** Scouting lines per hitter. */
+  scout: Record<"OH1" | "MB2" | "OPP", string>;
+}
+export const MONSTERS: Monster[] = [
+  {
+    id: "rec", name: "Rec League Regulars", tag: "Game 1", trait: "One Trick", traitText: "Their OH gets the ball and swings cross. Every time.",
+    weak: "A soft block and a slow defense. Shut down the OH.",
+    block: 0.8, dig: 0.85, tileHits: 2, chase: "none", system: "Bunch", board: { OH: "cross", MB: "bal", OPP: "bal" },
+    habitBoost: 5, fastChance: 0.15, power: { OH1: 0, MB2: -1, OPP: -2 }, passers: {},
+    scout: { OH1: "Hits cross, hard", MB2: "Quick only off a good pass", OPP: "Rarely set. Likes line" },
+  },
+  {
+    id: "wall", name: "The Wall", tag: "Game 2", trait: "Triple Up", traitText: "A huge block: their shadow covers more of the floor than anyone's.",
+    weak: "Shaky passers, and slow to cover short. Serve them and tip.",
+    block: 1.35, dig: 0.8, tileHits: 3, chase: "none", system: "Bunch", board: { OH: "cross", MB: "commit", OPP: "line" },
+    habitBoost: 2, fastChance: 0.3, power: { OH1: 0, MB2: 1, OPP: 0 }, passers: { OH2: "weak", OH1: "weak", L: "average" },
+    scout: { OH1: "Cross or line, even split", MB2: "Big quick off a good pass", OPP: "Line hitter" },
+  },
+  {
+    id: "rats", name: "Dig Rats", tag: "Game 3", trait: "Never Dies", traitText: "Huge dig range, and they lean toward wherever you've been hitting.",
+    weak: "A tiny block and soft hitters. Spread your swings around.",
+    block: 0.7, dig: 1.35, tileHits: 3, chase: "Normal", system: "Spread", board: { OH: "line", MB: "release", OPP: "cross" },
+    habitBoost: 1.5, fastChance: 0.3, power: { OH1: -1, MB2: -1, OPP: -1 }, passers: { OH1: "strong", OH2: "strong" },
+    scout: { OH1: "Mixes line and cross", MB2: "Slow quick", OPP: "Line or cross" },
+  },
+];

@@ -171,6 +171,12 @@ function passerToks(list: CourtOpts["ourPassers"]): string {
   if (!list) return "";
   return list.map((p) => { const [x, y] = zoneCenter("us", 2, p.col); return `<g class="tok tok-us" transform="translate(${f(x)},${f(y)})"><circle r="17"/><text y="5">${p.label}</text></g>`; }).join("");
 }
+/** The nine big tiles on a floor: each holds four boxes that share its hits. */
+function bigTiles(side: Side): string {
+  let out = "";
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) out += `<rect class="big-tile" x="${tileX(c)}" y="${side === "them" ? theirY(r) : ourY(r)}" width="${TW}" height="${TH}"/>`;
+  return out;
+}
 /** The 10-foot (3 m) attack line on one floor. */
 function attackLine(side: Side): string {
   const y = side === "them" ? NET_Y - 6 - 2 * SH : NET_Y + 6 + 2 * SH;
@@ -190,7 +196,7 @@ export function courtSvg(o: CourtOpts): string {
       if (flash) extra += `<rect class="flash" x="${x}" y="${y}" width="${SW}" height="${SH}"/>`;
       const id = pick ? ` data-tile="${i}" role="button" tabindex="0" aria-label="Row ${rowOf(i) + 1}, column ${colOf(i) + 1}"` : "";
       return squareSvg(side, t, i, extra, pick ? "pickable" : "", id);
-    }).join("");
+    }).join("") + bigTiles(side);
   };
   const targets = o.defend
     ? o.defend.squares.map((s) => { const [x, y] = sqCenter("us", s); return `<rect class="sq-target" data-sq="${s.r},${s.c}" role="button" tabindex="0" aria-label="Move here" x="${f(x - SW / 2 + 3)}" y="${f(y - SH / 2 + 3)}" width="${SW - 6}" height="${SH - 6}" rx="5"/>`; }).join("")
