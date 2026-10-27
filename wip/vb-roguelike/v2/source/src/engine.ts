@@ -724,7 +724,8 @@ export function planTheirAttack(g: Game, grade: Grade): TheirPlan {
   const high = calls.filter((c) => c.tempo === "High");
   const pool = fast.length && (grade === "#" || grade === "+") && r() < g.monster.fastChance ? fast : high.length ? high : calls;
   const call = pool[Math.floor(r() * pool.length)];
-  const habit = call.hitter.role === "OPP" ? "line" : call.hitter.role === "OH" ? "cross" : "middle";
+  const own = g.monster.habits ?? {};
+  const habit = call.hitter.role === "OPP" ? own.OPP ?? "line" : call.hitter.role === "OH" ? own.OH ?? "cross" : own.MB ?? "middle";
   const habitCol = habit === "line" ? call.col : habit === "cross" ? 2 - call.col : 1;
   const block = formBlock(g.us, blockCount(g, g.us.system, call.hitter.role, call.tempo, g.us.board), call.col, FAN.hand + g.mods.hands, false, false, g.us.board[boardRow(call.hitter.role)]);
   const defs = defenseSetup(g.us, call.col, block, g.us.board[boardRow(call.hitter.role)], call.tempo, g.rng);

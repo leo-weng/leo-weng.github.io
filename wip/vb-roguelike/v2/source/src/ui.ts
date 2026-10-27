@@ -5,7 +5,7 @@ import {
   serveOdds, setQuality, Side, Sq, SwingCtx, SwingResult, takeTimeout, Team, theirAttackCtx, theirDefense, TheirDefense, theirServe, TheirPlan,
   trackAttack, Upgrade, upgradeChoices, zonePlayers, Mods, freshMods, boardRow, brokenCount,
 } from "./engine";
-import { Board, BOARD_OPTIONS, BOARD_ROWS, BOARD_WORD, BoardPick, BoardRow, MONSTERS, BLOCK_HOME, CHASE, DIALS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
+import { Board, BOARD_OPTIONS, BOARD_ROWS, BOARD_WORD, BoardPick, BoardRow, EVEN_MATCH, Monster, MONSTERS, BLOCK_HOME, CHASE, DIALS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
 import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, ServeMark, squareCenter, toneOf, TONE_WORD, verdictWords, zoneCenter } from "./views";
 
 type Screen = "start" | "scout" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
@@ -27,7 +27,7 @@ interface DefendState {
   origin: Record<string, Sq | number>;
   selected?: string;
 }
-interface Run { stage: number; mods: Mods; board: Board; wins: number }
+interface Run { stage: number; mods: Mods; board: Board; wins: number; list: Monster[] }
 interface State {
   screen: Screen;
   run: Run;
@@ -56,7 +56,7 @@ interface State {
   netAnim: boolean;
   lab: boolean;
 }
-const newRun = (): Run => ({ stage: 0, mods: freshMods(), board: { OH: "cross", MB: "bal", OPP: "bal" }, wins: 0 });
+const newRun = (list: Monster[] = MONSTERS): Run => ({ stage: 0, mods: freshMods(), board: { OH: "cross", MB: "bal", OPP: "bal" }, wins: 0, list });
 const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, steps: [], history: [], netAnim: false, lab: false };
 
 const GRADE_WORD: Record<Grade, string> = { "#": "Perfect", "+": "Good", "!": "OK", "-": "Poor" };
@@ -102,7 +102,7 @@ const step = (text: string, tone: "us" | "them" | "plain" = "plain") => { st.ste
 function startMatch() {
   st.history = [];
   st.steps = [];
-  st.g = newGame({ monster: MONSTERS[st.run.stage], board: { ...st.run.board }, system: st.system, formation: st.formation, mods: st.run.mods });
+  st.g = newGame({ monster: st.run.list[st.run.stage], board: { ...st.run.board }, system: st.system, formation: st.formation, mods: st.run.mods });
   nextRally();
 }
 function nextRally() {
@@ -303,12 +303,12 @@ function render() {
         <li>Their board is on the court too: you'll see where their block and diggers stand before every swing.</li>
         <li>You play whoever touches the ball: <b>server</b>, <b>setter</b>, <b>hitter</b>, and on defense you get one move per ball. Your swing lands on the exact box you tap. A ball inside a digger's circle is always dug.</li>
         <li>Their floor is <b>nine big tiles</b>, each split into four boxes. Kills crack a tile; <b>a broken tile is 3 points</b> and turns into a hole. <b>First to ${SCORING.toWin}</b>. Beat three teams to finish the run.</li></ul>`;
-      go = `<button class="go" data-act="to-scout">Start a run</button>`;
+      go = `<button class="go" data-act="to-scout">Start a run</button><button class="go go-alt" data-act="even">Play an even match</button>`;
       break;
     }
     case "scout": {
-      const m = MONSTERS[st.run.stage];
-      const runLine = MONSTERS.map((x, i) => `<span class="stop${i < st.run.stage ? " done" : i === st.run.stage ? " now" : ""}">${esc(x.name)}</span>`).join("");
+      const m = st.run.list[st.run.stage];
+      const runLine = st.run.list.map((x, i) => `<span class="stop${i < st.run.stage ? " done" : i === st.run.stage ? " now" : ""}">${esc(x.name)}</span>`).join("");
       const bar = (label: string, v: number) => `<span class="sbar"><span>${label}</span><b>${"●".repeat(v)}${"○".repeat(5 - v)}</b></span>`;
       const lvl = (x: number) => Math.max(1, Math.min(5, Math.round(3 + (x - 1) * 5)));
       roleHtml = `<div class="run-line">${runLine}</div>
@@ -422,7 +422,7 @@ function render() {
     }
     case "end": {
       const won = g!.winner === "us";
-      const last = st.run.stage >= MONSTERS.length - 1;
+      const last = st.run.stage >= st.run.list.length - 1;
       roleHtml = `<div class="result r-${won ? "win" : "lose"}"><p class="callout">${won ? (last ? "Run complete!" : "You win!") : `${esc(g!.them.name)} wins`}</p><p class="pts">${g!.us.score}–${g!.them.score}</p>
         <p class="sub">You broke ${brokenCount(g!.them)} of their tiles; they broke ${brokenCount(g!.us)} of yours, in ${g!.rallies} rallies.${won ? "" : " The run is over."}</p></div>`;
       court = courtSvg({ ...base(), focus: "both" });
@@ -444,7 +444,7 @@ function render() {
 function renderLab() {
   const g = st.g;
   const el = document.getElementById("lab")!;
-  const m = g ? g.monster : MONSTERS[st.run.stage];
+  const m = g ? g.monster : st.run.list[st.run.stage];
   let sel = "";
   if (st.screen === "hit" && st.ctx && st.tile !== undefined && st.shot !== "Tool") {
     const v = readSquare(st.ctx, st.tile, st.shot);
@@ -472,6 +472,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 function act(a: string, v: string) {
   switch (a) {
     case "to-scout": st.run = newRun(); st.screen = "scout"; break;
+    case "even": st.run = newRun([EVEN_MATCH]); st.run.board = { OH: "bal", MB: "bal", OPP: "bal" }; st.screen = "scout"; break;
     case "board": { const [r, p] = v.split(":"); st.run.board[r as BoardRow] = p as BoardPick; break; }
     case "reward": {
       const g = st.g!;

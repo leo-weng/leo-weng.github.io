@@ -1,7 +1,7 @@
 // Health check: plays N matches per level with the smart and random bots and prints the Health check stats.
 // Usage: npm run sim -- 300
 import { playMatch, SMART, RANDOM, MatchStats } from "../src/match";
-import { MONSTERS } from "../src/tables";
+import { MONSTERS, EVEN_MATCH } from "../src/tables";
 
 const n = Number(process.argv[2] ?? 300);
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -18,7 +18,7 @@ function summary(list: MatchStats[]) {
     tilesBroken: `${(sum((m) => m.theirBroken) / list.length).toFixed(1)} theirs / ${(sum((m) => m.ourBroken) / list.length).toFixed(1)} yours`,
   };
 }
-for (const m of MONSTERS) {
+for (const m of [...MONSTERS, EVEN_MATCH]) {
   const smart = Array.from({ length: n }, (_, i) => playMatch(m, SMART, 1000 + i));
   const rand = Array.from({ length: n }, (_, i) => playMatch(m, RANDOM, 5000 + i));
   console.log(m.id.padEnd(7), "smart ", JSON.stringify(summary(smart)));

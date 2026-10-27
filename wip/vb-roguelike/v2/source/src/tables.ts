@@ -159,7 +159,18 @@ export interface Monster {
   passers: Record<string, "strong" | "average" | "weak">;
   /** Scouting lines per hitter. */
   scout: Record<"OH1" | "MB2" | "OPP", string>;
+  /** Which side each hitter favors (default: OH cross, OPP line, MB straight down). */
+  habits?: Partial<Record<"OH" | "OPP" | "MB", "line" | "cross" | "middle">>;
 }
+/** An even match: built like your team, with its own strengths, weak spots and habits. */
+export const EVEN_MATCH: Monster = {
+  id: "even", name: "Crosstown Rivals", tag: "Even match", trait: "Mirror", traitText: "Same size and power as your team. Better diggers, a slightly smaller block.",
+  weak: "Their block is a step slow, and their back-row OH is a shaky passer.",
+  block: 0.9, dig: 1.1, tileHits: 3, chase: "none", system: "Spread", board: { OH: "bal", MB: "bal", OPP: "cross" },
+  habitBoost: 2.5, fastChance: 0.4, power: { OH1: 1, OPP: 1 }, passers: { OH2: "weak" },
+  scout: { OH1: "Loves the line", MB2: "Runs quicks off good passes", OPP: "Loves the cross" },
+  habits: { OH: "line", OPP: "cross" },
+};
 export const MONSTERS: Monster[] = [
   {
     id: "rec", name: "Rec League Regulars", tag: "Game 1", trait: "One Trick", traitText: "Their OH gets the ball and swings cross. Every time.",
