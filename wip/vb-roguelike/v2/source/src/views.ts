@@ -128,8 +128,7 @@ function circlesSvg(defs: Defender[] | undefined, radii: number[] | undefined, s
   return defs.map((d, k) => {
     const [x, y] = sqCenter(side, d.sq), R = radii[k] ?? 0;
     const rx = R * 300 / 9, ry = R * 3 * TH / 9;
-    return `<ellipse class="dig dig-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`
-      + `<ellipse class="dig-in dig-in-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx * COVER.inner)}" ry="${f(ry * COVER.inner)}"/>`;
+    return `<ellipse class="dig dig-${side}" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
   }).join("");
 }
 function leanSvg(lean: CourtOpts["theirLean"]): string {

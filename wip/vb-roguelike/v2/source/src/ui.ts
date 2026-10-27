@@ -50,11 +50,14 @@ interface State {
   result?: ResultView;
   upgrades?: Upgrade[];
   chain: { pass: boolean; set: boolean; kill: boolean };
+  /** This rally so far, one line per finished step; and every finished rally as one line. */
+  steps: { tone: "us" | "them" | "plain"; text: string }[];
+  history: { n: number; won: boolean; text: string }[];
   netAnim: boolean;
   lab: boolean;
 }
 const newRun = (): Run => ({ stage: 0, mods: freshMods(), board: { OH: "cross", MB: "bal", OPP: "bal" }, wins: 0 });
-const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, netAnim: false, lab: false };
+const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, steps: [], history: [], netAnim: false, lab: false };
 
 const GRADE_WORD: Record<Grade, string> = { "#": "Perfect", "+": "Good", "!": "OK", "-": "Poor" };
 const GRADE_OPEN: Record<Grade, string> = {
@@ -95,7 +98,10 @@ const who = (id: string) => (id === "L" ? "libero" : id);
 const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]!));
 
 // ---------- Flow ----------
+const step = (text: string, tone: "us" | "them" | "plain" = "plain") => { st.steps.push({ tone, text }); };
 function startMatch() {
+  st.history = [];
+  st.steps = [];
   st.g = newGame({ monster: MONSTERS[st.run.stage], board: { ...st.run.board }, system: st.system, formation: st.formation, mods: st.run.mods });
   nextRally();
 }
@@ -103,6 +109,7 @@ function nextRally() {
   const g = st.g!;
   st.chain = { pass: false, set: false, kill: false };
   st.tile = undefined;
+  st.steps = [];
   if (g.serving === "us") { st.screen = "serve"; st.target = undefined; render(); return; }
   const s = theirServe(g);
   const ps = passers(g.us)[s.passerIdx];
@@ -111,11 +118,8 @@ function nextRally() {
   const at = s.seam ? "down the seam" : `at your ${who(ps.p.id)}`;
   if (s.outcome === "ace") return showResult({ callout: "Ace", tone: "lose", sub: `Their ${s.type.toLowerCase()} serve ${at} drops.`, pts: `+${SCORING.ace} them`, court, nextLabel: "Next rally", next: () => afterRally("them") });
   if (s.outcome === "error") return showResult({ callout: "Service error", tone: "win", sub: "Their serve goes into the net.", pts: `+${SCORING.error} you`, court, nextLabel: "Next rally", next: () => afterRally("us") });
-  showResult({
-    callout: `${GRADE_WORD[s.grade!]} pass`, tone: "plain", court,
-    sub: `They serve ${s.type.toLowerCase()} ${at}. Your ${who(ps.p.id)} passes ${s.grade}.${ps.front ? ` ${ps.p.id} will be late to hit after passing.` : ""}`,
-    nextLabel: "Set the ball", next: () => toSet(s.grade!),
-  });
+  step(`Their ${s.type.toLowerCase()} serve · your ${who(ps.p.id)} passes ${GRADE_WORD[s.grade!].toLowerCase()}${ps.front ? ` (${ps.p.id} late to hit)` : ""}`);
+  toSet(s.grade!);
 }
 function toSet(grade: Grade) {
   const g = st.g!;
@@ -135,6 +139,7 @@ function confirmSet() {
   st.def = theirDefense(g, call, st.block);
   st.ctx = ourAttackCtx(g, call, st.block, st.def, st.grade!);
   st.chain.set = setQuality(st.grade!, call.tempo) === "Perfect";
+  step(`Set ${call.name} · ${st.ctx.setQ.toLowerCase()} set`, "us");
   st.tile = undefined;
   st.shot = "Hard";
   st.netAnim = true;
@@ -148,7 +153,9 @@ function swing() {
   trackAttack(g, call, aimed, st.shot);
   const res = resolveSwing(g, ctx, aimed, st.shot);
   st.chain.kill = res.outcome === "Kill" && ctx.combo;
-  showResult(swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toSet(res.nextGrade ?? "!") : toDefend(res.nextGrade ?? "+"))));
+  const v = swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toSet(res.nextGrade ?? "!") : toDefend(res.nextGrade ?? "+")));
+  step(`${call.hitter.id} ${st.shot.toLowerCase()}${st.shot === "Tool" ? "" : ` · ${zoneName(aimed, call.col).toLowerCase()}`} · ${v.callout}${v.pts && v.pts !== "+0" ? ` ${v.pts}` : ""}`, "us");
+  showResult(v);
 }
 function toDefend(grade: Grade) {
   const g = st.g!;
@@ -166,7 +173,8 @@ function ready() {
   const v = swingView(res, "them", plan.call.col, circles(ctx, d.defs, plan.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toDefend(res.nextGrade ?? "!") : toSet(res.nextGrade ?? "+")));
   v.court.ourBlock = d.block;
   v.court.ourDefense = d.defs;
-  if (res.outcome === "Dug") v.sub = `${res.digBy ? `Your ${who(res.digBy.id)} digs it` : "You dig it"}${Object.keys(d.origin).includes(res.digBy?.id ?? "") ? ", right where you moved them" : ""}. ${res.nextGrade === "+" ? "A clean dig: now you swing back." : "A scramble: you'll only get a high ball back."}`;
+  if (res.outcome === "Dug") v.sub = `${res.digBy ? `Your ${who(res.digBy.id)} digs it` : "You dig it"}${Object.keys(d.origin).includes(res.digBy?.id ?? "") ? ", right where you moved them" : ""}. ${res.nextGrade === "+" ? "Clean: you swing back." : "Scramble: high ball only."}`;
+  step(`Their ${plan.call.hitter.id} ${plan.shot.toLowerCase()} · ${v.callout}${v.pts && v.pts !== "+0" ? ` ${v.pts}` : ""}`, "them");
   showResult(v);
 }
 function serveNow() {
@@ -179,20 +187,21 @@ function serveNow() {
   const at = s.seam ? "down the seam" : `at their ${ps.p.id}`;
   if (s.outcome === "ace") return showResult({ callout: "Ace!", tone: "win", sub: `Your ${st.serveType.toLowerCase()} serve ${at} drops.`, pts: `+${SCORING.ace} you`, court, nextLabel: "Next rally", next: () => afterRally("us"), shake: true });
   if (s.outcome === "error") return showResult({ callout: "Service error", tone: "lose", sub: `Your ${st.serveType.toLowerCase()} serve goes into the net.`, pts: `+${SCORING.error} them`, court, nextLabel: "Next rally", next: () => afterRally("them") });
-  showResult({
-    callout: `They pass ${s.grade}`, tone: s.grade === "#" || s.grade === "+" ? "plain" : "win", court,
-    sub: `Their ${ps.p.id} passes ${GRADE_WORD[s.grade!].toLowerCase()}${s.seam ? " off the seam" : ""}. ${THEIR_MENU[s.grade!]}${ps.front ? ` ${ps.p.id} is late to hit after passing.` : ""}`,
-    nextLabel: "Defend their attack", next: () => toDefend(s.grade!),
-  });
+  step(`Your ${st.serveType.toLowerCase()} serve ${at} · they pass ${GRADE_WORD[s.grade!].toLowerCase()}`, "us");
+  toDefend(s.grade!);
 }
 function afterRally(winner: Side) {
   const g = st.g!;
+  const last = st.steps[st.steps.length - 1];
+  st.history.push({ n: g.rallies + 1, won: winner === "us", text: last ? last.text : st.result?.callout ?? "" });
+  st.steps = [];
   endRally(g, winner);
   if (g.winner) { st.screen = "end"; render(); return; }
   if (takeTimeout(g)) { st.upgrades = upgradeChoices(g); st.upgradeMode = "timeout"; st.screen = "upgrade"; render(); return; }
   nextRally();
 }
 function showResult(r: ResultView) {
+  if (r.callout.startsWith("Ace") || r.callout === "Service error") step(`${r.callout}${r.pts ? ` ${r.pts}` : ""}`, r.tone === "win" ? "us" : "them");
   st.result = r;
   st.screen = "result";
   render();
@@ -266,6 +275,18 @@ function scoreBar(): string {
     <div class="score-mid">${pips}<span class="serving">${g.serving === "us" ? "▲ your serve" : "their serve ▼"} · ${esc(g.monster.tag)}</span></div>
     <div class="team-score them"><b>${g.them.score}</b><span>${esc(g.them.name)}</span></div></div>`;
 }
+/** The rally so far: each finished step collapsed to one line, under the last finished rally. */
+function rallyStrip(): string {
+  const g = st.g;
+  if (!g || st.screen === "start" || st.screen === "scout" || st.screen === "end") return "";
+  const h = st.history;
+  const older = h.slice(0, -1);
+  const last = h[h.length - 1];
+  const line = (x: typeof h[number]) => `<p class="hist-line ${x.won ? "won" : "lost"}"><span class="rn">${x.n}</span>${esc(x.text)}</p>`;
+  const prev = (older.length ? `<details class="hist"><summary>${older.length} earlier rall${older.length === 1 ? "y" : "ies"}</summary>${older.slice().reverse().map(line).join("")}</details>` : "") + (last ? line(last) : "");
+  const cur = st.steps.map((x) => `<p class="step step-${x.tone}"><span class="tick">✓</span>${esc(x.text)}</p>`).join("");
+  return `${prev}<div class="cur-rally"><p class="cur-head">Rally ${g.rallies + 1}</p>${cur || `<p class="step muted">Starting…</p>`}</div>`;
+}
 function role(chip: string, title: string, sub: string, cls = ""): string {
   return `<div class="role ${cls}">${chip ? `<span class="role-chip">${chip}</span>` : ""}<h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div>`;
 }
@@ -334,14 +355,14 @@ function render() {
     case "hit": {
       const call = st.call!, ctx = st.ctx!, block = st.block!;
       const bl = block.front.filter((f) => f.state !== "off");
-      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a box and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one is late" : ""}.`} Find a box outside every circle and the dark shadow.`);
+      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a box and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one late" : ""}.`}`);
       net = netSvg({ attacker: "us", front: block.front, set: { h: call.col, tempo: call.tempo }, animate: st.netAnim, hitters: [{ col: call.col, label: call.hitter.id, sub: "", selected: true, disabled: false }] });
       const sv = st.shot !== "Tool" && st.tile !== undefined ? verdictWords(readSquare(ctx, st.tile, st.shot), damageNote(ctx, st.tile, st.shot)) : undefined;
       const lean = st.def!.from.map((f) => ({ from: f.sq, to: ctx.defs.find((d) => d.id === f.id)!.sq }));
       court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirSelected: st.shot === "Tool" ? undefined : st.tile, theirSelectedTone: sv?.tone, theirDefense: ctx.defs, theirCircles: circles(ctx, ctx.defs, st.shot), theirLean: lean, theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
       const notes: string[] = [];
       const pickV = g!.them.board[boardRow(call.hitter.role)];
-      notes.push(`<p class="note">Their board on your ${boardRow(call.hitter.role)}: they ${BOARD_WORD[pickV]}.</p>`);
+      void pickV;
       if (ctx.combo) notes.push(`<p class="note good">Combo: perfect pass and perfect set. A kill does double damage.</p>`);
       if (block.keyed) notes.push(`<p class="note warn">They're onto ${call.hitter.id}: an extra blocker keyed on them.</p>`);
       if (block.bait) notes.push(`<p class="note good">Their middle bit on your quick and is late.</p>`);
@@ -364,7 +385,7 @@ function render() {
       const d = st.defend!, plan = d.plan;
       const left = movesLeft();
       const sel = d.selected;
-      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Their approach tells you the shot. Anything inside a circle gets dug. Tap one of your players, then a box next to them. ${left === 1 ? "You have one move." : `You have ${left} moves.`}` : "Move made. Tap that player again to change it, or go.");
+      roleHtml = role("Puppet master", "Read it, then make your move", left > 0 ? `Tap a player, then a box. ${left === 1 ? "One move." : `${left} moves.`}` : "Move made.");
       net = netSvg({ attacker: "them", front: d.block.front, set: { h: plan.call.col, tempo: plan.call.tempo }, animate: st.netAnim, hitters: [{ col: plan.call.col, label: plan.call.hitter.id, sub: "", selected: true, disabled: false }], tell: plan.tell });
       let squares: Sq[] = [], blockXs: number[] = [];
       if (sel && !sel.startsWith("blk:")) {
@@ -378,8 +399,8 @@ function render() {
         blockXs = [...blockMoveOptions(d.block, { ...f, x: from }, g!.mods.step), ...(d.origin[id] !== undefined ? [from] : [])].filter((x) => Math.abs(x - f.x) > 0.01);
       }
       const dctx = theirAttackCtx(g!, plan, d.block, d.defs, st.grade!);
-      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourCircles: circles(dctx, d.defs, plan.tell === "tip" ? "Tip" : "Hard"), ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
-      info = `<p class="note intent">${esc(plan.intent)}</p><p class="note">Your board on their ${boardRow(plan.call.hitter.role)}: you ${BOARD_WORD[g!.us.board[boardRow(plan.call.hitter.role)]]}.</p>`;
+      court = courtSvg({ ...base(), focus: "our", ourDefense: d.defs, ourCircles: circles(dctx, d.defs, "Hard"), ourBlock: d.block, theirHitterCol: plan.call.col, theirHitterLabel: plan.call.hitter.id, defend: { selected: sel, squares, blockXs, moved: Object.keys(d.origin), canMove: left > 0 } });
+      info = `<p class="note intent">${esc(plan.intent)}</p>`;
       actions = Object.keys(d.origin).length ? `<div class="pills">${pill("reset", "", "Reset", "Put everyone back", false)}</div>` : "";
       go = `<button class="go" data-act="ready">${Object.keys(d.origin).length ? "Ready" : "Play it straight"}</button>`;
       break;
@@ -409,6 +430,7 @@ function render() {
       break;
     }
   }
+  setSlot("rally", rallyStrip());
   setSlot("role", roleHtml);
   setSlot("net", net);
   setSlot("court", court);

@@ -3,7 +3,7 @@
 // square you pick decide it, and the court shows all of it before you swing (see tables.ts).
 import {
   AI, BLOCK_HOME, BLOCK_TARGETS, CHASE, COMBO, COVER, CRACK_VALUE, DIALS, DIFFICULTY, FAN, FIRM, REACH_SIZE,
-  JUMP_PER_POINT, KEYED_STREAK, Board, BOARD_SHIFT, BoardRow, Monster, MONSTERS, LATE_SHARE, Level, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES,
+  JUMP_PER_POINT, KEYED_STREAK, DEFENSE_VARY, Board, BOARD_SHIFT, BoardRow, Monster, MONSTERS, LATE_SHARE, Level, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES,
   SetQuality, SHOTS, ServeType, ShotKind, TIMEOUT_AT, TOOL, YOUR_TILE_HITS,
 } from "./tables";
 
@@ -194,7 +194,7 @@ export function zonePlayers(t: Team): Record<Zone, Player> {
 const FRONT_ORDER: Zone[] = ["LF", "CF", "RF"];
 function screenFront(side: Side): Zone[] { return side === "us" ? FRONT_ORDER : [...FRONT_ORDER].reverse(); }
 
-export interface Defender { id: string; zone: Zone; sq: Sq }
+export interface Defender { id: string; zone: Zone; sq: Sq; /** This ball's roll on the size of their circle (around 1). */ reach?: number }
 type Spots = Partial<Record<Zone, Sq>>;
 /** Back-row spots by formation, from the defending team's own view, for a hitter on their right or in the middle. */
 const BACK: Record<Formation, { right: Spots; middle: Spots }> = {
@@ -216,24 +216,35 @@ function ownSpot(table: { right: Spots; middle: Spots }, zone: Zone, hOwn: numbe
   return s && { r: s.r, c: 5 - s.c };
 }
 /** Everyone not blocking, in their starting spots for this hitter. Screen columns. Nobody stands in a hole: they take the nearest open square. */
-export function defenseSetup(t: Team, h: number, block: BlockForm, pick: string = "bal"): Defender[] {
+export function defenseSetup(t: Team, h: number, block: BlockForm, pick: string = "bal", tempo: Tempo = "High", rng?: Rng): Defender[] {
   const hOwn = t.side === "us" ? h : 2 - h;
   const zp = zonePlayers(t);
   const toScreen = (s: Sq): Sq => (t.side === "us" ? s : { r: s.r, c: 5 - s.c });
   const out: Defender[] = [];
   const place = (id: string, zone: Zone, want: Sq) => {
+    const reach = rng ? DEFENSE_VARY.reach.min + rng() * (DEFENSE_VARY.reach.max - DEFENSE_VARY.reach.min) : 1;
     let sq = want;
     if (!standable(t, out, sq)) {
       const all = Array.from({ length: N * N }, (_, i) => sqOf(i)).filter((q) => standable(t, out, q));
       all.sort((a, b) => Math.hypot(a.r - want.r, a.c - want.c) - Math.hypot(b.r - want.r, b.c - want.c));
       sq = all[0] ?? want;
     }
-    out.push({ id, zone, sq });
+    out.push({ id, zone, sq, reach });
   };
   // The board: when the block takes the line, the diggers slide toward the cross, and the other way round. Screen columns.
   const lineDir = h === 0 ? -1 : h === 2 ? 1 : 0;
   const slide = pick === "line" ? -lineDir : pick === "cross" ? lineDir : 0;
-  const shifted = (s: Sq): Sq => ({ r: s.r, c: Math.max(0, Math.min(N - 1, s.c + slide * BOARD_SHIFT.diggers)) });
+  const clampC = (c: number) => Math.max(0, Math.min(N - 1, c));
+  const clampR = (r: number) => Math.max(1, Math.min(N - 1, r));
+  const shifted = (s0: Sq): Sq => {
+    let s = { r: s0.r, c: clampC(s0.c + slide * BOARD_SHIFT.diggers) };
+    // A fast set: the side diggers tuck in toward the middle.
+    if (tempo === "Fast" && (s.c === 0 || s.c === N - 1)) s = { r: s.r, c: s.c === 0 ? DEFENSE_VARY.fastTuck : N - 1 - DEFENSE_VARY.fastTuck };
+    // Nobody stands in exactly the same spot every ball.
+    if (rng && rng() < DEFENSE_VARY.drift.col) s = { r: s.r, c: clampC(s.c + (rng() < 0.5 ? -1 : 1)) };
+    if (rng && rng() < DEFENSE_VARY.drift.row) s = { r: clampR(s.r + (rng() < 0.5 ? -1 : 1)), c: s.c };
+    return s;
+  };
   for (const z of ["LB", "CB", "RB"] as Zone[]) place(zp[z].id, z, shifted(toScreen(ownSpot(BACK[t.formation], z, hOwn)!)));
   for (const f of block.front) if (f.state === "off") place(f.id, f.zone, toScreen(ownSpot(OFF, f.zone, hOwn)!));
   return out;
@@ -545,7 +556,7 @@ export function aimable(ctx: Pick<SwingCtx, "hitter" | "col" | "tempo" | "setQ">
 /** How big one defender's dig circle is against this shot (meters). */
 export function digRadius(ctx: Pick<SwingCtx, "hitter" | "spikeMult" | "digMult">, d: Defender, shot: ShotKind): number {
   const power = shot === "Hard" ? (1 - POWER_PER_POINT * (ctx.hitter.power - 5)) * ctx.spikeMult : 1;
-  return DIALS.dig * REACH_SIZE[d.zone] * SHOTS[shot].reach * ctx.digMult * power;
+  return DIALS.dig * REACH_SIZE[d.zone] * (d.reach ?? 1) * SHOTS[shot].reach * ctx.digMult * power;
 }
 /** How much of a square the block covers for this hitter: their block level, less your hitter's jump. */
 export function blockShade(ctx: SwingCtx, tile: number): number {
@@ -666,7 +677,7 @@ export function award(g: Game, s: Side, pts: number) { team(g, s).score += pts; 
 export interface TheirDefense { defs: Defender[]; hot: number; level: "none" | "shade" | "camp"; /** Where they started, before leaning toward your last swings. */ from: Defender[] }
 /** Their defense against our call: their spots for this hitter, shifted toward where we've been hitting. */
 export function theirDefense(g: Game, call: Call, block: BlockForm): TheirDefense {
-  const from = defenseSetup(g.them, call.col, block, g.them.board[boardRow(call.hitter.role)]);
+  const from = defenseSetup(g.them, call.col, block, g.them.board[boardRow(call.hitter.role)], call.tempo, g.rng);
   // A team that holds its board doesn't lean toward your swings.
   if (g.monster.chase === "none") return { defs: from.map((d) => ({ ...d, sq: { ...d.sq } })), hot: 0, level: "none", from };
   return { ...chase(g, from), from };
@@ -716,7 +727,7 @@ export function planTheirAttack(g: Game, grade: Grade): TheirPlan {
   const habit = call.hitter.role === "OPP" ? "line" : call.hitter.role === "OH" ? "cross" : "middle";
   const habitCol = habit === "line" ? call.col : habit === "cross" ? 2 - call.col : 1;
   const block = formBlock(g.us, blockCount(g, g.us.system, call.hitter.role, call.tempo, g.us.board), call.col, FAN.hand + g.mods.hands, false, false, g.us.board[boardRow(call.hitter.role)]);
-  const defs = defenseSetup(g.us, call.col, block, g.us.board[boardRow(call.hitter.role)]);
+  const defs = defenseSetup(g.us, call.col, block, g.us.board[boardRow(call.hitter.role)], call.tempo, g.rng);
   // They read your defense as it starts (not your move) and pick a good spot, leaning on their habit.
   const ctx = theirAttackCtx(g, { call }, block, defs, grade);
   // A reader also checks the spot still works after your obvious answer to their approach.

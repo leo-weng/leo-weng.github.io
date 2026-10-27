@@ -10,7 +10,7 @@ export const DIALS = {
   /** How strong the thin edge of a block's shadow is (the core is solid). */
   block: 0.5,
   /** Size of a defender's dig circle against a hard swing (m). Inside it the ball is always dug. */
-  dig: 2.2,
+  dig: 1.8,
   /** Choices on screen (sets and shots). Informational for now. */
   options: 3,
 };
@@ -30,7 +30,7 @@ export const DIFFICULTY: Record<Level, { yourPower: number; theirBlock: number; 
 export const YOUR_TILE_HITS = 3;
 
 /** Scoring tab. A crack scores nothing; points come when a square breaks. */
-export const SCORING = { crack: 0, break: 3, hole: 1, tool: 1, ace: 1, error: 1, stuff: 1, toWin: 15 };
+export const SCORING = { crack: 0, break: 3, hole: 1, tool: 1, ace: 1, error: 1, stuff: 1, toWin: 11 };
 
 export type ShotKind = "Hard" | "Tip" | "Roll" | "Tool";
 export const SHOT_KINDS: ShotKind[] = ["Hard", "Tip", "Roll", "Tool"];
@@ -39,9 +39,9 @@ export const SHOT_KINDS: ShotKind[] = ["Hard", "Tip", "Roll", "Tool"];
  * rows: the rows of small squares the shot can reach (6 rows of 1.5 m; 0-1 are inside the 10-foot line).
  */
 export const SHOTS: Record<ShotKind, { damage: number; reach: number; rows: number[]; overBlock: boolean; blurb: string }> = {
-  Hard: { damage: 2, reach: 1, rows: [2, 3, 4, 5], overBlock: false, blurb: "Cracks tiles. Deep only. Into the block's shadow it gets stuffed." },
-  Tip: { damage: 1, reach: 1.8, rows: [0, 1, 2, 3], overBlock: true, blurb: "Short, over the block. Slow, so their circles get big." },
-  Roll: { damage: 1, reach: 1.3, rows: [2, 3, 4, 5], overBlock: true, blurb: "Over the block. Off-speed, so their circles grow a bit." },
+  Hard: { damage: 2, reach: 1, rows: [2, 3, 4, 5], overBlock: false, blurb: "Deep only. Cracks tiles." },
+  Tip: { damage: 1, reach: 1.8, rows: [0, 1, 2, 3], overBlock: true, blurb: "Short, over the block." },
+  Roll: { damage: 1, reach: 1.3, rows: [2, 3, 4, 5], overBlock: true, blurb: "Over the block, deep." },
   Tool: { damage: 0, reach: 1, rows: [], overBlock: false, blurb: "Off their hands for a point. No damage." },
 };
 /** The Tool shot is an upgrade. Once used, it's gone for this many rallies. */
@@ -88,7 +88,7 @@ export const CHASE: Record<string, { brain: string; decay: number; shade: number
 /** Serving the seam between two passers: extra pressure and a few more aces. */
 export const SEAM = { pressure: 0.15, ace: 0.03 };
 /** Upgrade pick at this score (a timeout), once per match. */
-export const TIMEOUT_AT = 8;
+export const TIMEOUT_AT = 6;
 /** Each point of hitter Power over 5 shrinks their dig circles against a hard swing by this share. */
 export const POWER_PER_POINT = 0.03;
 /** Each point of hitter Jump over 5 shrinks how much of a square the block covers by this share. */
@@ -128,6 +128,12 @@ export const BOARD_OPTIONS: Record<BoardRow, { v: BoardPick; label: string; sub:
 export const BOARD_WORD: Record<BoardPick, string> = { line: "block line", cross: "block cross", bal: "play balanced", commit: "commit on the quick", release: "release the middle" };
 /** How far a board moves the block along the net toward the side it takes (m), and how many squares the diggers shift the other way. */
 export const BOARD_SHIFT = { block: 0.8, diggers: 1 };
+/**
+ * Defense never stands exactly the same twice. Each ball, every digger's circle is rolled between reach.min and reach.max of its size,
+ * and each back-row digger has a chance to drift one box side to side (drift.col) or up/back (drift.row).
+ * Against a fast set the side diggers tuck in one box toward the middle; against a high ball they stay wide on the sidelines.
+ */
+export const DEFENSE_VARY = { reach: { min: 0.85, max: 1.15 }, drift: { col: 0.4, row: 0.2 }, fastTuck: 1 };
 
 export interface Monster {
   id: string;

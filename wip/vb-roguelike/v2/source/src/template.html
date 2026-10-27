@@ -183,6 +183,18 @@ button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--a
 
 /* Result */
 .result { display: grid; gap: 2px; }
+#rally { display: grid; gap: 4px; }
+#rally:empty { display: none; }
+.hist { font-size: 0.85rem; color: var(--muted); }
+.hist summary { cursor: pointer; font-size: 0.8rem; }
+.hist-line { margin: 0; font-size: 0.85rem; color: var(--muted); display: flex; gap: 8px; align-items: baseline; padding: 4px 10px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--line); }
+.hist-line.won { border-left-color: var(--win); } .hist-line.lost { border-left-color: var(--lose); }
+.hist-line .rn { font: 700 0.75rem/1 var(--font-mono); color: var(--muted); min-width: 1.4em; }
+.cur-rally { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.cur-head { margin: 0 0 2px; font: 700 0.75rem/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.step { margin: 0; font-size: 0.9rem; display: flex; gap: 6px; align-items: baseline; }
+.step .tick { color: var(--muted); font-size: 0.8rem; }
+.step-us .tick { color: var(--us); } .step-them .tick { color: var(--them); }
 .callout { margin: 0; font: 800 clamp(2.4rem, 11vw, 3.4rem)/0.95 var(--font-display); text-transform: uppercase; text-wrap: balance; }
 .r-win .callout { color: var(--win); } .r-lose .callout { color: var(--lose); }
 .pts { margin: 0; font: 700 1.3rem/1.1 var(--font-mono); }
@@ -200,6 +212,7 @@ footer { display: flex; justify-content: flex-end; }
 </style>
 <div class="app">
   <div id="top"></div>
+  <div id="rally"></div>
   <div id="role"></div>
   <div id="net"></div>
   <div id="court"></div>
