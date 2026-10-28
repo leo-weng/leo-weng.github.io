@@ -73,8 +73,8 @@ export const FIRM = { stuff: 0.65, touch: 0.15, tool: 0.04, back: 0.4 };
 export const FAN = { depth: 7, hand: 0.8, edge: 0.35, lateCore: 0.6, lateEdge: 0.3, lateDepth: 4.5 };
 /** Where blockers stand, in meters from the left antenna (screen left). Bunch starts tight in the middle. */
 export const BLOCK_HOME = { Bunch: [3.4, 4.5, 5.6], Spread: [1.4, 4.5, 7.6] };
-/** Where a block forms against an outside hitter: steps from the hitter toward the middle. A middle hitter: straight, then each side. */
-export const BLOCK_TARGETS = { outside: [0.2, 1.9, 3.5], middle: [0, -1.6, 1.6] };
+/** Where a block forms: the first blocker sits this far inside an outside hitter (m), or straight up on a middle; the others line up shoulder to shoulder next to them (one pair of hands apart). */
+export const BLOCK_TARGETS = { outside: 0.2, middle: 0 };
 /** A late blocker gets this share of the way to their spot. */
 export const LATE_SHARE = 0.6;
 
@@ -133,7 +133,7 @@ export const BOARD_SHIFT = { block: 0.8, diggers: 1 };
  * and each back-row digger has a chance to drift one box side to side (drift.col) or up/back (drift.row).
  * Against a fast set the side diggers tuck in one box toward the middle; against a high ball they stay wide on the sidelines.
  */
-export const DEFENSE_VARY = { reach: { min: 0.85, max: 1.15 }, drift: { col: 0.4, row: 0.2 }, fastTuck: 1 };
+export const DEFENSE_VARY = { reach: { min: 0.85, max: 1.15 }, drift: { col: 0.25, row: 0 }, fastTuck: 1 };
 
 export interface Monster {
   id: string;

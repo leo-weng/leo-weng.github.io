@@ -376,19 +376,20 @@ function blockCount(g: Game, system: BlockSystem, role: Role, tempo: Tempo, boar
 }
 /** Board row for a hitter: the opposite hits from the right side, the setter's spot counts as the right side too. */
 export const boardRow = (role: Role): BoardRow => (role === "MB" ? "MB" : role === "OH" ? "OH" : "OPP");
-export function blockTargets(h: number, pick: string = "bal"): number[] {
-  const hx = HITTER_X[h];
-  if (h === 1) return BLOCK_TARGETS.middle.map((d) => hx + d);
+/** Where each blocker goes, in the order they arrive. Blockers close shoulder to shoulder: one pair of hands (2 x hand) apart. */
+export function blockTargets(h: number, pick: string = "bal", hand: number = FAN.hand): number[] {
+  const hx = HITTER_X[h], w = 2 * hand;
+  if (h === 1) return [0, -w, w].map((d) => hx + BLOCK_TARGETS.middle + d);
   const toward = h === 0 ? 1 : -1;
   // Block line: the hands slide toward the sideline. Block cross: toward the middle.
   const shift = pick === "line" ? -BOARD_SHIFT.block : pick === "cross" ? BOARD_SHIFT.block : 0;
-  return BLOCK_TARGETS.outside.map((d) => hx + toward * (d + shift));
+  return [0, w, 2 * w].map((d) => hx + toward * (BLOCK_TARGETS.outside + d + shift));
 }
 function formBlock(t: Team, flags: boolean[], h: number, hand: number, keyed: boolean, bait: boolean, pick: string = "bal"): BlockForm {
   const homes = BLOCK_HOME[t.system];
   const zp = zonePlayers(t);
   const front: FrontPlayer[] = screenFront(t.side).map((z, i) => ({ id: zp[z].id, zone: z, home: homes[i], x: homes[i], state: "off" as const }));
-  const targets = blockTargets(h, pick);
+  const targets = blockTargets(h, pick, hand);
   const list = [...flags].sort((a, b) => Number(b) - Number(a));
   if (keyed && list.length < 3) list.push(true);
   const free = [0, 1, 2];

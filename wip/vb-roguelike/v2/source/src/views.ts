@@ -151,7 +151,8 @@ function blockerBars(b: BlockForm | undefined, side: Side, pick?: DefendPick): s
   return b.front.filter((p) => p.state !== "off").map((p) => {
     const sel = pick?.selected === `blk:${p.id}`, moved = pick?.moved.includes(p.id);
     const tap = pick && (pick.canMove || moved || sel) ? ` data-blk="${p.id}" role="button" tabindex="0" aria-label="Slide ${p.id} along the net"` : "";
-    return `<g class="cblk cblk-${side} cblk-${p.state}${sel ? " is-sel" : ""}${moved ? " is-moved" : ""}"${tap}><rect x="${f(mx(p.x) - 21)}" y="${y}" width="42" height="14" rx="5"/><text x="${f(mx(p.x))}" y="${y + 11}">${p.id}</text></g>`;
+    const w = (2 * b.hand * 300) / 9 - 2;
+    return `<g class="cblk cblk-${side} cblk-${p.state}${sel ? " is-sel" : ""}${moved ? " is-moved" : ""}"${tap}><rect x="${f(mx(p.x) - w / 2)}" y="${y}" width="${f(w)}" height="14" rx="4"/><text x="${f(mx(p.x))}" y="${y + 11}">${p.id}</text></g>`;
   }).join("");
 }
 function hitterTok(col: number | undefined, side: Side, label = "H"): string {
