@@ -4,7 +4,7 @@
 import {
   AI, BLOCK_HOME, BLOCK_TARGETS, CHASE, COMBO, COVER, CRACK_VALUE, DIALS, DIFFICULTY, FAN, FIRM, REACH_SIZE,
   JUMP_PER_POINT, KEYED_STREAK, DEFENSE_VARY, Board, BOARD_SHIFT, BoardRow, Monster, MONSTERS, LATE_SHARE, Level, PASS_CUTS, PASSER_SHIFT, POWER_PER_POINT, SCORING, SEAM, SERVE, SERVE_TYPES,
-  SetQuality, SHOTS, ServeType, ShotKind, TIMEOUT_AT, TOOL, YOUR_TILE_HITS,
+  SetQuality, SHOTS, ServeType, ShotKind, TIMEOUT_AT, TOOL, YOUR_TILE_HITS, POWER, PowerLevel, INTENTS, IntentKind, INTENT_REVENGE,
 } from "./tables";
 
 export type Side = "us" | "them";
@@ -66,6 +66,8 @@ export interface Track {
   /** Your last set, so their middle can bite on a quick. */
   lastRole: Role | "";
   lastTempo: Tempo | "";
+  /** The board row of your hitter who last scored on them: their next intent leans toward them. */
+  lastKillRow?: BoardRow;
 }
 export interface Game {
   level: Level;
@@ -85,7 +87,10 @@ export interface Game {
   toolCd: number;
   /** Lab notes for the last swings, newest last. */
   lab: string[];
+  /** Their plan for this rally, shown before you set. */
+  intent?: Intent;
 }
+export interface Intent { kind: IntentKind; row?: BoardRow; text: string }
 
 // ---------- Teams ----------
 const P = (id: string, role: Role, power: number, control: number, jump: number, passer: PasserSkill, trait: string): Player => ({ id, role, power, control, jump, passer, trait });
@@ -409,9 +414,33 @@ function formBlock(t: Team, flags: boolean[], h: number, hand: number, keyed: bo
 }
 /** Their block against our call. Same hitter again and again: an extra blocker keys on them. Right after a quick: their middle may bite. */
 export function formTheirBlock(g: Game, call: Call): BlockForm {
-  const keyed = g.track.hitter === call.hitter.id && g.track.hitterStreak >= KEYED_STREAK;
+  const it = intentOn(g, call.hitter.role);
+  const keyed = (g.track.hitter === call.hitter.id && g.track.hitterStreak >= KEYED_STREAK) || it?.kind === "stack";
   const bait = g.track.lastRole === "MB" && g.track.lastTempo === "Fast" && call.hitter.role !== "MB" && g.rng() < CHASE[g.level].bait;
-  return formBlock(g.them, blockCount(g, g.them.system, call.hitter.role, call.tempo, g.them.board), call.col, FAN.hand * g.monster.block, keyed, bait, g.them.board[boardRow(call.hitter.role)]);
+  const board = theirBoard(g);
+  return formBlock(g.them, blockCount(g, g.them.system, call.hitter.role, call.tempo, board), call.col, FAN.hand * g.monster.block, keyed, bait, theirPick(g, call.hitter.role));
+}
+/** This rally's intent, if it's aimed at this hitter (a commit on the middle changes the block for everyone). */
+function intentOn(g: Game, role: Role): Intent | undefined {
+  const i = g.intent;
+  return i && (!i.row || i.kind === "commit" || i.row === boardRow(role)) ? i : undefined;
+}
+function theirBoard(g: Game): Board {
+  return g.intent?.kind === "commit" ? { ...g.them.board, MB: "commit" } : g.them.board;
+}
+/** Their board pick for this hitter, after this rally's intent. */
+function theirPick(g: Game, role: Role): string {
+  const it = intentOn(g, role);
+  return it && (it.kind === "line" || it.kind === "cross") ? it.kind : theirBoard(g)[boardRow(role)];
+}
+/** Pick their intent for the next rally. They lean toward the hitter who last hurt them, and never repeat the last one. */
+export function pickIntent(g: Game): Intent {
+  const last = g.intent;
+  const pool = INTENTS.filter((i) => i !== last && !(i.kind === "stack" && i.row && !frontRow(g.us).some((p) => boardRow(p.role) === i.row)));
+  const w = pool.map((i) => (g.track.lastKillRow && i.row === g.track.lastKillRow ? INTENT_REVENGE : 1));
+  let r = g.rng() * w.reduce((a, b) => a + b, 0);
+  for (let k = 0; k < pool.length; k++) { r -= w[k]; if (r <= 0) return (g.intent = pool[k]); }
+  return (g.intent = pool[pool.length - 1]);
 }
 
 // ---------- The block's shadow ----------
@@ -538,6 +567,8 @@ export interface SwingCtx {
   /** Their dig circle size (difficulty and upgrades). */
   digMult: number;
   extraDmg: number;
+  /** Your power pick on a hard swing (their swings leave it out: Normal). */
+  power?: PowerLevel;
 }
 /** The shot can reach this row at all (10-foot line for hard swings, short for tips). */
 export const canAim = (tile: number, shot: ShotKind) => shot !== "Tool" && SHOTS[shot].rows.includes(rowOf(tile));
@@ -545,18 +576,19 @@ export const canAim = (tile: number, shot: ShotKind) => shot !== "Tool" && SHOTS
  * Squares this set lets you reach. A poor set can't reach the deepest row. A middle's quick goes short.
  * A fast ball to the pin only goes to the middle third or cross.
  */
-export function aimable(ctx: Pick<SwingCtx, "hitter" | "col" | "tempo" | "setQ">, tile: number, shot: ShotKind): boolean {
+export function aimable(ctx: Pick<SwingCtx, "hitter" | "col" | "tempo" | "setQ" | "power">, tile: number, shot: ShotKind): boolean {
   if (!canAim(tile, shot)) return false;
   const r = rowOf(tile), lane = laneOf(tile);
   if (ctx.setQ === "Poor" && r === N - 1) return false;
   if (shot !== "Hard") return true;
+  if (ctx.power === "Max" && r === N - 1) return false;
   if (ctx.hitter.role === "MB") return r <= 3;
   if (ctx.tempo === "Fast") return lane === 1 || lane === 2 - ctx.col;
   return true;
 }
 /** How big one defender's dig circle is against this shot (meters). */
-export function digRadius(ctx: Pick<SwingCtx, "hitter" | "spikeMult" | "digMult">, d: Defender, shot: ShotKind): number {
-  const power = shot === "Hard" ? (1 - POWER_PER_POINT * (ctx.hitter.power - 5)) * ctx.spikeMult : 1;
+export function digRadius(ctx: Pick<SwingCtx, "hitter" | "spikeMult" | "digMult" | "power">, d: Defender, shot: ShotKind): number {
+  const power = shot === "Hard" ? (1 - POWER_PER_POINT * (ctx.hitter.power - 5)) * ctx.spikeMult * POWER[ctx.power ?? "Normal"].circle : 1;
   return DIALS.dig * REACH_SIZE[d.zone] * (d.reach ?? 1) * SHOTS[shot].reach * ctx.digMult * power;
 }
 /** How much of a square the block covers for this hitter: their block level, less your hitter's jump. */
@@ -660,11 +692,13 @@ export function resolveSwing(g: Game, ctx: SwingCtx, aimed: number, shot: ShotKi
   const broke = t[aimed] === 0;
   const pts = broke ? SCORING.break : SCORING.crack;
   award(g, aSide, pts);
+  if (aSide === "us") g.track.lastKillRow = boardRow(ctx.hitter.role);
   lab.push(`  kill: ${dmg} damage${ctx.combo ? " (combo x2)" : ""}, ${broke ? "tile broken" : "tile cracked"}`);
   return done({ outcome: "Kill", landed: aimed, landAt: at, damage: dmg, points: pts, broke, winner: aSide, text: broke ? "KILL! Tile broken!" : "Kill! Tile cracked." });
 }
 function killDamage(ctx: SwingCtx, shot: ShotKind) {
-  return Math.max(1, Math.round(SHOTS[shot].damage * ctx.powerMult * (ctx.combo ? COMBO.damageMult : 1)) + ctx.extraDmg);
+  const base = shot === "Hard" ? POWER[ctx.power ?? "Normal"].damage : SHOTS[shot].damage;
+  return Math.max(1, Math.round(base * ctx.powerMult * (ctx.combo ? COMBO.damageMult : 1)) + ctx.extraDmg);
 }
 /** What a kill on this square is worth now: a break is 3, a hole 1, a crack counts a little as progress. */
 export function killValue(ctx: SwingCtx, tile: number, shot: ShotKind): number {
@@ -678,7 +712,10 @@ export function award(g: Game, s: Side, pts: number) { team(g, s).score += pts; 
 export interface TheirDefense { defs: Defender[]; hot: number; level: "none" | "shade" | "camp"; /** Where they started, before leaning toward your last swings. */ from: Defender[] }
 /** Their defense against our call: their spots for this hitter, shifted toward where we've been hitting. */
 export function theirDefense(g: Game, call: Call, block: BlockForm): TheirDefense {
-  const from = defenseSetup(g.them, call.col, block, g.them.board[boardRow(call.hitter.role)], call.tempo, g.rng);
+  const from = defenseSetup(g.them, call.col, block, theirPick(g, call.hitter.role), call.tempo, g.rng);
+  // Deep or up: the back-row diggers all step back or up one box for this rally.
+  const shift = g.intent?.kind === "deep" ? 1 : g.intent?.kind === "up" ? -1 : 0;
+  if (shift) for (const d of from) if (d.sq.r >= 2) d.sq = { r: Math.max(2, Math.min(N - 1, d.sq.r + shift)), c: d.sq.c };
   // A team that holds its board doesn't lean toward your swings.
   if (g.monster.chase === "none") return { defs: from.map((d) => ({ ...d, sq: { ...d.sq } })), hot: 0, level: "none", from };
   return { ...chase(g, from), from };

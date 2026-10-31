@@ -2,9 +2,9 @@
 import {
   callsFor, Call, chase, Defender, endRally, formTheirBlock, Game, Grade, newGame, other, ourAttackCtx, N, readSquare, verdictValue,
   ourServe, planTheirAttack, resolveSwing, Side, SwingCtx, takeTimeout, team, theirAttackCtx, theirDefense, theirServe, TheirPlan, readResponse,
-  trackAttack, upgradeChoices, SERVE_TARGETS, serveOdds, defenseSetup,
+  trackAttack, upgradeChoices, SERVE_TARGETS, serveOdds, defenseSetup, pickIntent,
 } from "./engine";
-import { Board, Monster, SHOT_KINDS, ShotKind } from "./tables";
+import { Board, ENERGY, Monster, POWER, POWER_LEVELS, SHOT_KINDS, ShotKind, TEMPO_COST } from "./tables";
 
 export interface Policy {
   call(g: Game, calls: Call[]): Call;
@@ -12,6 +12,8 @@ export interface Policy {
   /** Your defense move(s): returns the defenders after moving. */
   defend(g: Game, plan: TheirPlan): Defender[];
   serve(g: Game): number;
+  /** Power for a hard swing, given the energy left. */
+  power(g: Game, ctx: SwingCtx, energy: number): SwingCtx["power"];
 }
 
 export function bestAim(g: Game, ctx: SwingCtx): { tile: number; shot: ShotKind; value: number } {
@@ -39,6 +41,11 @@ export const SMART: Policy = {
     return g.rng() < 0.7 ? pool[0] : pool[Math.floor(g.rng() * pool.length)];
   },
   aim: (g, ctx) => bestAim(g, ctx),
+  power: (g, ctx, energy) => {
+    let best: SwingCtx["power"] = "Soft", bv = -Infinity;
+    for (const p of POWER_LEVELS) if (POWER[p].cost <= energy) { const v = bestAim(g, { ...ctx, power: p }).value; if (v > bv) { bv = v; best = p; } }
+    return best;
+  },
   defend: readMove,
   serve: (g) => {
     let best = 0, bv = -1;
@@ -54,6 +61,7 @@ export const RANDOM: Policy = {
     return tiles.length ? { tile: tiles[Math.floor(g.rng() * tiles.length)], shot } : { tile: 21, shot: "Roll" };
   },
   defend: (_g, plan) => plan.defs,
+  power: (g, _ctx, energy) => { const ok = POWER_LEVELS.filter((p) => POWER[p].cost <= energy); return ok[Math.floor(g.rng() * ok.length)]; },
   serve: (g) => Math.floor(g.rng() * SERVE_TARGETS),
 };
 
@@ -62,6 +70,7 @@ export function playMatch(monster: Monster, policy: Policy, seed: number, board?
   const g = newGame({ monster, board, system: "Bunch", formation: "Perimeter", seed });
   let swings = 0, kills = 0, errors = 0, repeats = 0, repeatKills = 0, lastTile = -1;
   while (!g.winner && g.rallies < 400) {
+    pickIntent(g);
     const s = g.serving === "us" ? ourServe(g, "Float", policy.serve(g)) : theirServe(g);
     let winner: Side | null = s.outcome === "ace" ? s.side : s.outcome === "error" ? other(s.side) : null;
     let attacker: Side = other(s.side);
@@ -70,10 +79,11 @@ export function playMatch(monster: Monster, policy: Policy, seed: number, board?
     while (!winner && touches++ < 30) {
       let res;
       if (attacker === "us") {
-        const calls = callsFor(g.us, grade).filter((c) => c.enabled);
+        const calls = callsFor(g.us, grade).filter((c) => c.enabled && TEMPO_COST[c.tempo] <= ENERGY[grade]);
         const call = policy.call(g, calls);
         const block = formTheirBlock(g, call);
         const ctx = ourAttackCtx(g, call, block, theirDefense(g, call, block), grade);
+        ctx.power = policy.power(g, ctx, ENERGY[grade] - TEMPO_COST[call.tempo]);
         const aim = policy.aim(g, ctx);
         const rep = aim.tile === lastTile && aim.shot !== "Tool";
         lastTile = aim.tile;

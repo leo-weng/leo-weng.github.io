@@ -194,3 +194,37 @@ export const MONSTERS: Monster[] = [
     scout: { OH1: "Mixes line and cross", MB2: "Slow quick", OPP: "Line or cross" },
   },
 ];
+
+// ---------- Layer 1: energy, power, intents ----------
+/** Energy for one swing comes from the touch before it: a perfect pass or dig gives the most. Unused energy is lost. */
+export const ENERGY: Record<"#" | "+" | "!" | "-", number> = { "#": 3, "+": 2, "!": 1, "-": 1 };
+/** What a set costs to run. */
+export const TEMPO_COST: Record<"High" | "Fast" | "Combo", number> = { High: 0, Fast: 1, Combo: 2 };
+export type PowerLevel = "Soft" | "Normal" | "Max";
+export const POWER_LEVELS: PowerLevel[] = ["Soft", "Normal", "Max"];
+/**
+ * Power on a hard swing. cost: energy. circle: their dig circles (bigger = easier to dig). damage: hits on the tile.
+ * A Max swing can't keep the deepest row in: it sails long.
+ */
+export const POWER: Record<PowerLevel, { cost: number; circle: number; damage: number; blurb: string }> = {
+  Soft: { cost: 0, circle: 1.25, damage: 1, blurb: "Free. Easy to dig." },
+  Normal: { cost: 1, circle: 1, damage: 2, blurb: "1 energy." },
+  Max: { cost: 2, circle: 0.8, damage: 3, blurb: "2 energy. Can't go deepest." },
+};
+/**
+ * Their intent for this rally, shown before you set (like an enemy's next move). It changes their board for one rally.
+ * They lean toward the hitter who last hurt them (weight `revenge`).
+ */
+export type IntentKind = "stack" | "line" | "cross" | "commit" | "deep" | "up";
+export const INTENTS: { kind: IntentKind; row?: BoardRow; text: string }[] = [
+  { kind: "stack", row: "OH", text: "Triple block on your OH" },
+  { kind: "stack", row: "OPP", text: "Triple block on your OPP" },
+  { kind: "commit", row: "MB", text: "Jump with your middle. Pins get one blocker" },
+  { kind: "line", row: "OH", text: "Take line on your OH" },
+  { kind: "cross", row: "OH", text: "Take cross on your OH" },
+  { kind: "line", row: "OPP", text: "Take line on your OPP" },
+  { kind: "cross", row: "OPP", text: "Take cross on your OPP" },
+  { kind: "deep", text: "Diggers play deep. Short is open" },
+  { kind: "up", text: "Diggers play up. Deep corners are open" },
+];
+export const INTENT_REVENGE = 3;

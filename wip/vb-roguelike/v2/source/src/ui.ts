@@ -3,9 +3,9 @@ import {
   BlockForm, blockMoveOptions, BlockSystem, blockersOf, Call, callsFor, canAim, colOf, Defender, digRadius, endRally, Formation, formTheirBlock, Game, Grade,
   isBroken, killValue, laneOf, moveOptions, newGame, ourAttackCtx, ourServe, passers, planTheirAttack, readSquare, resolveSwing, rotationNumber, rowOf, SERVE_TARGETS,
   serveOdds, setQuality, Side, Sq, SwingCtx, SwingResult, takeTimeout, Team, theirAttackCtx, theirDefense, TheirDefense, theirServe, TheirPlan,
-  trackAttack, Upgrade, upgradeChoices, zonePlayers, Mods, freshMods, boardRow, brokenCount,
+  trackAttack, Upgrade, upgradeChoices, zonePlayers, Mods, freshMods, boardRow, brokenCount, pickIntent,
 } from "./engine";
-import { Board, BOARD_OPTIONS, BOARD_ROWS, BOARD_WORD, BoardPick, BoardRow, EVEN_MATCH, Monster, MONSTERS, BLOCK_HOME, CHASE, DIALS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL } from "./tables";
+import { Board, BOARD_OPTIONS, BOARD_ROWS, BOARD_WORD, BoardPick, BoardRow, EVEN_MATCH, Monster, MONSTERS, BLOCK_HOME, CHASE, DIALS, SCORING, SERVE_TYPES, ServeType, SHOT_KINDS, SHOTS, ShotKind, TIMEOUT_AT, TOOL, ENERGY, TEMPO_COST, POWER, POWER_LEVELS, PowerLevel } from "./tables";
 import { ballBlocked, ballFromNet, ballOut, ballServe, courtPoint, courtSvg, CourtOpts, netSvg, NetOpts, NetToken, ServeMark, squareCenter, toneOf, TONE_WORD, verdictWords, zoneCenter } from "./views";
 
 type Screen = "start" | "scout" | "serve" | "set" | "hit" | "result" | "defend" | "upgrade" | "end";
@@ -44,6 +44,9 @@ interface State {
   ctx?: SwingCtx;
   tile?: number;
   shot: ShotKind;
+  /** Energy left for this swing (from the pass), and the power pick for a hard swing. */
+  energy: number;
+  power: PowerLevel;
   serveType: ServeType;
   target?: number;
   defend?: DefendState;
@@ -57,7 +60,7 @@ interface State {
   lab: boolean;
 }
 const newRun = (list: Monster[] = MONSTERS): Run => ({ stage: 0, mods: freshMods(), board: { OH: "cross", MB: "bal", OPP: "bal" }, wins: 0, list });
-const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", serveType: "Float", chain: { pass: false, set: false, kill: false }, steps: [], history: [], netAnim: false, lab: false };
+const st: State = { screen: "start", run: newRun(), system: "Bunch", formation: "Perimeter", shot: "Hard", energy: 0, power: "Normal", serveType: "Float", chain: { pass: false, set: false, kill: false }, steps: [], history: [], netAnim: false, lab: false };
 
 const GRADE_WORD: Record<Grade, string> = { "#": "Perfect", "+": "Good", "!": "OK", "-": "Poor" };
 const GRADE_OPEN: Record<Grade, string> = {
@@ -110,6 +113,7 @@ function nextRally() {
   st.chain = { pass: false, set: false, kill: false };
   st.tile = undefined;
   st.steps = [];
+  pickIntent(g);
   if (g.serving === "us") { st.screen = "serve"; st.target = undefined; render(); return; }
   const s = theirServe(g);
   const ps = passers(g.us)[s.passerIdx];
@@ -124,21 +128,29 @@ function nextRally() {
 function toSet(grade: Grade) {
   const g = st.g!;
   st.grade = grade;
+  st.energy = ENERGY[grade];
   st.chain = { pass: grade === "#", set: false, kill: false };
-  const calls = callsFor(g.us, grade);
+  const calls = setCalls();
   st.callId = (calls.find((c) => c.enabled && c.tempo === "High") ?? calls.find((c) => c.enabled))?.id;
   st.screen = "set";
   render();
 }
+/** The set menu: the pass decides what's open, and energy what you can afford. */
+function setCalls(): Call[] {
+  return callsFor(st.g!.us, st.grade!).map((c) => (c.enabled && TEMPO_COST[c.tempo] > st.energy ? { ...c, enabled: false, why: `Needs ${TEMPO_COST[c.tempo]} energy` } : c));
+}
 function confirmSet() {
   const g = st.g!;
-  const call = callsFor(g.us, st.grade!).find((c) => c.id === st.callId && c.enabled);
+  const call = setCalls().find((c) => c.id === st.callId && c.enabled);
   if (!call) return;
   st.call = call;
+  st.energy -= TEMPO_COST[call.tempo];
   st.block = formTheirBlock(g, call);
   st.def = theirDefense(g, call, st.block);
   st.ctx = ourAttackCtx(g, call, st.block, st.def, st.grade!);
   st.chain.set = setQuality(st.grade!, call.tempo) === "Perfect";
+  st.power = st.energy >= POWER.Normal.cost ? "Normal" : "Soft";
+  st.ctx.power = st.power;
   step(`Set ${call.name} · ${st.ctx.setQ.toLowerCase()} set`, "us");
   st.tile = undefined;
   st.shot = "Hard";
@@ -149,12 +161,13 @@ function confirmSet() {
 function swing() {
   const g = st.g!, call = st.call!, ctx = st.ctx!;
   if (st.shot === "Tool" ? !!toolWhy() || !g.mods.tool : st.tile === undefined || readSquare(ctx, st.tile, st.shot).kind === "closed") return;
+  if (st.shot === "Hard" && POWER[st.power].cost > st.energy) return;
   const aimed = st.shot === "Tool" ? 0 : st.tile!;
   trackAttack(g, call, aimed, st.shot);
   const res = resolveSwing(g, ctx, aimed, st.shot);
   st.chain.kill = res.outcome === "Kill" && ctx.combo;
   const v = swingView(res, "us", call.col, circles(ctx, ctx.defs, st.shot), () => (res.winner ? afterRally(res.winner) : res.again ? toSet(res.nextGrade ?? "!") : toDefend(res.nextGrade ?? "+")));
-  step(`${call.hitter.id} ${st.shot.toLowerCase()}${st.shot === "Tool" ? "" : ` · ${zoneName(aimed, call.col).toLowerCase()}`} · ${v.callout}${v.pts && v.pts !== "+0" ? ` ${v.pts}` : ""}`, "us");
+  step(`${call.hitter.id} ${st.shot === "Hard" && st.power !== "Normal" ? `${st.power.toLowerCase()} ` : ""}${st.shot.toLowerCase()}${st.shot === "Tool" ? "" : ` · ${zoneName(aimed, call.col).toLowerCase()}`} · ${v.callout}${v.pts && v.pts !== "+0" ? ` ${v.pts}` : ""}`, "us");
   showResult(v);
 }
 function toDefend(grade: Grade) {
@@ -290,6 +303,14 @@ function rallyStrip(): string {
 function role(chip: string, title: string, sub: string, cls = ""): string {
   return `<div class="role ${cls}">${chip ? `<span class="role-chip">${chip}</span>` : ""}<h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div>`;
 }
+function energyLine(): string {
+  const left = st.energy, max = 3;
+  return `<span class="energy">Energy <b>${"●".repeat(Math.min(left, max))}${"○".repeat(Math.max(0, max - left))}</b></span>`;
+}
+function intentNote(): string {
+  const i = st.g?.intent;
+  return i ? `<p class="note intent">Their plan: ${esc(i.text)}.</p>` : "";
+}
 function movesLeft(): number { return st.g!.mods.moves - Object.keys(st.defend!.origin).length; }
 
 function render() {
@@ -298,10 +319,12 @@ function render() {
   const g = st.g;
   switch (st.screen) {
     case "start": {
-      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 4 · scout, then play</p></div>
+      roleHtml = `<div class="title"><h1>Volleyball Roguelike</h1><p class="kicker">v2 · draft 5 · layer 1: energy, power, intents</p></div>
         <ul class="how"><li>Before each game you get a <b>scouting report</b> on the team you face, and you set your <b>board</b>: how your block and diggers line up against each of their hitters. It's locked for the game.</li>
         <li>Their board is on the court too: you'll see where their block and diggers stand before every swing.</li>
         <li>You play whoever touches the ball: <b>server</b>, <b>setter</b>, <b>hitter</b>, and on defense you get one move per ball. Your swing lands on the exact box you tap. A ball inside a digger's circle is always dug.</li>
+        <li>Every pass or dig gives <b>energy</b> (perfect 3, good 2, else 1). Fast sets and harder swings cost energy, so you can't do everything every ball. A <b>Max</b> swing breaks a fresh tile in one hit.</li>
+        <li>Each rally they show <b>their plan</b> before you set, like a triple block on your OH or diggers playing deep. They lean toward whoever just hurt them.</li>
         <li>Their floor is <b>nine big tiles</b>, each split into four boxes. Kills crack a tile; <b>a broken tile is 3 points</b> and turns into a hole. <b>First to ${SCORING.toWin}</b>. Beat three teams to finish the run.</li></ul>`;
       go = `<button class="go" data-act="to-scout">Start a run</button><button class="go go-alt" data-act="even">Play an even match</button>`;
       break;
@@ -338,14 +361,14 @@ function render() {
       break;
     }
     case "set": {
-      const calls = callsFor(g!.us, st.grade!);
+      const calls = setCalls();
       const sel = calls.find((c) => c.id === st.callId);
-      roleHtml = role("Setter", "Who gets the set?", GRADE_OPEN[st.grade!]);
+      roleHtml = role("Setter", "Who gets the set?", `${GRADE_OPEN[st.grade!]} ${energyLine()}`);
       const toks: NetToken[] = calls.filter((c, i, a) => a.findIndex((d) => d.hitter.id === c.hitter.id) === i)
         .map((c) => ({ col: c.col, label: c.hitter.id, sub: c.hitter.trait, selected: sel?.hitter.id === c.hitter.id, disabled: !calls.some((d) => d.hitter.id === c.hitter.id && d.enabled) }));
       net = netSvg({ attacker: "us", front: homeFront(g!.them), animate: false, hitters: toks });
-      actions = `<div class="pills">${calls.map((c) => pill("call", c.id, c.name, c.desc, c.id === st.callId, !c.enabled, c.why)).join("")}</div>`;
-      const notes: string[] = [];
+      actions = `<div class="pills">${calls.map((c) => pill("call", c.id, c.name, TEMPO_COST[c.tempo] ? `${c.desc} · ${TEMPO_COST[c.tempo]} energy` : c.desc, c.id === st.callId, !c.enabled, c.why)).join("")}</div>`;
+      const notes: string[] = [intentNote()];
       if (g!.track.hitterStreak >= 2) notes.push(`<p class="note warn">They're keying on ${g!.track.hitter}: set them again and an extra blocker will be waiting.</p>`);
       if (g!.late.us) notes.push(`<p class="note warn">${g!.late.us} just passed, so they'll be late to hit.</p>`);
       info = notes.join("");
@@ -355,12 +378,12 @@ function render() {
     case "hit": {
       const call = st.call!, ctx = st.ctx!, block = st.block!;
       const bl = block.front.filter((f) => f.state !== "off");
-      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a box and a shot", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one late" : ""}.`}`);
+      roleHtml = role(`Hitter · ${call.hitter.id}`, "Pick a box, a shot and power", `${bl.length === 0 ? "No block up!" : `${bl.length} blocker${bl.length > 1 ? "s" : ""} up${bl.some((b) => b.state === "late") ? ", one late" : ""}.`} ${energyLine()}`);
       net = netSvg({ attacker: "us", front: block.front, set: { h: call.col, tempo: call.tempo }, animate: st.netAnim, hitters: [{ col: call.col, label: call.hitter.id, sub: "", selected: true, disabled: false }] });
       const sv = st.shot !== "Tool" && st.tile !== undefined ? verdictWords(readSquare(ctx, st.tile, st.shot), damageNote(ctx, st.tile, st.shot)) : undefined;
       const lean = st.def!.from.map((f) => ({ from: f.sq, to: ctx.defs.find((d) => d.id === f.id)!.sq }));
       court = courtSvg({ ...base(), focus: "their", pick: st.shot === "Tool" ? undefined : "their", theirSelected: st.shot === "Tool" ? undefined : st.tile, theirSelectedTone: sv?.tone, theirDefense: ctx.defs, theirCircles: circles(ctx, ctx.defs, st.shot), theirLean: lean, theirBlock: block, ourHitterCol: call.col, ourHitterLabel: call.hitter.id });
-      const notes: string[] = [];
+      const notes: string[] = [intentNote()];
       const pickV = g!.them.board[boardRow(call.hitter.role)];
       void pickV;
       if (ctx.combo) notes.push(`<p class="note good">Combo: perfect pass and perfect set. A kill does double damage.</p>`);
@@ -377,8 +400,9 @@ function render() {
       info = notes.join("") + info;
       const shots = SHOT_KINDS.filter((k) => k !== "Tool" || g!.mods.tool);
       actions = `<div class="pills">${shots.map((k) => pill("shot", k, k, SHOTS[k].blurb, st.shot === k, k === "Tool" && !!toolWhy(), toolWhy())).join("")}</div>`;
+      if (st.shot === "Hard") actions += `<div class="pills power">${POWER_LEVELS.map((p) => pill("power", p, p, POWER[p].blurb, st.power === p, POWER[p].cost > st.energy, `Needs ${POWER[p].cost} energy`)).join("")}</div>`;
       const ok = st.shot === "Tool" ? !toolWhy() : st.tile !== undefined && readSquare(ctx, st.tile, st.shot).kind !== "closed";
-      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a box first" : "This set can't reach that box"}</button>`;
+      go = `<button class="go" data-act="swing"${ok ? "" : " disabled"}>${ok ? "Swing" : st.tile === undefined ? "Tap a box first" : st.shot === "Hard" && st.power === "Max" && rowOf(st.tile) === 5 ? "Max sails long from there" : "This set can't reach that box"}</button>`;
       break;
     }
     case "defend": {
@@ -488,6 +512,7 @@ function act(a: string, v: string) {
     case "serve": return serveNow();
     case "call": st.callId = v; break;
     case "set": return confirmSet();
+    case "power": st.power = v as PowerLevel; st.ctx!.power = st.power; if (st.tile !== undefined && readSquare(st.ctx!, st.tile, st.shot).kind === "closed") st.tile = undefined; break;
     case "shot": st.shot = v as ShotKind; if (st.tile !== undefined && !canAim(st.tile, st.shot)) st.tile = undefined; break;
     case "swing": return swing();
     case "reset": {
