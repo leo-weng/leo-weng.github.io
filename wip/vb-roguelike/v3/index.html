@@ -85,6 +85,9 @@ const PLAYS = [
   { id: "x", name: "X combo", who: "Middle + OH", lane: 1, need: 4, cd: 2, blockers: 0, desc: "Middle fakes, OH swings in the gap. No block." },
 ];
 const START_SLOTS = 5, TO_WIN = 11, THEY_SCORE = 0.45;
+/** Tips: an open tip lands more the more hard swings came before it (the defense sits back). Right after a tip they're watching for it. A dug tip is an easy dig, so their swing back is stronger. */
+const TIP = { base: 0.2, perHard: 0.2, max: 0.8, theyScoreAfter: 0.65 };
+const tipKill = () => Math.min(TIP.max, TIP.base + TIP.perHard * st.hard);
 const LANE_X = [1.5, 4.5, 7.5], TARGET_D = { short: 1.6, deep: 6.8 }, R = { back: 1.9, off: 1.7 };
 const PASS_ROLL = [[1, 0.15], [2, 0.25], [3, 0.35], [4, 0.25]];
 const DIG_ROLL = [[1, 0.35], [2, 0.35], [3, 0.25], [4, 0.05]];
@@ -136,14 +139,15 @@ function oddsFor(sw, z) {
   const covered = sw.defs.some((d) => Math.hypot(d.x - z.x, d.d - z.d) <= d.r);
   if (z.depth === "deep" && sw.lanes.includes(z.lane)) o = sw.n >= 3 ? { kill: 0.05, block: 0.8, dug: 0.15, out: 0 } : { kill: 0.15, block: 0.6, dug: 0.25, out: 0 };
   else if (covered) o = { kill: 0.2, block: 0, dug: 0.75, out: 0.05 };
-  else o = z.depth === "short" ? { kill: 0.7, block: 0, dug: 0.27, out: 0.03 } : { kill: 0.82, block: 0, dug: 0.13, out: 0.05 };
+  else if (z.depth === "short" && sw.p.id === "mb-quick") o = { kill: 0.75, block: 0, dug: 0.22, out: 0.03 };
+  else o = z.depth === "short" ? { kill: tipKill(), block: 0, dug: 0.97 - tipKill(), out: 0.03 } : { kill: 0.82, block: 0, dug: 0.13, out: 0.05 };
   // A forced set: each point short moves kill chance into errors.
   const lose = Math.min(o.kill, 0.15 * sw.short);
   return { ...o, kill: o.kill - lose, out: o.out + lose };
 }
 
 // ---------- State ----------
-const st = { screen: "loadout", equipped: ["oh-high", "opp-high", "oh-go", "mb-quick", "shoot"], us: 0, them: 0, pass: 3, cds: {}, sel: null, defs: [], sw: null, busy: false, last: "" };
+const st = { screen: "loadout", equipped: ["oh-high", "opp-high", "oh-go", "mb-quick", "shoot"], us: 0, them: 0, pass: 3, cds: {}, sel: null, defs: [], sw: null, busy: false, last: "", hard: 1 };
 const play = (id) => PLAYS.find((p) => p.id === id);
 
 // ---------- Rendering ----------
@@ -186,7 +190,7 @@ function renderMatch() {
   app.innerHTML = `<div class="score">${scoreInner()}</div>
     <div class="pass"><span class="label">${st.last || "Your pass"}</span><span class="pips">${[1, 2, 3, 4].map((i) => `<span class="pip${i <= st.pass ? " on" : ""}"></span>`).join("")}</span><span class="big">${st.pass}</span></div>
     <div class="stage"><svg id="court" viewBox="-8 0 116 118" role="img" aria-label="Their court"></svg><div class="banner" id="banner"><span></span></div></div>
-    <p class="hint" id="hint">${st.busy ? "" : sel ? "Tap where to hit." : "Pick a play."}</p>
+    <p class="hint" id="hint">${st.busy ? "" : sel ? (st.hard >= 2 ? "They're sitting back for hard swings." : st.hard === 0 ? "They're watching for the tip." : "Tap where to hit.") : "Pick a play."}</p>
     <div class="slots">${slots}</div>`;
   drawCourt();
 }
@@ -262,16 +266,17 @@ async function swing(i) {
   for (const k in st.cds) if (st.cds[k] > 0) st.cds[k]--;
   if (st.sw.p.cd) st.cds[st.sw.p.id] = st.sw.p.cd;
   let r = rng(); const res = (r -= o.kill) < 0 ? "kill" : (r -= o.block) < 0 ? "block" : (r -= o.dug) < 0 ? "dug" : "out";
-  const z = ZONES[i];
+  const z = ZONES[i], tip = z.depth === "short" && st.sw.p.id !== "mb-quick";
+  st.hard = tip ? 0 : st.hard + 1;
   requestAnimationFrame(() => { st.ball.setAttribute("cx", X(z.x)); st.ball.setAttribute("cy", res === "block" ? 92 : res === "out" ? -2 : Y(z.d)); });
   await wait(480);
   if (res === "kill") { st.us++; banner("Kill!", "good"); }
   else if (res === "block") { st.them++; banner("Blocked", "bad"); }
   else if (res === "out") { st.them++; banner("Out", "bad"); }
   else {
-    banner("Dug", "plain");
+    banner(tip ? "Easy dig" : "Dug", "plain");
     await wait(900);
-    if (rng() < THEY_SCORE) { st.them++; banner("They score", "bad"); }
+    if (rng() < (tip ? TIP.theyScoreAfter : THEY_SCORE)) { st.them++; banner("They score", "bad"); }
     else { banner("You dig it", "plain"); await wait(900); return newRally(DIG_ROLL, "Your dig"); }
   }
   await wait(1000);
@@ -287,7 +292,7 @@ app.addEventListener("click", (e) => {
     else if (st.equipped.length < START_SLOTS) st.equipped.push(id);
     render();
   } else if (t.dataset.slot) choose(t.dataset.slot);
-  else if (t.dataset.act === "start") { st.screen = "match"; st.us = 0; st.them = 0; st.cds = {}; newRally(); }
+  else if (t.dataset.act === "start") { st.screen = "match"; st.us = 0; st.them = 0; st.cds = {}; st.hard = 1; newRally(); }
   else if (t.dataset.act === "loadout") { st.screen = "loadout"; render(); }
 });
 render();
