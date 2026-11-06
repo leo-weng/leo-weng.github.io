@@ -1,0 +1,348 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}</style></head><body><title>Spike Zones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;700&display=swap">
+<style>
+/* Same gym-at-night look as Spike Zones. Phone first: score, pass meter, court, then your play slots under your thumb. */
+:root {
+  --bg: #13182b; --panel: #1d2440; --panel-2: #262f52; --ink: #f4f1ff; --muted: #9aa3c7;
+  --floor: #e59a4f; --floor-2: #d4863b; --line: #fff7ea;
+  --them: #e2453c; --you: #3d8bff; --kill: #34d27b; --warn: #ffc23d; --bad: #ff5a4e;
+  --display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); -webkit-tap-highlight-color: transparent; }
+.app { max-width: 460px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;
+  padding-block: 12px 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2 { font-family: var(--display); text-transform: uppercase; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: var(--panel); border-radius: 14px; padding: 8px 16px; }
+.score .side { display: flex; flex-direction: column; } .score .them { text-align: right; }
+.who { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pts { font-family: var(--display); font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.you .pts { color: var(--you); } .them .pts { color: var(--them); }
+.pass { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--panel); border-radius: 14px; padding: 10px 16px; }
+.pass .label { font-weight: 700; }
+.pips { display: flex; gap: 6px; }
+.pip { width: 22px; height: 22px; border-radius: 6px; background: var(--panel-2); border: 2px solid var(--panel-2); }
+.pip.on { background: var(--kill); border-color: var(--kill); }
+.pass .big { font-family: var(--display); font-size: 28px; color: var(--kill); min-width: 1ch; text-align: right; }
+.stage { position: relative; }
+svg { display: block; width: 100%; height: auto; touch-action: manipulation; user-select: none; }
+.zone { fill: transparent; cursor: pointer; }
+.zone:focus { outline: none; }
+.zone:hover, .zone:focus-visible { fill: rgba(255, 255, 255, .16); }
+.nozones .zone { pointer-events: none; }
+.banner { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.banner span { font-family: var(--display); font-size: clamp(40px, 14vw, 66px); text-transform: uppercase; text-shadow: 0 4px 0 rgba(0, 0, 0, .35);
+  transform: scale(.6); opacity: 0; transition: transform .18s cubic-bezier(.3, 1.6, .5, 1), opacity .12s; }
+.banner.show span { transform: scale(1); opacity: 1; }
+.banner .good { color: var(--kill); } .banner .bad { color: var(--bad); } .banner .plain { color: var(--ink); }
+.odds { color: var(--ink); }
+.hint { text-align: center; font-weight: 700; color: var(--muted); min-height: 1.3em; }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.card { position: relative; display: flex; flex-direction: column; gap: 6px; text-align: left; min-width: 0; font: inherit; color: var(--ink);
+  background: var(--panel); border: 2px solid var(--panel-2); border-radius: 12px; padding: 10px; cursor: pointer; }
+.card:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
+.card .name { font-family: var(--display); font-size: 14px; line-height: 1.15; text-transform: uppercase; }
+.card .who2 { font-size: 12px; color: var(--muted); font-weight: 700; }
+.need { display: flex; gap: 3px; align-items: center; }
+.need i { width: 10px; height: 10px; border-radius: 3px; background: var(--kill); }
+.need i.short { background: transparent; border: 2px solid var(--warn); width: 6px; height: 6px; }
+.card.sel { border-color: var(--floor); background: var(--panel-2); }
+.card.forced .tag { color: var(--warn); }
+.card .tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; min-height: 1.2em; }
+.card:disabled { cursor: default; opacity: .45; }
+.card .cd { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 10px; background: rgba(19, 24, 43, .72);
+  font-family: var(--display); font-size: 13px; text-transform: uppercase; color: var(--muted); }
+.card.locked { border-style: dashed; background: transparent; cursor: default; color: var(--muted); align-items: center; justify-content: center; min-height: 92px; }
+.pool { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pool .card.on { border-color: var(--kill); }
+.pool .card .desc { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+button.go { font-family: var(--display); font-size: 19px; text-transform: uppercase; letter-spacing: .04em; color: var(--bg); background: var(--floor);
+  border: 0; border-radius: 14px; padding: 14px 24px; cursor: pointer; width: 100%; }
+button.go:disabled { background: var(--panel-2); color: var(--muted); cursor: default; }
+button.go:focus-visible { outline: 3px solid var(--line); outline-offset: 3px; }
+.ball { transition: cx .45s cubic-bezier(.4, .1, .6, 1), cy .45s cubic-bezier(.4, .1, .6, 1); }
+@media (prefers-reduced-motion: reduce) { .ball, .banner span { transition: none; } }
+</style>
+
+<div class="app" id="app"></div>
+
+<script>
+// ---------- Plays (the playbook). need = pass score to run it clean. blockers = how many of theirs get up in time. ----------
+const PLAYS = [
+  { id: "oh-high", name: "OH high ball", who: "Outside", lane: 0, hx: 0.8, need: 1, cd: 0, blockers: 3, desc: "Always there. Big swing into a full block." },
+  { id: "opp-high", name: "Right side high", who: "Opposite", lane: 2, hx: 8.2, need: 1, cd: 0, blockers: 3, desc: "Always there. Big swing into a full block." },
+  { id: "oh-go", name: "OH go", who: "Outside", lane: 0, hx: 0.8, need: 2, cd: 0, blockers: 2, desc: "Quicker outside set. Two blockers." },
+  { id: "mb-quick", name: "MB quick", who: "Middle", lane: 1, hx: 4.5, need: 3, cd: 1, blockers: 1, desc: "One blocker at most. Short court only." },
+  { id: "mb-slide", name: "MB slide", who: "Middle", lane: 2, hx: 7.3, need: 3, cd: 1, blockers: 1, desc: "Middle runs behind the setter. One blocker." },
+  { id: "pipe", name: "Pipe", who: "Back-row OH", lane: 1, hx: 4.5, need: 3, cd: 1, blockers: 2, desc: "Back-row swing up the middle. Deep only." },
+  { id: "shoot", name: "OH shoot", who: "Outside", lane: 0, hx: 0.6, need: 4, cd: 2, blockers: 1, desc: "Fast flat set. Beats the block." },
+  { id: "x", name: "X combo", who: "Middle + OH", lane: 1, hx: 3.4, need: 4, cd: 2, blockers: 0, desc: "Middle fakes, OH swings in the gap. No block." },
+];
+const START_SLOTS = 5, TO_WIN = 11, THEY_SCORE = 0.45;
+/** Tips: an open tip lands more the more hard swings came before it (the defense sits back). Right after a tip they're watching for it. A dug tip is an easy dig, so their swing back is stronger. */
+const TIP = { base: 0.2, perHard: 0.2, max: 0.8, theyScoreAfter: 0.65 };
+const tipKill = () => Math.min(TIP.max, TIP.base + TIP.perHard * st.hard);
+const LANE_X = [1.5, 4.5, 7.5], TARGET_D = { short: 1.6, deep: 6.8 }, R = { back: 1.9, off: 1.7 };
+const PASS_ROLL = [[1, 0.15], [2, 0.25], [3, 0.35], [4, 0.25]];
+const DIG_ROLL = [[1, 0.35], [2, 0.35], [3, 0.25], [4, 0.05]];
+const rng = Math.random, rnd = (a, b) => a + rng() * (b - a);
+const roll = (table) => { let r = rng(); for (const [v, w] of table) { r -= w; if (r <= 0) return v; } return table[table.length - 1][0]; };
+
+// ---------- Their floor: 6 x 6 boxes of 1.5 m. Row 0 is at the net. ----------
+const N = 6, BOX = 1.5;
+const ZONES = [];
+for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) ZONES.push({ r, c, x: (c + 0.5) * BOX, d: (r + 0.5) * BOX });
+/**
+ * The block, without drawing a shadow: the ball is stopped where its path crosses the net.
+ * The path is aimed from an "eye" EYE m behind the net, so it crosses the net at hx + (x - hx) * EYE / (d + EYE).
+ * Hands: inside HAND.core of a blocker it's blocked; out to HAND.edge it clips the hands.
+ */
+const EYE = { normal: 7, pipe: 10 };
+const HAND = { core: 0.4, edge: 0.6 };
+const netX = (sw, z) => sw.p.hx + (z.x - sw.p.hx) * sw.eye / (z.d + sw.eye);
+/** This rally's small shuffle for each of their six players (meters), so no two balls look exactly alike. */
+function defense() {
+  return Array.from({ length: 6 }, () => ({ dx: rnd(-0.35, 0.35), dd: rnd(-0.35, 0.35) }));
+}
+/** Back-row spots against a hitter in each lane: line digger, deep middle, cross digger. Each player stays in their zone. */
+const BACK_SPOTS = {
+  0: [[1.0, 6.6], [4.8, 7.9], [7.4, 5.6]],
+  1: [[1.4, 6.8], [4.5, 7.9], [7.6, 6.8]],
+  2: [[1.6, 5.6], [4.2, 7.9], [8.0, 6.6]],
+};
+/** Front-row players who aren't blocking drop off the net to cover short balls in their own lane. */
+const OFF_SPOTS = { 0: [1.8, 3.0], 1: [4.5, 3.3], 2: [7.2, 3.0] };
+const HOME_BACK = [[1.5, 7.0], [4.5, 7.0], [7.5, 7.0]];
+function placeDefense(lane, lanes, n) {
+  const nd = st.defs, defs = [];
+  BACK_SPOTS[lane].forEach(([x, d], i) => defs.push({ x: x + nd[i].dx, d: d + nd[i].dd, r: R.back }));
+  for (let l = 0; l < 3; l++) if (n < 3 && !lanes.includes(l)) { const [x, d] = OFF_SPOTS[l]; defs.push({ x: x + nd[3 + l].dx, d: d + nd[3 + l].dd, r: R.off }); }
+  return defs;
+}
+function homeDefense() { return HOME_BACK.map(([x, d], i) => ({ x: x + st.defs[i].dx, d: d + st.defs[i].dd, r: R.back })); }
+/** Blockers line up shoulder to shoulder from the hitter toward the middle of the net. Returns each blocker's x (m). */
+function blockers(p, n) {
+  if (n <= 0) return [];
+  const dir = p.hx < 4 ? 1 : p.hx > 5 ? -1 : (rng() < 0.5 ? 1 : -1);
+  const first = p.hx + (p.lane === 1 ? 0 : dir * 0.6);
+  const xs = [first, first + dir * 1.0, p.lane === 1 ? first - dir * 1.0 : first + dir * 2.0].slice(0, n);
+  return xs.map((x) => Math.min(8.5, Math.max(0.5, x)));
+}
+/** Which lanes have a front-row player up blocking (they can't dig short). */
+const laneOfX = (x) => Math.min(2, Math.floor(x / 3));
+/** Short of the pass: each missing point = one more blocker gets there and a worse set (more errors). */
+function shortBy(p) { return Math.max(0, p.need - st.pass); }
+function swingSetup(p) {
+  const short = shortBy(p);
+  const n = Math.min(3, p.blockers + short);
+  const bx = blockers(p, n);
+  const lanes = [...new Set(bx.map(laneOfX))];
+  // Their defense slides to its spots for this hitter; front-row players who go up to block can't also dig short.
+  const defs = placeDefense(p.lane, lanes, n);
+  return { p, n, bx, lanes, short, defs, eye: p.id === "pipe" ? EYE.pipe : EYE.normal };
+}
+/** A short ball (inside 3 m) is a tip over the block, except the quick, which is hit hard. */
+const isTip = (sw, z) => z.d < 3 && sw.p.id !== "mb-quick";
+function oddsFor(sw, z) {
+  if (sw.p.id === "pipe" && z.d < 3) return null;                         // back-row swing can't go short
+  if (sw.p.id === "mb-quick" && z.d > 4.5) return null;                   // quick stays in the front half
+  const gap = Math.min(...sw.defs.map((d) => Math.hypot(d.x - z.x, d.d - z.d) - d.r));
+  let o;
+  if (isTip(sw, z)) {
+    o = gap <= 0 ? { kill: 0.15, block: 0, dug: 0.82, out: 0.03 } : { kill: tipKill(), block: 0, dug: 0.97 - tipKill(), out: 0.03 };
+  } else {
+    const hand = sw.bx.length ? Math.min(...sw.bx.map((b) => Math.abs(netX(sw, z) - b))) : Infinity;
+    const core = sw.p.id === "pipe" ? -1 : HAND.core;                       // the pipe is hit over the hands: clips only
+    if (hand <= core) o = { kill: 0.05, block: 0.75, dug: 0.2, out: 0 };
+    else if (hand <= HAND.edge) o = { kill: 0.45, block: 0.15, dug: 0.35, out: 0.05 };
+    else if (gap <= 0) o = { kill: 0.2, block: 0, dug: 0.75, out: 0.05 };
+    else if (gap <= 0.4) o = { kill: 0.55, block: 0, dug: 0.4, out: 0.05 };
+    else o = { kill: 0.82, block: 0, dug: 0.13, out: 0.05 };
+    // Aiming at the lines is risky: the sideline columns and the back row miss more.
+    if (z.c === 0 || z.c === N - 1 || z.r === N - 1) { const m = Math.min(o.kill, 0.1); o = { ...o, kill: o.kill - m, out: o.out + m }; }
+  }
+  // A forced set: each point short moves kill chance into errors.
+  const lose = Math.min(o.kill, 0.15 * sw.short);
+  return { ...o, kill: o.kill - lose, out: o.out + lose };
+}
+
+// ---------- State ----------
+const st = { screen: "loadout", equipped: ["oh-high", "opp-high", "oh-go", "mb-quick", "shoot"], us: 0, them: 0, pass: 3, cds: {}, sel: null, defs: [], sw: null, busy: false, last: "", hard: 1, target: null };
+const play = (id) => PLAYS.find((p) => p.id === id);
+
+// ---------- Rendering ----------
+const app = document.getElementById("app");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const needPips = (p, pass) => `<span class="need" aria-label="Needs a ${p.need} pass">${Array.from({ length: p.need }, (_, i) => `<i class="${pass !== undefined && i >= pass ? "short" : ""}"></i>`).join("")}</span>`;
+function render() {
+  if (st.screen === "loadout") return renderLoadout();
+  if (st.screen === "end") return renderEnd();
+  renderMatch();
+}
+function renderLoadout() {
+  const n = st.equipped.length;
+  app.innerHTML = `
+    <h1>Your playbook</h1>
+    <p class="muted">Pick ${START_SLOTS} plays for this game. Your pass score is your energy: a play needs that good a pass to run clean.</p>
+    <div class="pool">${PLAYS.map((p) => `<button class="card${st.equipped.includes(p.id) ? " on" : ""}" data-pick="${p.id}" aria-pressed="${st.equipped.includes(p.id)}">
+      <span class="name">${esc(p.name)}</span>${needPips(p)}<span class="desc">${esc(p.desc)}${p.cd ? ` Rests ${p.cd} swing${p.cd > 1 ? "s" : ""} after.` : ""}</span></button>`).join("")}</div>
+    <p class="muted">${n} of ${START_SLOTS} slots filled · more slots unlock later</p>
+    <button class="go" data-act="start"${n === START_SLOTS ? "" : " disabled"}>${n === START_SLOTS ? "Play" : `Pick ${START_SLOTS - n} more`}</button>`;
+}
+function renderEnd() {
+  app.innerHTML = `<div class="score">${scoreInner()}</div>
+    <h1>${st.us > st.them ? "You win" : "They win"}</h1>
+    <p class="muted">Change your playbook and run it back.</p>
+    <button class="go" data-act="loadout">Edit playbook</button>`;
+}
+function scoreInner() {
+  return `<div class="side you"><span class="who">You</span><span class="pts">${st.us}</span></div><span class="who">To ${TO_WIN}</span>
+    <div class="side them"><span class="who">Them</span><span class="pts">${st.them}</span></div>`;
+}
+function oddsLine() {
+  const o = oddsFor(st.sw, ZONES[st.target]), pc = (v) => `${Math.round(v * 100)}%`;
+  const parts = [`Kill ${pc(o.kill)}`, `Dug ${pc(o.dug)}`];
+  if (o.block) parts.push(`Blocked ${pc(o.block)}`);
+  if (o.out >= 0.01) parts.push(`Out ${pc(o.out)}`);
+  return `<span class="odds">${isTip(st.sw, ZONES[st.target]) ? "Tip" : "Hard"} · ${parts.join(" · ")}</span>`;
+}
+function renderMatch() {
+  const sel = st.sel && play(st.sel);
+  const slots = st.equipped.map(play).map((p) => {
+    const cd = st.cds[p.id] || 0, short = shortBy(p);
+    return `<button class="card${st.sel === p.id ? " sel" : ""}${short ? " forced" : ""}" data-slot="${p.id}"${cd || st.busy ? " disabled" : ""}>
+      <span class="name">${esc(p.name)}</span><span class="who2">${esc(p.who)}</span>${needPips(p, st.pass)}
+      <span class="tag">${short ? `Forced −${short}` : "Clean"}</span>${cd ? `<span class="cd">Resting ${cd}</span>` : ""}</button>`;
+  }).join("") + `<div class="card locked">Slot 6<br>locked</div>`;
+  app.innerHTML = `<div class="score">${scoreInner()}</div>
+    <div class="pass"><span class="label">${st.last || "Your pass"}</span><span class="pips">${[1, 2, 3, 4].map((i) => `<span class="pip${i <= st.pass ? " on" : ""}"></span>`).join("")}</span><span class="big">${st.pass}</span></div>
+    <div class="stage"><svg id="court" viewBox="-8 0 116 118" role="img" aria-label="Their court"></svg><div class="banner" id="banner"><span></span></div></div>
+    <p class="hint" id="hint">${st.busy ? "" : !sel ? "Pick a play." : st.target === null ? (st.hard >= 2 ? "They're sitting back for hard swings. Tap a box." : st.hard === 0 ? "They're watching for the tip. Tap a box." : "Tap a box to aim.") : oddsLine()}</p>
+    ${sel && st.target !== null && !st.busy ? `<button class="go" data-act="swing">${isTip(st.sw, ZONES[st.target]) ? "Tip it" : "Swing"}</button>` : ""}
+    <div class="slots">${slots}</div>`;
+  drawCourt();
+}
+const X = (x) => 5 + x * 10, Y = (d) => 95 - d * 10, NS = "http://www.w3.org/2000/svg";
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function el(svg, tag, a) { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; }
+function drawCourt() {
+  const svg = document.getElementById("court"), sw = st.sw;
+  if (!sw) svg.classList.add("nozones");
+  el(svg, "rect", { x: 5, y: 5, width: 90, height: 90, fill: css("--floor"), stroke: css("--line"), "stroke-width": 0.8 });
+  el(svg, "rect", { x: 5, y: 65, width: 90, height: 30, fill: css("--floor-2") });
+  for (let k = 1; k < N; k++) {
+    el(svg, "line", { x1: X(k * BOX), y1: 5, x2: X(k * BOX), y2: 95, stroke: css("--line"), "stroke-width": 0.25, opacity: 0.45 });
+    el(svg, "line", { x1: 5, y1: Y(k * BOX), x2: 95, y2: Y(k * BOX), stroke: css("--line"), "stroke-width": 0.25, opacity: 0.45 });
+  }
+  el(svg, "line", { x1: 5, y1: 65, x2: 95, y2: 65, stroke: css("--line"), "stroke-width": 0.6 });
+  const defs = sw ? sw.defs : homeDefense();
+  for (const p of defs) {
+    el(svg, "circle", { cx: X(p.x), cy: Y(p.d), r: p.r * 10, fill: css("--them"), "fill-opacity": 0.2, stroke: css("--them"), "stroke-width": 0.5 });
+    el(svg, "circle", { cx: X(p.x), cy: Y(p.d), r: 2.6, fill: css("--them"), stroke: css("--line"), "stroke-width": 0.5 });
+  }
+  if (sw) ZONES.forEach((z, i) => {
+    const o = oddsFor(sw, z), bx = X(z.c * BOX), by = Y((z.r + 1) * BOX);
+    if (!o) { el(svg, "rect", { x: bx, y: by, width: 15, height: 15, fill: css("--bg"), opacity: 0.45 }); return; }
+    if (st.target === i) el(svg, "rect", { x: bx + 0.6, y: by + 0.6, width: 13.8, height: 13.8, fill: "none", stroke: css("--line"), "stroke-width": 1.2, rx: 1 });
+    const r = el(svg, "rect", { class: "zone", x: bx, y: by, width: 15, height: 15, tabindex: 0, role: "button", "aria-label": `Row ${z.r + 1} from the net, column ${z.c + 1}` });
+    r.addEventListener("click", () => aim(i));
+    r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); aim(i); } });
+  });
+  // Net and blockers. Each blocker's bar is drawn at its true hand width, so a path that crosses a bar is a path that gets blocked.
+  el(svg, "rect", { x: 3, y: 94, width: 94, height: 2.2, fill: css("--line") });
+  const homes = sw ? sw.bx : [1.8, 4.5, 7.2];
+  for (const b of homes) el(svg, "rect", { x: X(b - HAND.edge), y: 91.5, width: HAND.edge * 20, height: 3.6, rx: 1.8, fill: css("--them"), stroke: css("--line"), "stroke-width": 0.4, opacity: sw ? 1 : 0.55 });
+  if (sw) {
+    const hx = X(sw.p.hx), hy = sw.p.id === "pipe" ? 112 : 104;
+    el(svg, "circle", { cx: hx, cy: hy, r: 4, fill: css("--you"), stroke: css("--line"), "stroke-width": 0.6 });
+    // Aim line: from the hitter, over the net exactly where the ball crosses it, to the box.
+    if (st.target !== null && !st.busy) {
+      const z = ZONES[st.target], tip = isTip(sw, z), cx = X(tip ? sw.p.hx + (z.x - sw.p.hx) * 0.15 : netX(sw, z));
+      el(svg, "polyline", { points: `${hx},${hy} ${cx},${Y(0)} ${X(z.x)},${Y(z.d)}`, fill: "none", stroke: "#fff7c2", "stroke-width": 0.8, "stroke-dasharray": tip ? "1.2 1.6" : "none", opacity: 0.9 });
+      el(svg, "circle", { cx: X(z.x), cy: Y(z.d), r: 1.4, fill: "#fff7c2" });
+    }
+    st.ball = el(svg, "circle", { class: "ball", cx: hx, cy: hy - 5, r: 2.2, fill: "#fff7c2", stroke: "#3a2a00", "stroke-width": 0.4 });
+  }
+}
+function banner(text, kind) {
+  const b = document.getElementById("banner"), sp = b.querySelector("span");
+  sp.textContent = text; sp.className = kind;
+  b.classList.remove("show"); void b.offsetWidth; b.classList.add("show");
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---------- Flow ----------
+function newRally(passTable = PASS_ROLL, label = "Your pass") {
+  st.pass = roll(passTable);
+  st.last = label;
+  st.defs = defense();
+  st.sel = null; st.sw = null; st.busy = false; st.target = null;
+  render();
+}
+function choose(id) {
+  if (st.busy || st.cds[id]) return;
+  st.sel = id;
+  st.sw = swingSetup(play(id));
+  st.target = null;
+  render();
+}
+/** Tap a box to aim: the aim line and the odds show. Tap the same box again (or Swing) to hit. */
+function aim(i) {
+  if (st.busy || !st.sw || !oddsFor(st.sw, ZONES[i])) return;
+  if (st.target === i) return swing();
+  st.target = i;
+  render();
+}
+async function swing() {
+  if (st.busy || !st.sw || st.target === null) return;
+  const i = st.target, o = oddsFor(st.sw, ZONES[i]);
+  if (!o) return;
+  st.busy = true;
+  render();
+  document.querySelectorAll("[data-slot]").forEach((b) => (b.disabled = true));
+  // Cooldowns: everything resting ticks down one swing; the play you just ran starts resting.
+  for (const k in st.cds) if (st.cds[k] > 0) st.cds[k]--;
+  if (st.sw.p.cd) st.cds[st.sw.p.id] = st.sw.p.cd;
+  let r = rng(); const res = (r -= o.kill) < 0 ? "kill" : (r -= o.block) < 0 ? "block" : (r -= o.dug) < 0 ? "dug" : "out";
+  const z = ZONES[i], tip = isTip(st.sw, z);
+  st.hard = tip ? 0 : st.hard + 1;
+  // The ball goes exactly where the aim line went: into the hands at the net if blocked, long or wide if out.
+  const end = res === "block" ? [X(netX(st.sw, z)), 92] : res === "out" ? [X(z.c === 0 ? -0.6 : z.c === N - 1 ? 9.6 : z.x), z.c === 0 || z.c === N - 1 ? Y(z.d) : 1] : [X(z.x), Y(z.d)];
+  requestAnimationFrame(() => { st.ball.setAttribute("cx", end[0]); st.ball.setAttribute("cy", end[1]); });
+  await wait(480);
+  if (res === "kill") { st.us++; banner("Kill!", "good"); }
+  else if (res === "block") { st.them++; banner("Blocked", "bad"); }
+  else if (res === "out") { st.them++; banner("Out", "bad"); }
+  else {
+    banner(tip ? "Easy dig" : "Dug", "plain");
+    await wait(900);
+    if (rng() < (tip ? TIP.theyScoreAfter : THEY_SCORE)) { st.them++; banner("They score", "bad"); }
+    else { banner("You dig it", "plain"); await wait(900); return newRally(DIG_ROLL, "Your dig"); }
+  }
+  await wait(1000);
+  if (st.us >= TO_WIN || st.them >= TO_WIN) { st.screen = "end"; return render(); }
+  newRally();
+}
+app.addEventListener("click", (e) => {
+  const t = e.target.closest("button");
+  if (!t || t.disabled) return;
+  if (t.dataset.pick) {
+    const id = t.dataset.pick, on = st.equipped.includes(id);
+    if (on) st.equipped = st.equipped.filter((x) => x !== id);
+    else if (st.equipped.length < START_SLOTS) st.equipped.push(id);
+    render();
+  } else if (t.dataset.slot) choose(t.dataset.slot);
+  else if (t.dataset.act === "start") { st.screen = "match"; st.us = 0; st.them = 0; st.cds = {}; st.hard = 1; newRally(); }
+  else if (t.dataset.act === "swing") swing();
+  else if (t.dataset.act === "loadout") { st.screen = "loadout"; render(); }
+});
+render();
+</script>
+</body></html>
