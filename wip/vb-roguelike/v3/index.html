@@ -94,16 +94,26 @@ const roll = (table) => { let r = rng(); for (const [v, w] of table) { r -= w; i
 // ---------- One swing's odds ----------
 const ZONES = [];
 for (const depth of ["deep", "short"]) for (let l = 0; l < 3; l++) ZONES.push({ depth, lane: l, x: LANE_X[l], d: TARGET_D[depth] });
+/** This rally's small shuffle for each of their six players (meters), so no two balls look exactly alike. */
 function defense() {
-  // Their diggers for this ball: three back, plus front-row players who aren't blocking pick up short balls.
-  const defs = [];
-  for (let l = 0; l < 3; l++) defs.push({ x: LANE_X[l] + rnd(-0.9, 0.9), d: rnd(2.2, 3.6), r: R.off, front: l });
-  const up = rng() < 0.4;
-  [1.3, 4.5, 7.7].forEach((bx, i) => defs.push(up && i === 1
-    ? { x: 4.5 + rnd(-1.2, 1.2), d: rnd(2.8, 3.8), r: R.back }
-    : { x: Math.min(8.6, Math.max(0.4, bx + rnd(-1.3, 1.3))), d: rnd(6.0, 8.2), r: R.back }));
+  return Array.from({ length: 6 }, () => ({ dx: rnd(-0.35, 0.35), dd: rnd(-0.35, 0.35) }));
+}
+/** Back-row spots against a hitter in each lane: line digger, deep middle, cross digger. Each player stays in their zone. */
+const BACK_SPOTS = {
+  0: [[1.0, 6.6], [4.8, 7.9], [7.4, 5.6]],
+  1: [[1.4, 6.8], [4.5, 7.9], [7.6, 6.8]],
+  2: [[1.6, 5.6], [4.2, 7.9], [8.0, 6.6]],
+};
+/** Front-row players who aren't blocking drop off the net to cover short balls in their own lane. */
+const OFF_SPOTS = { 0: [1.8, 3.0], 1: [4.5, 3.3], 2: [7.2, 3.0] };
+const HOME_BACK = [[1.5, 7.0], [4.5, 7.0], [7.5, 7.0]];
+function placeDefense(lane, lanes, n) {
+  const nd = st.defs, defs = [];
+  BACK_SPOTS[lane].forEach(([x, d], i) => defs.push({ x: x + nd[i].dx, d: d + nd[i].dd, r: R.back }));
+  for (let l = 0; l < 3; l++) if (n < 3 && !lanes.includes(l)) { const [x, d] = OFF_SPOTS[l]; defs.push({ x: x + nd[3 + l].dx, d: d + nd[3 + l].dd, r: R.off }); }
   return defs;
 }
+function homeDefense() { return HOME_BACK.map(([x, d], i) => ({ x: x + st.defs[i].dx, d: d + st.defs[i].dd, r: R.back })); }
 function blockLanes(p, n) {
   if (n <= 0) return [];
   const toward = p.lane === 1 ? (rng() < 0.5 ? 0 : 2) : 1;
@@ -115,8 +125,8 @@ function swingSetup(p) {
   const short = shortBy(p);
   const n = Math.min(3, p.blockers + short);
   const lanes = blockLanes(p, n);
-  // Front-row players who go up to block can't also dig short.
-  const defs = st.defs.filter((d) => d.front === undefined || (n < 3 && !lanes.includes(d.front)));
+  // Their defense slides to its spots for this hitter; front-row players who go up to block can't also dig short.
+  const defs = placeDefense(p.lane, lanes, n);
   return { p, n, lanes, short, defs };
 }
 function oddsFor(sw, z) {
@@ -191,7 +201,7 @@ function drawCourt() {
   el(svg, "line", { x1: 5, y1: 65, x2: 95, y2: 65, stroke: css("--line"), "stroke-width": 0.6 });
   for (const lx of [35, 65]) el(svg, "line", { x1: lx, y1: 5, x2: lx, y2: 95, stroke: css("--line"), "stroke-width": 0.3, "stroke-dasharray": "1.5 2", opacity: 0.6 });
   if (sw) for (const l of sw.lanes) el(svg, "rect", { x: X(l * 3), y: 5, width: 30, height: 60, fill: "#000", opacity: sw.n >= 3 ? 0.32 : 0.2 });
-  const defs = sw ? sw.defs : st.defs;
+  const defs = sw ? sw.defs : homeDefense();
   for (const p of defs) {
     el(svg, "circle", { cx: X(p.x), cy: Y(p.d), r: p.r * 10, fill: css("--them"), "fill-opacity": 0.2, stroke: css("--them"), "stroke-width": 0.5 });
     el(svg, "circle", { cx: X(p.x), cy: Y(p.d), r: 2.6, fill: css("--them"), stroke: css("--line"), "stroke-width": 0.5 });
